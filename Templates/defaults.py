@@ -1,3 +1,21 @@
+# This is where all the default settings are stored. 
+# Each setting that can appear in the settings.inp file must be declared here (apart from the path setting).
+# this means that all settings should have a default by design.
+
+# Declaring a default setting should follow a few simple rules:
+#  *  The default setting names should all be lowercase
+#  *  The default setting should have a comment string after it explaining what it does (this is for documentation)
+#                  @ The comment string should contain: @
+#     * A description | A list of possible values | whether it has been tested
+
+
+
+# N.B The tested declaration in the comment string isn't currently used so just put 'not-tested' for now!
+
+
+
+
+
 defaults = {
 ## Calibration
 'calibrate'         : True , # Performs a single `calibration' step and save the image in the folder ./img/Calibration/ | ['yes','no'] | 'not-tested'
@@ -29,25 +47,25 @@ defaults = {
 'zoom_value'        : 1, # How much to scale the image by | ['float', 'integer'] | 'not-tested'
 'rotation'          : 'auto', # How much to rotate the image by: 'Auto' will let the code try and align the long axis along the x axis, you can also use manually set the angle of rotation (as Euler angles), this will rotate in the order z,y,x. You can also turn it off by setting this variable to 'no' | ['auto', 'list [x,y,z]', 'no'] | 'not-tested'
 'translate_by'      : [0,0,0], # How much to translate the image by | ['list [x,y,z]'] | 'not-tested'
-## Colours and Materials
-'pos_real_iso_col'  : (1,0,0), # The colour of positive real isosurfaces | ['list [red, green, blue]'] | 'not-tested'
-'neg_real_iso_col'  : (0,0,1), # The colour of negative real isosurfaces | ['list [red, green, blue]'] | 'not-tested'
-'neg_imag_iso_col'  : (0,0.4,1), # The colour of positive imaginary isosurfaces | ['list [red, green, blue]'] | 'not-tested'
-'pos_imag_iso_col'  : (1,0.4,0), # The colour of negative imaginary isosurfaces | ['list [red, green, blue]'] | 'not-tested'
-'density_iso_col'   : (0.3, 0.32,0.3), # The colour of the isosurface in a density visualisation | ['list [red,green,blue]'] | 'not-tested'
-'Carbon_colour'     : 'black', # The colour of the Carbon atoms | ['string'] | 'not-tested'
-'Hydrogen_colour'   : 'white', # The colour of the Hydrogen atoms | ['string'] | 'not-tested'
-'background_colour' : [1,1,1], # The colour of the background | ['string', 'list (rgb values e.g. [1,0,0])'] | 'not-tested'
-'Neon_color'        : 'yellow', # The colour of the Neon atoms | ['string (VMD colours)'] | 'not-tested'
+## colors and Materials
+'pos_real_iso_col'  : (1,0,0), # The color of positive real isosurfaces | ['list [red, green, blue]'] | 'not-tested'
+'neg_real_iso_col'  : (0,0,1), # The color of negative real isosurfaces | ['list [red, green, blue]'] | 'not-tested'
+'neg_imag_iso_col'  : (0,0.4,1), # The color of positive imaginary isosurfaces | ['list [red, green, blue]'] | 'not-tested'
+'pos_imag_iso_col'  : (1,0.4,0), # The color of negative imaginary isosurfaces | ['list [red, green, blue]'] | 'not-tested'
+'density_iso_col'   : (0.3, 0.32,0.3), # The color of the isosurface in a density visualisation | ['list [red,green,blue]'] | 'not-tested'
+'carbon_color'     : 'black', # The color of the Carbon atoms | ['string'] | 'not-tested'
+'hydrogen_color'   : 'white', # The color of the Hydrogen atoms | ['string'] | 'not-tested'
+'background_color' : [1,1,1], # The color of the background | ['string', 'list (rgb values e.g. [1,0,0])'] | 'not-tested'
+'neon_color'        : 'yellow', # The color of the Neon atoms | ['string (VMD colors)'] | 'not-tested'
 'mol_style'         : 'CPK', # The visualisation style of the molecules (see VMD) | ['string'] | 'not-tested'
 'mol_material'      : "Edgy", # The visualisation material used for the molecules (see VMD) | ['string'] | 'not-tested'
 'iso_material'      : "BrushedMetal", # The visualisation material used for the isosurface (see VMD) | ['string'] | 'not-tested'
 ## Dimensions of system
-'Xdims'             : [-100000,100000], # Apply a cuttoff on the atoms in the image | ['list [min coord, max coord]'] | 'not-tested'
-'Ydims'             : [-100000,100000], # Apply a cuttoff on the atoms in the image | ['list [min coord, max coord]'] | 'not-tested'
-'Zdims'             : [-100000,100000], # Apply a cuttoff on the atoms in the image | ['list [min coord, max coord]'] | 'not-tested'
+'xdims'             : [-100000,100000], # Apply a cuttoff on the atoms in the image | ['list [min coord, max coord]'] | 'not-tested'
+'ydims'             : [-100000,100000], # Apply a cuttoff on the atoms in the image | ['list [min coord, max coord]'] | 'not-tested'
+'zdims'             : [-100000,100000], # Apply a cuttoff on the atoms in the image | ['list [min coord, max coord]'] | 'not-tested'
 ## Atoms to plot
-'background_mols'   : False, # Plot the background, inactive, molecules in a light colour | ['yes','no'] | 'not-tested'
+'background_mols'   : False, # Plot the background, inactive, molecules in a light color | ['yes','no'] | 'not-tested'
 'background_mols_end_extend' : 15, # How much to extend the background molecules past the last inactive atom | ['integer', 'float']  | 'not-tested'
 'atoms_to_plot'     : 'auto', # Which atoms to plot in the image ('auto' will plot from 0 - max num of active molecules) | ['all', 'min_active', 'auto', 'list','integer'] | 'not-tested'
 'atoms_to_ignore'   : [] , # Ignore any atoms by element, set to elemental symbol or name | ['list', 'str'] | 'not-tested'

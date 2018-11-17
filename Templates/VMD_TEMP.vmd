@@ -1,3 +1,11 @@
+#This is the vmd template file.
+#  This file contains the template of the TCL script that tells VMD how to render the code
+#  The settings that are changeable start with a dollar sign -'$' e.g. $variable
+#  
+#  The python code simply reads this file, replaces any variables with values from the code
+#  and saves it as the vmd source file (./src/TCL/MainProcess.tcl)
+#
+
 #Log users changes to a file
 logfile $vmd_log_file
 
@@ -10,7 +18,7 @@ set imag_P_col $imag_pos_col
 set imag_N_col $imag_neg_col
 set real_P_col $real_pos_col
 set real_N_col $real_neg_col
-set dens_col   $density_colour
+set dens_col   $density_color
 
 proc load_file { filename mol_id neg_col_id pos_col_id } {
 	set mol_name $filename
@@ -46,19 +54,19 @@ proc load_xyz { mol_id } {
 proc render_pic { mol_id } {
     color Name H $Hcol
     color Name C $Ccol
-    color Name N $Ncol
+    color Name N $Necol
 
     mol modmaterial 1 $mol_id $iso_material
     mol modmaterial 0 $mol_id $iso_material
     mol modmaterial 2 $mol_id $mol_material
 
-    #Colour of isosurfaces'
+    #color of isosurfaces'
     color change rgb 1  0.0 0.0 0.0
 
     draw text {$time_lab_x $time_lab_y $time_lab_z } $time_step
 
-    color Display Background gray
     color change rgb gray $backgrnd_R $backgrnd_G $backgrnd_B
+    color Display Background gray
     display projection Orthographic
 }
 
@@ -114,7 +122,7 @@ delete_file
 set mol_id 0
 foreach i {$cube_files} {
 
-   # Extract the colour info from the dictionaries $neg_cols and $pos_cols
+   # Extract the color info from the dictionaries $neg_cols and $pos_cols
    set neg_col_id [dict get $Negcols $mol_id]
    set pos_col_id [dict get $Poscols $mol_id]
 

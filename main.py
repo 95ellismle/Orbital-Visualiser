@@ -66,8 +66,8 @@ class MainLoop(object):
         for mol_i,mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
             self._create_wf_data(mol_id, step)
-            self._set_wf_colours()
-            self._save_wf_colours()
+            self._set_wf_colors()
+            self._save_wf_colors()
             self._create_cube_file_txt(step)
             self._write_cube_file(step, mol_id)
         self._vmd_visualise(step)
@@ -158,7 +158,7 @@ class MainLoop(object):
                 self.atom_I = self.all_settings['AOM_D'][j][1]
                 self.data += MT.dot_3D(MT.SH_p(self.sizes[0], self.sizes[1], self.sizes[2], self.all_settings['resolution'],ac),
                             self.all_settings['pvecs'][self.step][self.atom_I])*self.all_settings['AOM_D'][j][0]
-        if self.all_settings['colour_type'] == 'density':
+        if self.all_settings['color_type'] == 'density':
             self.data *= self.mol_C
             self.data *= np.conjugate(self.data)
         else:
@@ -182,17 +182,17 @@ class MainLoop(object):
                                           basis_vec= xyz_basis_vectors)
         self.all_settings['times']['Create Cube Data'][step] += time.time()-start_cube_create_time
 
-    # Handles the saving the wf colours in a dictionary of the wavefunction.
-    def _set_wf_colours(self):
+    # Handles the saving the wf colors in a dictionary of the wavefunction.
+    def _set_wf_colors(self):
          thetai = np.angle(self.mol_C*self.atom_I) - self.theta1
          # Could optimise (and tidy) this, the code doesn't need to do all this at every step
-         if self.all_settings['colour_type'] == 'density':
+         if self.all_settings['color_type'] == 'density':
               self.neg_iso_cols[self.tcl_dict_ind] = 22
               self.pos_iso_cols[self.tcl_dict_ind] = 22
-         elif self.all_settings['colour_type'] == 'real-phase':
+         elif self.all_settings['color_type'] == 'real-phase':
               self.neg_iso_cols[self.tcl_dict_ind] = 21
               self.pos_iso_cols[self.tcl_dict_ind] = 20
-         elif self.all_settings['colour_type'] == 'phase':
+         elif self.all_settings['color_type'] == 'phase':
            if -np.pi/4<thetai<=np.pi/4: # Pos Real Quadrant
               self.neg_iso_cols[self.tcl_dict_ind] = 21
               self.pos_iso_cols[self.tcl_dict_ind] = 20
@@ -207,8 +207,8 @@ class MainLoop(object):
               self.pos_iso_cols[self.tcl_dict_ind] = 19
          self.tcl_dict_ind += 1
 
-    # Saves the wavefunction colouring in the tcl dictionary
-    def _save_wf_colours(self):
+    # Saves the wavefunction coloring in the tcl dictionary
+    def _save_wf_colors(self):
          neg_col_dict_str = "set Negcols " + str(self.neg_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
          pos_col_dict_str = "set Poscols " + str(self.pos_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
          self.all_settings['tcl']['neg_cols'] = neg_col_dict_str
