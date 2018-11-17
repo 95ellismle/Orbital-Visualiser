@@ -45,7 +45,6 @@ class MainLoop(object):
         self.neg_iso_cols = {}
         self.pos_iso_cols = {}
         self.PID = "MainProcess"
-        print(all_steps)
         for step in all_steps:
             self.step = step
             self.theta1 = np.angle(self.all_settings['mol'][self.step][0])

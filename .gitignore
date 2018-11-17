@@ -4,3 +4,13 @@ Documentation.html
 *.pyc
 *.py[a-d]
 
+*vmdscene*
+*visualisation*
+*.png*
+img/*
+img
+data
+
+*/__pycache__
+*/__pycache__/*
+

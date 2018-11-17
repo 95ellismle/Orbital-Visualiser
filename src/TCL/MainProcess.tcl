@@ -1,4 +1,4 @@
-logfile /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/visualisation.log
+logfile /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/visualisation.log
 set imag_P_col "0 0.2 0.8"
 set imag_N_col "0.8 0.2 0"
 set real_P_col "0 1 0"
@@ -10,9 +10,9 @@ proc load_file { filename mol_id neg_col_id pos_col_id } {
 	
 	mol addrep $mol_id
    
-	mol modstyle 0 $mol_id Isosurface -5e-05 0 0 0 1 1
+	mol modstyle 0 $mol_id Isosurface -1e-05 0 0 0 1 1
 	mol modcolor 0 $mol_id ColorID $neg_col_id
-	mol modstyle 1 $mol_id Isosurface 5e-05 0 0 0 1 1
+	mol modstyle 1 $mol_id Isosurface 1e-05 0 0 0 1 1
 	mol modcolor 1 $mol_id ColorID $pos_col_id
 	mol addrep $mol_id
 	mol modstyle 2 $mol_id CPK 1.000000 0.600000 20.000000 20.000000              
@@ -78,7 +78,7 @@ set Negcols {0 21}
 set Poscols {0 20}
 delete_file
 set mol_id 0
-foreach i {/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/data/tmp0-MainProcess.cube} {
+foreach i {/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/data/tmp0-MainProcess.cube} {
    
    set neg_col_id [dict get $Negcols $mol_id]
    set pos_col_id [dict get $Poscols $mol_id]
@@ -90,8 +90,8 @@ foreach i {/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/data/tmp0-MainProces
 #load_xyz $mol_id
 set_cols $imag_P_col $imag_N_col $real_P_col $real_N_col $dens_col
 rotate_and_scale
-source /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/Templates/include.vmd
-render Tachyon vmdscene.dat /usr/local/lib/vmd/tachyon_LINUXAMD64 -aasamples 12 vmdscene.dat -format TARGA -o /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/img/Calibration/0,00_img.tga -trans_max_surfaces 1 -res 950 950
+source /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Templates/include.vmd
+render Tachyon vmdscene.dat /usr/local/lib/vmd/tachyon_LINUXAMD64 -aasamples 12 vmdscene.dat -format TARGA -o /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/img/Calibration/0,00_img.tga -trans_max_surfaces 1 -res 950 950
 rotate x by 360.000000
 rotate x by -360.000000
 scale by 1.000000
