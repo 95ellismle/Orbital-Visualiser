@@ -12,4 +12,12 @@ This file should lead you through your first steps in visualising the output of 
 
 Some examples of the output of this code to give you an idea of what it does are below!
 
-[![Rubrene Visualisation](https://www.youtube.com/watch?v=RzQyxYfE4hM)]
+
+#### A video of charge transport along a Rubrene Chain at 100K.
+[![Rubrene Chain](./Docs/Perm_img/img003.jpg)](https://www.youtube.com/watch?v=RzQyxYfE4hM "Rubrene 100K")
+
+#### A video of charge transport on a 2D Rubrene Plane.
+[![Rubrene Plane](./Docs/Perm_img/Rubrene_plane.png)](https://www.youtube.com/watch?v=I48nQ6tknBU)
+
+#### A still of an Anthracene dimer
+[![Anthracene Dimer](./Docs/Perm_img/Zak_Vis.png)]

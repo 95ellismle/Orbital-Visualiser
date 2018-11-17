@@ -30,8 +30,9 @@ isosurface_to_plot = 0.00005
 
 bounding_box_scale = 12
 
-zoom_value = 0.20091507414872045    #
+zoom_value = 0.11613082898502256    #
 translate_by = [0.0, 0.0, 0.0]    #
+
 
 
 
