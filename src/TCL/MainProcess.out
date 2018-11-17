@@ -1,0 +1,49 @@
+Info) VMD for LINUXAMD64, version 1.9.4a12 (December 21, 2017)
+Info) http://www.ks.uiuc.edu/Research/vmd/                         
+Info) Email questions and bug reports to vmd@ks.uiuc.edu           
+Info) Please include this reference in published work using VMD:   
+Info)    Humphrey, W., Dalke, A. and Schulten, K., `VMD - Visual   
+Info)    Molecular Dynamics', J. Molec. Graphics 1996, 14.1, 33-38.
+Info) -------------------------------------------------------------
+Info) Multithreading available, 8 CPUs detected.
+Info)   CPU features: SSE2 AVX AVX2 FMA 
+Info) Free system memory: 12GB (78%)
+Info) No CUDA accelerator devices available.
+Info) Dynamically loaded 3 plugins in directory:
+Info) /usr/local/lib/vmd/plugins/LINUXAMD64/molfile
+Info) Logging commands to '/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/visualisation.log'.
+0 0.2 0.8
+0.8 0.2 0
+0 1 0
+0 0 1
+0.3 0.32 0.3
+0 21
+0 20
+ERROR) No molecules loaded.
+0
+Info) Using plugin cube for structure file /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/data/tmp0-MainProcess.cube
+cubeplugin) trying to read cube data set 0
+Info) Analyzing Volume...
+Info)    Grid size: 47x52x62  (2 MB)
+Info)    Total voxels: 151528
+Info)    Min: -0.146405  Max: 0.140659  Range: 0.287064
+Info)    Computing volume gradient map for smooth shading
+Info) Added volume data, name=tmp0-MainProcess.cube : Gaussian Cube: Calibration
+Info) Using plugin cube for coordinates from file /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/data/tmp0-MainProcess.cube
+Info) Determining bond structure from distance search ...
+Info) Analyzing structure ...
+Info)    Atoms: 13056
+Info)    Bonds: 14144
+Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
+Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
+Info)    Residues: 544
+Info)    Waters: 0
+Info)    Segments: 1
+Info)    Fragments: 544   Protein: 0   Nucleic: 0
+Info) Finished with coordinate file /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/data/tmp0-MainProcess.cube.
+Info) Rendering current scene to 'vmdscene.dat' ...
+Info) Tachyon file generation finished
+Info) Executing post-render cmd '/usr/local/lib/vmd/tachyon_LINUXAMD64 -aasamples 12 vmdscene.dat -format TARGA -o /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/img/Calibration/0,00_img.tga -trans_max_surfaces 1 -res 950 950' ...
+Info) Rendering complete.
+Info) VMD for LINUXAMD64, version 1.9.4a12 (December 21, 2017)
+Info) Exiting normally.
