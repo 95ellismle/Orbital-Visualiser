@@ -24,7 +24,7 @@ verbose_output = 'y'
 atoms_to_plot = 'all' 
 
 
-isosurface_to_plot = 5e-05 
+isosurface_to_plot = 1e-05 
 
 bounding_box_scale = 12 
 
