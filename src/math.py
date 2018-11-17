@@ -105,6 +105,23 @@ def find_sys_dims(coords):
     dims['largest_dims'] = np.argsort(dims['lens'])[::-1]
     return dims
 
+# Finds a suitable rotation angle for the system
+def find_auto_rotation(all_settings):
+    coords = all_settings['coords'][0,all_settings['atoms_to_plot'],:]
+
+    sys_dims = find_sys_dims(coords)
+    coords -= sys_dims['center']
+
+    # Aligns along the x axis
+    zangle = find_angle(coords, sys_dims['lens'], [0,1])
+
+    first_mol_indices = [i for i in  all_settings['mol_info'] if all_settings['mol_info'][i] == 0]
+    coords2 = all_settings['coords'][0:,first_mol_indices,:][0]
+    # Finds the rotation angle to align the first molecule to face the user (perp to z)
+    new_sys_dims = find_sys_dims(coords2)
+    xangle = find_angle(coords2, new_sys_dims['lens'], [1,2])
+    return [xangle*(180./np.pi),0,zangle*(180./np.pi)]
+
 # # Converts a rotation matrix to Euler angles (that VMD can read)
 # #This consists of a z rotation, followed by a y rotation, followed by an x rotation
 # def rot_mat_to_euler_zyx(M):

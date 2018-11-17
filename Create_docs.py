@@ -69,16 +69,18 @@ params[defaults_data[nxt].strip('##').strip()] = defaults_data[nxt+1:]
 def split_by(line, by, length=2, congeal_last=False, min_lines=2):
     split = line.split(by)
     if len(split) < min_lines:
-        EXC.ERROR("""\n\nERROR: The length of line (%s) split by '%s' is %i, it should be 2.
-        
+        EXC.ERROR("""
+
+        ERROR: The length of line (%s) split by '%s' is %i, it should be 2.
+
         This is probably due to something being entered wrong in the Templates/defaults file.
         Each line needs to have the format:
         \t 'setting' : 'default' , # Explanation | ['list of accepted settings'] | 'not-tested' or 'tested'
-        
+
         In the Templates/defaults.py file look for the line:
         \t'%s'
 
-        and check the subtring: 
+        and check the subtring:
         \t'%s'
         if there.
         """%(line,by,len(split),line,by))
@@ -173,6 +175,14 @@ for variable in all_variables_which_section:
 for i in html_filepaths:
     if 'tab' not in i:
         io.open_write(html_filepaths[i], template_data[i])
+
+# Change bool defaults to yes or no
+for section in params_parsed:
+    for param in params_parsed[section]:
+        if params_parsed[section][param]['default'].strip() == 'True':
+            params_parsed[section][param]['default'] = "'yes'"
+        elif params_parsed[section][param]['default'].strip() == 'False':
+            params_parsed[section][param]['default'] = "'no'"
 
 
 for table_title in table_filepaths:

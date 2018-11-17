@@ -1,4 +1,4 @@
-logfile /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/visualisation.log
+logfile /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/visualisation.log
 set imag_P_col "0 0.2 0.8"
 set imag_N_col "0.8 0.2 0"
 set real_P_col "0 1 0"
@@ -27,15 +27,15 @@ proc load_xyz { mol_id } {
    mol modcolor 0 $mol_id ColorID 6
 }
 proc render_pic { mol_id } {
-    color Name H orange
-    color Name C green
+    color Name H white
+    color Name C black
     color Name N yellow
     mol modmaterial 1 $mol_id BrushedMetal
     mol modmaterial 0 $mol_id BrushedMetal
     mol modmaterial 2 $mol_id Edgy
     
     color change rgb 1  0.0 0.0 0.0
-    draw text {232.99349479031207 -6.751603889980686 17.22649179022259 } " "
+    draw text {0 0 0 } " "
     color Display Background gray
     color change rgb gray 1 1 1
     display projection Orthographic
@@ -45,11 +45,11 @@ proc delete_file { } {
 }
 proc rotate_and_scale {  } {
    
-  rotate z by 0
-	rotate y by 0
-	rotate x by 0
-  scale by 0.20091507414872045
-  translate by 0.0 0.0 0.0
+  rotate z by t
+	rotate y by u
+	rotate x by a
+  scale by 1.7885144955717827
+  translate by 0 0 0
 }
 proc set_cols { RGB1 RGB2 RGB3 RGB4 RGB5 } {
    display depthcue off
@@ -78,7 +78,7 @@ set Negcols {0 21}
 set Poscols {0 20}
 delete_file
 set mol_id 0
-foreach i {/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/data//tmp0-MainProcess.cube} {
+foreach i {/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/data/tmp0-MainProcess.cube} {
    
    set neg_col_id [dict get $Negcols $mol_id]
    set pos_col_id [dict get $Poscols $mol_id]
@@ -90,8 +90,8 @@ foreach i {/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/data//tmp0-MainProcess.c
 #load_xyz $mol_id
 set_cols $imag_P_col $imag_N_col $real_P_col $real_N_col $dens_col
 rotate_and_scale
-source /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Templates/include.vmd
-render Tachyon vmdscene.dat /usr/local/lib/vmd/tachyon_LINUXAMD64 -aasamples 12 vmdscene.dat -format TARGA -o /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/img/Calibration/img0.tga -trans_max_surfaces 1 -res 1600 1600
+source /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/Templates/include.vmd
+render Tachyon vmdscene.dat /usr/local/lib/vmd/tachyon_LINUXAMD64 -aasamples 12 vmdscene.dat -format TARGA -o /home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak_new/img/Calibration/0,00_img.tga -trans_max_surfaces 1 -res 950 950
 rotate x by 360.000000
 rotate x by -360.000000
 scale by 1.000000
