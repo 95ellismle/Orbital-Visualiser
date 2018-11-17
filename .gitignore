@@ -1,0 +1,6 @@
+Documentation.html
+
+*/*.pyc
+*.pyc
+*.py[a-d]
+
