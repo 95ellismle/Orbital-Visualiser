@@ -131,17 +131,17 @@ def init_rotation(all_settings):
 def init_tcl_dict(all_settings):
     all_settings['tcl']['any_extra_raw_tcl_code'] = ""
     all_settings['tcl']['isoval']   = all_settings['isosurface_to_plot']
-    all_settings['tcl']['Ccol']     = all_settings['carbon_colour']
-    all_settings['tcl']['Hcol']     = all_settings['hydrogen_colour']
+    all_settings['tcl']['Ccol']     = all_settings['carbon_color']
+    all_settings['tcl']['Hcol']     = all_settings['hydrogen_color']
     all_settings['tcl']['zoom_val'] = all_settings['zoom_value']
     #all_settings['tcl']['mol_id']   =  0
-    all_settings['tcl']['Ncol']         = all_settings['neon_color']
+    all_settings['tcl']['Necol']         = all_settings['neon_color']
     all_settings['tcl']['atom_style']   = all_settings['mol_style']
     all_settings['tcl']['mol_material'] = all_settings['mol_material']
     all_settings['tcl']['iso_material'] = all_settings['iso_material']
     all_settings['tcl']['time_step']    = '" "'
     all_settings['tcl']['iso_type']     = 0
-    all_settings['tcl']['density_colour']     = str(all_settings['density_iso_col']).replace("(",'"').replace(")",'"').replace(",",'')
+    all_settings['tcl']['density_color']     = str(all_settings['density_iso_col']).replace("(",'"').replace(")",'"').replace(",",'')
     all_settings['tcl']['imag_pos_col'] = str(all_settings['pos_imag_iso_col']).replace("(",'"').replace(")",'"').replace(",",'')
     all_settings['tcl']['imag_neg_col'] = str(all_settings['neg_imag_iso_col']).replace("(",'"').replace(")",'"').replace(",",'')
     all_settings['tcl']['real_pos_col'] = str(all_settings['pos_real_iso_col']).replace("(",'"').replace(")",'"').replace(",",'')
@@ -159,7 +159,7 @@ def init_tcl_dict(all_settings):
         all_settings['tcl']['bckg_mols_on_off'] = '#'
     if all_settings['show_box']:
        all_settings['tcl']['iso_type']  = 2
-    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['background_colour'], ['R','G','B'], all_settings['tcl'], "backgrnd_")
+    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['background_color'], ['R','G','B'], all_settings['tcl'], "backgrnd_")
     all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['translate_by'], ['x','y','z'], all_settings['tcl'], "trans_")
     all_settings['tcl'] = txt_lib.tcl_3D_input([0,0,0], ['x','y','z'], all_settings['tcl'], "time_lab_")
     all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['rotation'], ['x','y','z'], all_settings['tcl'], "rot")
@@ -226,18 +226,22 @@ def init_animation_type(all_settings):
     # if use_gif:
     #     all_settings['movie_format'] = 'gif'
 
-# Initialises the colors of the wavefunction
 def init_colors(all_settings):
+    """
+    Initialises the colors of the wavefunction e.g. whether to use density,
+    a purely real phase (neg and pos) or full complex phase (pos, neg, imag,
+    real).
+    """
     density, real_phase, full_phase = txt_lib.fuzzy_variable_translate(all_settings['type_of_wavefunction'], ["Density", "Real phase", "Phase"], all_settings['verbose_output'])
     if density:
-        all_settings['colour_type'] = 'density'
+        all_settings['color_type'] = 'density'
     elif real_phase:
-        all_settings['colour_type'] = 'real-phase'
+        all_settings['color_type'] = 'real-phase'
     elif full_phase:
-        all_settings['colour_type'] = 'phase'
+        all_settings['color_type'] = 'phase'
     else:
-        EXC.WARN("Sorry I'm not sure what type of colour I should use, defaulting to %s"%dft.defaults['type_of_wavefunction'])
-        all_settings['colour_type'] = dft.defaults['type_of_wavefunction']
+        EXC.WARN("Sorry I'm not sure what type of color I should use, defaulting to %s"%dft.defaults['type_of_wavefunction'])
+        all_settings['color_type'] = dft.defaults['type_of_wavefunction']
 
 # Will initialise the bounding box (make it a list of 3 nums 1 for each dim)
 def init_bounding_box(all_settings):
@@ -388,7 +392,7 @@ def init_local_steps_to_ignore(all_settings):
         all_settings['n_steps_to_ignore'] = np.array([i for i in nucl_to_ignore if i not in all_nucl_steps ]+list(all_settings['global_steps_to_ignore']))
     else:
         all_settings['n_steps_to_ignore'] = [i for i in range(all_settings['pos_metadata']['nsteps']) if i != all_nucl_steps[0]]
-    
+
 
 # Will check the last lines of the file TemplatesVMD_TEMP.vmd are known
 def check_VMD_TEMP(all_settings):

@@ -13,7 +13,7 @@ from src import geometry as geom
 
 from init import init_utils as IU
 from init import init_IO as i_IO
-from init import settings_file
+from init import settings_file #Importing this will initialise the all_settings dict
 all_settings = settings_file.all_settings
 
 
@@ -49,16 +49,19 @@ if insp != False:
 
 
 from Templates import defaults as dft
+# Import the permanent settings file if not create it and init with defaults
 try:
     from Templates import permanent_settings as ps
 except:
     EXC.replace_perm_settings()
     from Templates import permanent_settings as ps
 
+# Make the code backwards compatible with python 2.7
 if sys.version_info[0] > 2:
     xrange = range
     raw_input = input
 
+# Set the title of the visualisation
 all_settings['calibrate'] = typ.translate_to_bool(all_settings['calibrate'], "calibrate")
 if all_settings['calibrate']:
    all_settings['title'] = "Calibration"
@@ -69,8 +72,9 @@ else:
       print("\n\n")
    else:
       all_settings['title'] = str(all_settings['title'])
-START_TIME = time.time()
 
+
+START_TIME = time.time()
 
 #TO DO:
 #
@@ -98,8 +102,8 @@ if type(all_settings['end_step']) != int:
         all_settings['end_step'] = int(round(all_settings['end_step']))
 
 # Sorting out filenames
-IU.init_output_files_and_folders(all_settings)
-IU.init_all_settings_other(all_settings)
+IU.init_output_files_and_folders(all_settings) # Will declare all the paths that are required in the code
+IU.init_all_settings_other(all_settings) # Will initialise settings that aren't file/folder paths
 io.create_data_img_folders(all_settings)
 keep_tga_files = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 IU.init_permanent_settings(all_settings)
@@ -114,7 +118,7 @@ IU.init_show_box(all_settings)
 IU.init_cal_display_img(all_settings)
 IU.init_files_to_keep(all_settings)
 IU.init_animation_type(all_settings)
-IU.init_colors(all_settings)
+IU.init_colors(all_settings)    # Initialises the colors of the wavefunction
 IU.check_VMD_TEMP(all_settings)
 
 # Read input files
@@ -132,10 +136,6 @@ IU.init_bounding_box(all_settings)
 IU.check_charge_spread(all_settings)
 IU.init_times_dict(all_settings)
 all_steps = xrange(len(all_settings['coords']))
-
-
-
-
 
 
 
