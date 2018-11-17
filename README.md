@@ -4,9 +4,11 @@ This project has been created to visualise the output of the Surface Hopping, Eh
 
 To do this run the Create_docs.py file with python3 i.e:
 
-#### python3 Create_docs.py
+` python3 Create_docs.py`
 
-you can then open the newly created **Documentation.html** with your favourite browser.
+you can then open the newly created **Documentation.html** with your favourite browser. For example you could run the command:
+
+`firefox Documentation.html`
 
 This file should lead you through your first steps in visualising the output of your simulations.
 
@@ -20,4 +22,4 @@ Some examples of the output of this code to give you an idea of what it does are
 [![Rubrene Plane](./Docs/Perm_img/Rubrene_plane.png)](https://www.youtube.com/watch?v=I48nQ6tknBU)
 
 #### A still of an Anthracene dimer
-[![Anthracene Dimer](./Docs/Perm_img/Zak_Vis.png)]
+![Anthracene Dimer](./Docs/Perm_img/Zak_Vis.png)
