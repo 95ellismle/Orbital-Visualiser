@@ -9,7 +9,9 @@ import numpy as np
 import difflib as dfl
 
 '''
-Will parse the settings file and save all the settings
+Will initialise the all_settings dictionary. This involves parsing the
+settings.inp file and filling this out with defaults that are missing from the
+defaults dictionary (Templates/defaults.py)
 '''
 # Will remove bad lines from a settings file.
 def remove_bad_lines(settings_ltxt):
@@ -87,6 +89,14 @@ def print_dodgy_vars(dodgy_vars):
         print(bottom_row)
 
 def get_act_setting(setting, all_setting_names):
+    """
+    Will apply a fuzzy finder to the settings in the settings.inp file and
+    choose the best one.
+
+    Inputs:
+        setting            => The setting to be corrected
+        all_setting_names  => All possible setting names
+    """
     poss_setts = txt_lib.fuzzy_variable_translate(setting.lower(), all_setting_names,False, False,0.6)
     if sum(poss_setts) > 1:
         raise SystemExit("There are too many possible settings for '%s'. These are:\n\t* %s.\n\nI do not want to assume which one it is, please correct it in the input file!"%(setting, '\n\t* '.join(all_setting_names[poss_setts])))
@@ -101,7 +111,7 @@ def grab_defaults(clean_settings_dict):
     all_setting_names = np.array([i.lower() for i in dft.defaults.keys()])
     for setting in dft.defaults:
         #Loop over variables and clean/store them
-        actual_setting = get_act_setting(setting, all_setting_names)
+        actual_setting = get_act_setting(setting, all_setting_names) #use fuzzy logic to correct setting name
         if actual_setting.lower() != setting.lower():
             dodgy_vars.append((setting, actual_setting))
 
