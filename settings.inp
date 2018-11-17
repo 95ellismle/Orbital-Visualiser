@@ -1,0 +1,38 @@
+# The path to the folder containing the data.
+path = '/home/Sangeya/copy'
+
+
+# Calibration Settings
+calibrate = 'y'      # Carries out a single 'calibration' step
+calibration_step = 0
+load_in_vmd = 'y'
+show_img_after_vmd = ''
+
+title = "test"
+
+Carbon_colour = 'green'
+Hydrogen_colour = 'orange'
+pos_real_iso_col = (0,1,0) # rgb
+neg_real_iso_col = (0,0,1)
+neg_imag_iso_col = (0.8,0.2,0)
+pos_imag_iso_col = (0,0.2,0.8)
+keep_img_files = True
+
+start_step = 0
+end_step = 'all'
+stride = 3
+verbose_output = "y"
+
+atoms_to_plot = 'all'
+
+
+isosurface_to_plot = 0.00005
+
+bounding_box_scale = 12
+
+zoom_value = 0.20091507414872045    #
+translate_by = [0.0, 0.0, 0.0]    #
+
+
+
+

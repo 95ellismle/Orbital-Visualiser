@@ -1,0 +1,38 @@
+    <style>
+
+    .datagrid table {
+        border-collapse: collapse;
+        text-align: left;
+        width: 100%;
+     }
+     .datagrid  th {background-color: #aaffaa;}
+     .datagrid  tr:nth-child(even) {background-color: #f2f2f2;}
+     .datagrid  tr:hover {
+       background-color: #ccffbb;
+     }
+    .datagrid {
+      /* font: normal 12px/150% Arial, Helvetica, sans-serif; */
+      background: #fff;
+      overflow: hidden;
+    }
+    .datagrid table td,
+    .datagrid table th { padding: 8px 12px; }
+    .datagrid table thead th:first-child { border: none; }
+    .datagrid table tbody td {
+       font-size: 15px;
+       border-bottom: 1px solid #E1EEF4;
+       font-weight: normal;
+      }
+    .datagrid table tbody td:first-child { border-left: none; }
+    .datagrid table tbody tr:last-child td { border-bottom: none; }
+
+    .subtable th {
+      color: black;
+      font-size: 12px;
+      background-color: transparent;
+    }
+    .subtable tr td {
+      color: black;
+      font-size: 10px;
+    }
+    </style>

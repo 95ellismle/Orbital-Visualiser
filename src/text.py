@@ -1,0 +1,366 @@
+'''
+This module contains all the functions that are used to manipulate text.
+'''
+
+from src import type as typ
+from src import EXCEPT as EXC
+
+import difflib as dfl
+import numpy as np
+import sys
+if sys.version_info[0] > 2:
+    xrange = range
+
+# Adds a 3D vector to the tcl_info dictionary (just adds 3 different entries)
+def tcl_3D_input(data, dims, tcl_info, start_str):
+    for i,dim in enumerate(dims):
+        tcl_info["%s%s"%(start_str, dim)] = str(data[i])
+    return tcl_info
+
+# Will find and replace items in the original settings dictionary, can replace via a sum, product or direct replace
+def settings_find_replace(step_info, setting, new_value,type_replace='replace'):
+   setting_before = step_info['clean_settings_dict'].get(setting)
+   if type(new_value) == list:
+       new_value = np.array(new_value)
+   _,to_prod,to_sum = fuzzy_variable_translate(type_replace, ["replace", "product", "sum"], False)
+   if type(setting_before) == type(None):
+      to_prod, to_sum = False,False
+   if to_prod:
+      new_value *= setting_before
+   if to_sum:
+      new_value += setting_before
+   step_info['clean_settings_dict'][setting] = new_value
+   return step_info
+
+# Will fix typos in a line of the settings file.
+def setting_typo_check(line, defaults, setting_file_settings, replacer_settings):
+    sett = line.split('=')[0].strip()
+    poss_setts = fuzzy_variable_translate(sett, list(defaults),False, False,0.6)
+    if sum(poss_setts) == 1:
+        new_sett = defaults[poss_setts]
+        if len(new_sett) == 1:
+            new_sett = new_sett[0]
+        if new_sett != sett:
+            line = line.replace(sett, new_sett)
+            setting_file_settings.append(sett)
+            replacer_settings.append(new_sett)
+    elif sum(poss_setts) > 1:
+        EXC.WARN("There are too many possible settings for '%s'. These are:\n\t* %s.\n\nI do not want to assume which one it is, please correct it in the input file!"%(sett, '\n\t* '.join(defaults[poss_setts])), True)
+    elif sum(poss_setts) < 1 and sett != 'path':
+        EXC.WARN("There are too many possible settings for '%s'. These are:\n\t* %s.\n\nI do not want to assume which one it is, please correct it in the input file!"%(sett, '\n\t* '.join(defaults[poss_setts])), True)
+    return line
+
+# Uses a fuzzy finder to correct spelling mistakes in variables. Returns a list of bools, so switches variables on or off.
+def fuzzy_variable_translate(variable, poss_variables, verbose_output, throw_error=True, min_tol=0.3):
+   if type(variable) != str:
+      return False
+   a = [dfl.SequenceMatcher(None, variable.lower(), i.lower()).ratio() for i in poss_variables]
+   if all(i < min_tol for i in a) and throw_error:
+       EXC.ERROR("I don't know what variable '%s' means. \nValid Options are:%s"%(variable,'\n\t*'+'\n\t*'.join(poss_variables))  )
+   if all(i < min_tol for i in a):
+       return [False]*len(poss_variables)
+   temp_array = [False]*len(poss_variables)
+   temp_array = [True if i == max(a) else False for i in a ]
+   if all(i < 0.95 for i in a) and verbose_output:
+       EXC.WARN("Assuming '%s' means you want me to use %s"%(variable,np.array(poss_variables)[temp_array][0]) )
+   return temp_array
+
+# Take the product of a list of transformations in vmd such as: scaling; x,y,z rotations etc...
+def combine_vmd_scalings(ltxt):
+    prods = np.prod([typ.str_to_num(i.split('by')[1]) for  i in ltxt if 'scale' in i])
+    return prods
+
+# Sums a list of transformations in vmd such as: translations etc...
+def combine_vmd_translations(ltxt):
+    Tot_trans = np.array([0,0,0], dtype=np.float64)
+    for line in ltxt:
+        if 'translate' in line:
+            trans = line.split('by')[1]
+            trans = np.array([eval(i) for i in trans.split(' ') if i])
+            Tot_trans += trans
+    return Tot_trans
+
+# Finds any variables in a string that starts with "$"
+def find_tcl_variable(string, variables=[]):
+    start_ind = string.find("$")
+    end_ind = np.min([string[start_ind:].find(i)+1 for i in ['\n',' ']])
+    if end_ind == 0:
+      end_ind = len(string)
+    variables.append(string[start_ind:end_ind])
+    if start_ind != -1:
+      find_tcl_variable(string[end_ind+1:],variables)
+    variables = [i.replace('\n','').strip() for i in variables if i]
+    return [i for i in list(set(variables)) if i and "$" in i]
+
+# Puts info into the original settings dictionary (needs sorting out!)
+def put_into_orig(setting, step_info):
+    SETTING = step_info['clean_settings_dict'].get(setting)
+    if type(SETTING) == type(np.array([1,2])):
+        SETTING = list(SETTING)
+    if SETTING == None:
+        SETTING = step_info['defaults'][setting]
+    if type(SETTING) == type(np.array([1,2])):
+        SETTING = list(SETTING)
+    if step_info['orig_settings'].get(setting) == None:
+        step_info['orig_settings'][setting] = str(step_info['defaults'][setting])
+    step_info['orig_settings'][setting] = str(SETTING)+'    #'+'#'.join(step_info['orig_settings'][setting].split('#')[1:])
+
+# Removes any data already in the TCL script from the log file so it isn't repeated
+def vmd_log_clean(log_txt, script_txt):
+    script_ltxt = comment_remove(script_txt).split('\n')
+    log_ltxt = comment_remove(log_txt).split('\n')
+    
+    # Find lines that look very much like the last line of the script
+    poss_ends = [i for i in range(len(log_ltxt)) if dfl.SequenceMatcher(None, script_ltxt[-1], log_ltxt[i]).ratio() > 0.9]
+    if len(poss_ends) > 0: #Only 1 line that could possibly be the end line
+        start_of_new_log = max(poss_ends)+1
+    else:
+        raise SystemExit("""Could find the end of the vmd script!
+
+The vmd script doesn't seem to share any lines with the vmd log. The vmd log is
+the file vmd writes when it is called. Try checking the VMD_TEMP file and see if
+'logfile $vmd_log_file' is at the top of it.
+
+If not save the data you are using and the error message and ask Matt to fix it!
+""")
+
+    # remove lines that appear in the MainProcess.tcl script.
+    log_ltxt = log_ltxt[start_of_new_log:]
+    return log_ltxt
+
+# # Shortens the log file to write by combining some rotations
+# def shorten_rotations(log_ltxt):
+#     count = 0
+#     dtxt = coll.OrderedDict()
+#     for line in log_ltxt:
+#         if 'rotate' in line:
+#             line = line.replace('rotate ','')
+#             line = line.split(' by ')
+#             dtxt[str(count)+line[0]] = eval(line[1])
+#             count += 1
+#     prev_dim = list(dtxt.keys())[0][-1]
+#     prev_key = list(dtxt.keys())[0]
+
+# Parses Relevant info from the vmd_log_file
+def vmd_log_file_parse(log_txt, script_txt, step_info):
+    log_ltxt = vmd_log_clean(log_txt, script_txt)
+
+    new_scale = combine_vmd_scalings(log_ltxt)
+    settings_find_replace(step_info, "zoom_value", new_scale, "prod")
+    put_into_orig('zoom_value', step_info)
+
+    new_translation = combine_vmd_translations(log_ltxt)
+    settings_find_replace(step_info, 'translate_by', new_translation, 'sum')
+    put_into_orig('translate_by', step_info)
+
+    whitelist = ['rotate']
+    log_ltxt  = [line for line in log_ltxt if any(cmd in line for cmd in whitelist)]
+    step_info['tmp'] = log_ltxt
+    return log_ltxt
+
+# Removes a folder away from the filepath
+def folderpath_back_N(folderpath, N=1):
+   folderpath = str(folderpath)
+   folderpath = folderpath[folderpath.find('/'):]
+   for tmp in range(N):
+      if folderpath[-1] == '/':
+          folderpath = folderpath[:-1]
+      folderpath = folderpath[:folderpath.rfind('/')] + '/'
+   return folderpath
+
+# Changes variables in the permanent settings file
+def change_perm_settings(settings_txt, setting, value):
+    if type(value) == str:
+        value = "'%s'"%value.strip()
+    ltxt = ltxt_clean(settings_txt.split('\n'))
+    dtxt = {i.split('=')[0].replace(' ',''):i.split('=')[1] for i in ltxt}
+    dtxt[setting] = value
+    ltxt = ["%s = %s"%(str(i).strip(),str(dtxt[i]).strip()) for i in dtxt]
+    settings_txt = '\n'.join(ltxt)
+    return settings_txt
+
+# Adds zeros at the begining of an integer
+def add_leading_zeros(in_int, len_str):
+    I = str(in_int)
+    num_zeros = (len_str-len(I))
+    if num_zeros > 0:
+       return num_zeros*"0" + I
+    else:
+       return I
+
+# Removes any comments from some text
+def comment_remove(string, cmt_str='#'):
+    x = [i for i in string.split('\n') if i]
+    x = [i for i in x if i[0] != cmt_str]
+    x = [i[:i.find(cmt_str)] if i.find(cmt_str) != -1 else i for i in x ]
+    string = '\n'.join(x)
+    return string
+
+# Will determine the number of atoms in an xyz file
+def num_atoms_find(ltxt):
+    start_atoms, finish_atoms = 0,0
+    for i,line in enumerate(ltxt):
+        if (typ.is_atom_line(line)) == True:
+            start_atoms = i
+            break
+    for i,line in enumerate(ltxt[start_atoms:],start=start_atoms):
+        if (typ.is_atom_line(line) == False):
+            finish_atoms=i
+            break
+    return start_atoms, finish_atoms-start_atoms
+
+# Will search for a piece of text in a string.
+def text_search(txt, start_find, end_find="\n", error_on=True):
+    start_ind = txt.find(start_find)
+    if start_ind != -1:
+        txt = txt[start_ind:]
+        end_ind = txt.find(end_find)
+        if end_ind != -1:
+            txt = txt[:end_ind]
+        else:
+            txt = txt[0:20]
+        return txt, start_ind, end_ind
+    if error_on:
+        EXC.WARN("No instance of '%s' in the txt!"%start_find)
+    return False
+
+# Will find keywords in the inp file
+def inp_keyword_finder(inp_text, keyword):
+    txt = text_search(inp_text, keyword, "\n")[0].split(' ')
+    txt = [i for i in txt if typ.is_num(i)]
+    return [float(i) for i in txt]
+
+# Will align text left or right
+def align(string, len_line=5, rl='r'):
+    num_spaces = len_line-len(string)
+    if rl == 'r':
+        return "".join([" " for i in xrange(num_spaces)]) +  string
+    elif rl == 'l':
+        return string + "".join([" " for i in xrange(num_spaces)])
+
+# Creates a string of the data in a cube file format
+def cube_file_text(Dat, vdim, An, Ac, tit, mol_info,
+                    basis_vec,
+                    atoms_to_plot,
+                    orig=[0,0,0],
+                    tab="    "):
+    # HEADER FILE WRITING
+    natom = len(atoms_to_plot)
+    s = ""
+    s += tit + "\n"
+    s += "\n"
+    s += align(str(natom)) + tab + tab.join(["%.6f"%i for i in orig]) + "\n"
+    for i in range(3):
+        s += align(str(vdim[i])) + tab + tab.join(["%.6f"%i for i in basis_vec[i]]) + "\n"
+    for atom in atoms_to_plot:
+        s += align(str(An[atom])) + tab + "%.6f"%0. + tab + tab.join(["%.6f"%i for i in Ac[atom]]) + "\n"
+    # DATA SECTION WRITING.
+    data = Dat.flatten()
+    data = list(data.astype(str))
+    s += '\n'.join([tab.join(data[i:i+6]) for i in xrange(0,len(data),6)])
+    return s
+
+# Puts all the instances of a triple string quotation on one line to be read in main.py
+def triple_string_clean(ltxt):
+    triple_stings = ['"""',"'''"]
+    trip_str_instances = False
+    txt = '\n'.join(ltxt)
+    for str_mark in triple_stings:
+        if str_mark in txt:
+            trip_str_instances = True
+            break
+    if not trip_str_instances:
+        return ltxt
+    count = 0
+    L = []
+    end_strs = []
+    begin_strs = []
+    for str_mark in triple_stings:
+        for linei, line in enumerate(ltxt):
+            if line.count(str_mark) > 2:
+                break
+            if line.count(str_mark) == 2:
+                L.append(line)
+                begin_strs.append(linei)
+                end_strs.append(linei+1)
+            if line.count(str_mark) == 1:
+                line_split = line.split(str_mark)
+                if count == 0:
+                    if '=' in line_split[0]:
+                        eq_split = [i.strip() for i  in line.split('=')]
+                        if eq_split[0].count(' ') == 0:
+                            count = 1
+                            start_i = linei
+                            begin_strs.append(linei)
+                if count == 1:
+                    for nlinei, nline in enumerate(ltxt[start_i+1:]):
+                        if nline.count(str_mark):
+                            L.append('\n'.join(ltxt[start_i:nlinei+start_i+2]))
+                            end_strs.append(nlinei+start_i+2)
+                            break
+                    count = 0
+        ltxt_tmp = ltxt[:begin_strs[0]]
+        for i in range(len(begin_strs)-1):
+            ltxt_tmp += ltxt[end_strs[i]:begin_strs[i+1]]
+        ltxt_tmp += ltxt[end_strs[-1]:]
+
+        for line in ltxt_tmp:
+            if str_mark not in ltxt_tmp and line not in L:
+                L.append(line)
+    return L
+
+# Returns the substring between 2 substrings within a string
+def string_between(Str, substr1, substr2):
+    Str = Str[Str.find(substr1)+len(substr1):]
+    Str = Str[:Str.find(substr2)]
+    return Str
+
+# Cleans up the ltxt by putting all the lines that end with & onto the same line
+#   Inputs:
+#       ltxt = text in ltxt format (text split by '\n') [list]
+#   Outpus:
+#       the cleaned ltxt
+def ltxt_clean(ltxt, end_line=',', joiner=','):
+    ltxt = [i.strip() for i in ltxt]
+    i, lim = 0, len(ltxt)
+    while (i<lim):
+        line = ltxt[i]
+        if line != '':
+            if line[-1] == end_line:
+                ltxt[i] = ','.join([ltxt[i][:-1], ltxt[i+1]])
+                del(ltxt[i+1])
+                lim = len(ltxt)
+                i -= 1
+        i += 1
+    ltxt = [j.strip() for j in ltxt if j.strip()]
+    ltxt = triple_string_clean(ltxt)
+    return ltxt
+
+
+
+
+# #Combines rotations and gives back Euler angles
+# def combine_rotations(ltxt, step_info):
+#     I = np.array([[1,0,0],
+#                   [0,1,0],
+#                   [0,0,1]])
+#     curr_rot = step_info['clean_settings_dict']['rotation']
+#     print("I = ", I, "\n\n")
+#     I = np.matmul(MT.create_X_rot_mat(curr_rot[0]),np.matmul(MT.create_Y_rot_mat(curr_rot[1]),MT.create_Z_rot_mat(curr_rot[2])))
+#     print("I = ", I, "\n\n")
+#     # Can't keep combining like this, will have to calculate Euler angles at each step.
+#     for i in ltxt:
+#         if "rotate" in i:
+#             theta = eval(i.split('by')[1])
+#             if 'rotate x' in i:
+#                 print("I = ", I, "\n\n")
+#                 X_rot_mat = MT.create_X_rot_mat(theta)
+#                 print("The transformation = ",X_rot_mat, "\n\n")
+#                 I = np.matmul(X_rot_mat,I)
+#                 print("The final matrix = ",X_rot_mat, "\n\n")
+#             if 'rotate y' in i:
+#                 I = np.matmul(MT.create_Y_rot_mat(theta),I)
+#             if 'rotate z' in i:
+#                 I = np.matmul(MT.create_Z_rot_mat(theta),I)
+#     final_rotation_euler = MT.rot_mat_to_euler_zyx(I)
+#     return final_rotation_euler

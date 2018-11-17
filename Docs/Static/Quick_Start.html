@@ -1,0 +1,79 @@
+<br />
+<br />
+<h3  class="col-sm-12">Quick Start</h3>
+<p  class="col-sm-12">
+  A standard workflow for using the movie maker normally consists of 2 steps. A calibration step and a movie creation step.
+</p>
+<p class="col-sm-12">
+  However, before running the code you need to remember to make sure the path is pointing to the correct data. You can set this in the settings file by inputting the variable path:
+  <p class='col-sm-12'>
+    <table style="width: 50%; margin: auto;">
+      <tr>
+        <td>
+          <code>path</code>  = "data path"
+        </td>
+        <td>
+           <span style="color:gray"># Path to CP2K output data</span>
+        </td>
+    </table>
+  </p>
+</p>
+<h5  class="col-sm-12">The Calibration Step:</h5>
+<p class='col-sm-12'>
+  The calibration step simply creates a visualisation for one of the frames in your image. This is useful if you just want a single image for a poster or a paper; it is also useful for calibrating settings before setting the code running on a long visualisation. Simply set the variables:
+</p>
+<p class='col-sm-12'>
+  <table style="width: 50%; margin: auto;">
+    <tr>
+      <td>
+      *calibrate* = 'y'
+      </td>
+      <td>
+          <span style="color:gray"># Turns on the calibration step</span>
+      </td>
+    </tr>
+  <tr>
+    <td>  *load_in_vmd* = 'y' </td>
+    <td>
+       <span style="color:gray;"># Loads the data in VMD</span>
+    </td>
+  </tr>
+  </table>
+    <br />
+</p>
+<p class='col-sm-12'>
+  This will load 1 frame of your image in VMD, so you can adjust the view to suit you. The code should save all rotations, translations and scalings to save you having to input these into the settings file. However other settings may need to be adjusted. For example, if the isosurface appears to be truncated then you need to increase the *bounding_box_scale*, if the isosurface is too large or small you will need to adjust the *isosurface_to_plot*
+</p>
+<h5  class="col-sm-12">Creating the Movie:</h5>
+<p class="col-sm-12">
+  Once you are sure you are happy with the settings you have you can run your visualisation and create the movie. In most cases you can simply turn off the calibration (*calibrate* = 'n') and tell the code how long to run the simulation for e.g:
+  <table style="width: 50%; margin: auto;">
+    <tr>
+      <td>
+      *start_step* = 0
+      </td>
+      <td>
+          <span style="color:gray"># Start at step 0</span>
+      </td>
+    </tr>
+  <tr>
+    <td>  *end_step* = 'all' </td>
+    <td>
+       <span style="color:gray;"># Iterate over all steps</span>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      *stride* = 2
+    </td>
+    <td>
+       <span style="color:gray;"># Work with every 2<sup>nd</sup> step</span>
+    </td>
+  </tr>
+  </table>
+  <br />
+  From here you can also set the *length_of_animation* and the *movie_format*. For all the settings, see the Settings Directory (gray button above).
+</p>
+
+<br />
+<br />

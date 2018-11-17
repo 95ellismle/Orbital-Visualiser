@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Movie Maker Documentation</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+
+    <!-- Bootstrap core CSS -->
+    <link href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/css/simple-sidebar.css" rel="stylesheet">
+    <!-- LaTeX stuff -->
+    <script type="text/javascript" src="http://latex.codecogs.com/latexit.js"></script>
+    <!-- Table Styling -->
+    <link href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/css/table.css" rel="stylesheet">
+    <link href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/css/navbar.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/css/flowchart.css" rel="stylesheet">
+    <style>
+      .CODE {color: magenta;}
+      .param_link:hover {font-weight: bold;}
+    </style>
+</head>
+
+<body>
+    <div id="wrapper">
+    <!-- <div class="container"> -->
+      <div class="row">
+       <div width=190px>
+       <!-- Sidebar -->
+
+          <!-- <div id="sidebar-wrapper"> -->
+           <ul class="sidebar-nav2">
+            
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Calibration.html"> Calibration </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Movie Creation.html"> Movie Creation </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/File Handling.html"> File Handling </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Replicas.html"> Replicas </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Positioning.html"> Positioning </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Colours and Materials.html"> Colours and Materials </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Dimensions of system.html"> Dimensions of system </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Atoms to plot.html"> Atoms to plot </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Optimisation.html"> Optimisation </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Text on the image.html"> Text on the image </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Graph.html"> Graph </a>
+                </li>
+                <li>
+                    <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/tables/Miscellaneous.html"> Miscellaneous </a>
+                </li>
+           </ul>
+          <!-- </div> -->
+        </div>
+          <!-- Nav-Bar start -->
+          <div class="topnav" style="margin-left: 205px; width:100%;">
+            <a class="active" href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Documentation.html">Home</a>
+            <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/Static/How_it_works.html">How it Works</a>
+            <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/Static/Examples.html">Examples</a>
+            <a href="/home/Sangeya/Documents/PhD/Code/Orb_Mov_Mak/Docs/Static/FAQs.html">FAQs</a>
+          </div>
+          <!-- Nav-Bar end -->
+
+       <div style="margin-left: 190px;">
+         <div class="container">
+           <br />
+           <h2>Graph</h2>
+           <div class="datagrid">
+             <table id=table1><tr>
+    <th>
+      Setting
+    </th>
+    <th>
+      Default Value
+    </th>
+    <th>
+      Description
+    </th>
+    <th>
+      Input Type
+    </th>
+  </tr>
+<tr>
+    <td>
+      side_by_side_graph
+    </td>
+    <td>
+      'no'
+    </td>
+    <td>
+      Plots a graph of the molecular coefficients beside the visualisation 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  yes </li>
+            <li>  no </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      mols_to_highlight
+    </td>
+    <td>
+      0
+    </td>
+    <td>
+      Which molecules to highlight in the graph (shows as a opaque line instead a transparent one) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  max </li>
+            <li>  min </li>
+            <li>  all </li>
+            <li>  integer (mol index) </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      ylabel
+    </td>
+    <td>
+      r'|u$_i$|$^2$'
+    </td>
+    <td>
+      What to put on the y axis (graph) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      xlabel
+    </td>
+    <td>
+      'time [fs]'
+    </td>
+    <td>
+      What to put on the x axis (graph) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      yfontsize
+    </td>
+    <td>
+      18
+    </td>
+    <td>
+      Size of the y axis font (graph) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      xfontsize
+    </td>
+    <td>
+      17
+    </td>
+    <td>
+      Size of the x axis font (graph) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      graph_title
+    </td>
+    <td>
+      'Probability Density, Molecule * being highlighted'
+    </td>
+    <td>
+      The title for the graph 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      title_fontsize
+    </td>
+    <td>
+      20
+    </td>
+    <td>
+      Size of the title font (graph) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      graph_to_vis_ratio
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      The ratio of sizes (x dimension) for the graph and the visualisation (e.g. 2 would mean the graph would be 2 times as big as the visualisation) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  integer </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      max_data_in_graph
+    </td>
+    <td>
+      450
+    </td>
+    <td>
+      Maximum amount of data points in the graph before refreshing them 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  integer </li>
+        </ul>
+    </td>
+  </tr>
+</table>
+
+<br>
+<br>
+
+
+           </div>
+         </div>
+       </div>
+      </div>
+      </div>
+    <!-- </div> -->
+  <!-- </div> -->
+</body>
+
+</html>

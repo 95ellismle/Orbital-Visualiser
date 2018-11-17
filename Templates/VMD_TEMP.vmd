@@ -1,0 +1,140 @@
+#Log users changes to a file
+logfile $vmd_log_file
+
+# Will load files into VMD and render them as PostScript files.
+# Useful in producing lots of .ps files from lots of cube files.
+#display resize 1600 900 #Producing bugs
+
+
+set imag_P_col $imag_pos_col
+set imag_N_col $imag_neg_col
+set real_P_col $real_pos_col
+set real_N_col $real_neg_col
+set dens_col   $density_colour
+
+proc load_file { filename mol_id neg_col_id pos_col_id } {
+	set mol_name $filename
+
+	mol new $mol_name
+
+	# Add 1 more representation for the negative isosurface
+	mol addrep $mol_id
+   #Visualising the isosurfaces
+	mol modstyle 0 $mol_id Isosurface -$isoval 0 $iso_type 0 1 1
+	mol modcolor 0 $mol_id ColorID $neg_col_id
+
+	mol modstyle 1 $mol_id Isosurface $isoval 0 $iso_type 0 1 1
+	mol modcolor 1 $mol_id ColorID $pos_col_id
+
+	mol addrep $mol_id
+	mol modstyle 2 $mol_id $atom_style 1.000000 0.600000 20.000000 20.000000              #Adding atoms
+   #Selecting Certain Atoms
+  mol modselect 2 $mol_id y < $maxY and y > $minY and x < $maxX and x > $minX and z < $maxZ and z > $minZ
+
+	axes location Off
+}
+
+proc load_xyz { mol_id } {
+
+	$backgrnd_mols
+	mol modstyle 0 $mol_id CPK 0.500000 0.100000 20.000000 20.000000
+	mol modmaterial 0 $mol_id Transparent
+   mol modcolor 0 $mol_id ColorID 6
+
+}
+
+proc render_pic { mol_id } {
+    color Name H $Hcol
+    color Name C $Ccol
+    color Name N $Ncol
+
+    mol modmaterial 1 $mol_id $iso_material
+    mol modmaterial 0 $mol_id $iso_material
+    mol modmaterial 2 $mol_id $mol_material
+
+    #Colour of isosurfaces'
+    color change rgb 1  0.0 0.0 0.0
+
+    draw text {$time_lab_x $time_lab_y $time_lab_z } $time_step
+
+    color Display Background gray
+    color change rgb gray $backgrnd_R $backgrnd_G $backgrnd_B
+    display projection Orthographic
+}
+
+proc delete_file { } {
+	mol delete all
+}
+
+proc rotate_and_scale {  } {
+   # IMPORTANT: The order of rotations matter here (must be Z, followed by Y followed by X)
+  rotate z by $rotz
+	rotate y by $roty
+	rotate x by $rotx
+  scale by $zoom_val
+  translate by $trans_x $trans_y $trans_z
+}
+
+proc set_cols { RGB1 RGB2 RGB3 RGB4 RGB5 } {
+
+   display depthcue off
+
+   set R1 [lindex [split $RGB1] 0 ]
+   set G1 [lindex [split $RGB1] 1 ]
+   set B1 [lindex [split $RGB1] 2 ]
+
+   set R2 [lindex [split $RGB2] 0 ]
+   set G2 [lindex [split $RGB2] 1 ]
+   set B2 [lindex [split $RGB2] 2 ]
+
+   set R3 [lindex [split $RGB3] 0 ]
+   set G3 [lindex [split $RGB3] 1 ]
+   set B3 [lindex [split $RGB3] 2 ]
+
+   set R4 [lindex [split $RGB4] 0 ]
+   set G4 [lindex [split $RGB4] 1 ]
+   set B4 [lindex [split $RGB4] 2 ]
+
+   set R5 [lindex [split $RGB5] 0 ]
+   set G5 [lindex [split $RGB5] 1 ]
+   set B5 [lindex [split $RGB5] 2 ]
+
+   color change rgb 18 $R1 $G1 $B1
+   color change rgb 19 $R2 $G2 $B2
+   color change rgb 20 $R3 $G3 $B3
+   color change rgb 21 $R4 $G4 $B4
+   color change rgb 22 $R5 $G5 $B5
+}
+
+
+$neg_cols
+$pos_cols
+
+delete_file
+set mol_id 0
+foreach i {$cube_files} {
+
+   # Extract the colour info from the dictionaries $neg_cols and $pos_cols
+   set neg_col_id [dict get $Negcols $mol_id]
+   set pos_col_id [dict get $Poscols $mol_id]
+
+
+   # Call functions
+   load_file $i $mol_id $neg_col_id $pos_col_id
+   render_pic $mol_id
+
+   set mol_id [expr $mol_id + 1]
+}
+$bckg_mols_on_offload_xyz $mol_id
+
+set_cols $imag_P_col $imag_N_col $real_P_col $real_N_col $dens_col
+rotate_and_scale
+
+source $vmd_source_file
+
+render Tachyon vmdscene.dat $tachyon_path -aasamples 12 vmdscene.dat -format TARGA -o $pic_filename -trans_max_surfaces 1 -res 1600 1600
+
+rotate x by 360.000000
+rotate x by -360.000000
+scale by 1.000000
+scale by 1.000000
