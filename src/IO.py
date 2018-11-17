@@ -16,7 +16,15 @@ from collections import OrderedDict
 from src import text as txt_lib
 from src import type as typ
 from src import EXCEPT as EXC
-import Templates.permanent_settings as ps
+from src import consts
+
+try:
+    from Templates import permanent_settings as ps
+except:
+    EXC.replace_perm_settings()
+    from Templates import permanent_settings as ps
+
+from Templates import defaults as dft
 
 if sys.version_info[0] > 2:
     xrange = range
@@ -59,40 +67,67 @@ def find_time_delimeter(step, filename):
             return char,linenum
     EXC.ERROR("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
 
-# Reads an xyz_file
-# Would like to create a mask here to avoid reading the atoms to ignore.
-# This function is quite obscure and terse as this is a bottle neck in the code and has been optimised.
-# It relies heavily on numpy arrays and list\dictionary comphrensions to give speed things up.
-def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1):
-    num_data_cols = -num_data_cols
-    ltxt = open_read(filename).split('\n')
+# Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
+# This will also create the step_data dictionary with the data of each step in
+def get_xyz_step_metadata(filename, ltxt=False):
+    if ltxt == False:
+        ltxt = open_read(filename).split('\n')
     most_stable = False
     if any('*' in i for i in ltxt[:300]):
         most_stable = True
     if not most_stable:
         num_title_lines, num_atoms = txt_lib.num_atoms_find(ltxt)
         lines_in_step = num_title_lines + num_atoms
-        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
+        if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
+           step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
+        else: #If there is no second step take lines from the first
+           step_data = {1:ltxt[:lines_in_step]}
     else:
         lines_in_step = find_num_title_lines(ltxt, filename)
         step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
         num_title_lines = find_num_title_lines(step_data[1])
+
+    nsteps = int(len(ltxt)/lines_in_step)
     time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines], filename)
-    if max_step == 'all':
-        max_step = int(len(ltxt)/lines_in_step)
-    # The OrderedDict doesn't seem to have major overheads as dictionary access aren't the main bottleneck here.
-    # It is also much easier to use!
-    step_data = OrderedDict() # The OrderedDict keeps the order of the frames for saving etc...
-    for i in range(min_step, max_step, stride):
-        step_data[i] = ltxt[i*lines_in_step:(i+1)*lines_in_step]
-        step_data[i] = (step_data[i][:num_title_lines],step_data[i][num_title_lines:])
-    time_steps = np.array([txt_lib.string_between(step_data[i][0][time_ind], "time = ", time_delim) for i in step_data]).astype(float)
-    for i in range(min_step, max_step, stride):
-        step_data[i] = [j.split(' ') for j in step_data[i][1]]
-        step_data[i] = np.array([[k for k in j if k] for j in step_data[i]])
-    data = np.array([step_data[i][:,num_data_cols:] for i in step_data]).astype(float)
-    spare_info = [step_data[i][:,:num_data_cols] for i in step_data]
-    return data, spare_info, time_steps
+    timelines = [ltxt[time_ind+(i*lines_in_step)] for i in range(nsteps)]
+    timesteps = np.array([txt_lib.string_between(line, "time = ", time_delim) for line in  timelines]).astype(np.float64)
+    return {'time_delim':time_delim,
+            'time_ind':time_ind,
+            'lines_in_step':lines_in_step,
+            'num_title_lines':num_title_lines,
+            'nsteps':nsteps,
+            'tsteps':timesteps}
+
+# Reads an xyz_file
+# Would like to create a mask here to avoid reading the atoms to ignore.
+# This function is quite obscure and terse as this is a bottle neck in the code and has been optimised.
+# It relies heavily on numpy arrays and list\dictionary comphrensions to give speed things up.
+def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1, ignore_steps=[], do_timesteps=[], metadata=False):
+    num_data_cols = -num_data_cols
+    ltxt = open_read(filename).split('\n')
+    if not metadata:
+        metadata = get_xyz_step_metadata(filename, ltxt)
+
+    if max_step == 'all':              max_step = metadata['nsteps']
+    if max_step > metadata['nsteps']:  max_step = metadata['nsteps']
+    timesteps = metadata['tsteps']
+    if type(do_timesteps) == type(np.array([1,2])) or do_timesteps: # Add steps that don't correspond to do_timesteps to the ignore steps list
+        ignore_steps = ignore_steps + [i for i, t in enumerate(metadata['tsteps']) if t not in do_timesteps]
+        timesteps = [t for i, t in enumerate(metadata['tsteps']) if i not in ignore_steps]
+
+    all_steps = [i for i in range(min_step, max_step, stride) if i not in ignore_steps]
+    step_data = [i for i in all_steps]
+
+    for i, step_num in enumerate(all_steps):
+        step_data[i] = ltxt[step_num*metadata['lines_in_step']+metadata['time_ind']+1:(step_num+1)*metadata['lines_in_step']] # Get string data
+
+    for i, step in enumerate(step_data):
+        step_data[i] = [[k for k in j.split(' ') if k] for j in step] # Split and get seperate cols
+    step_data = np.array(step_data)
+    data = np.array([step[:,num_data_cols:] for step in step_data])
+    data = data.astype(float)
+    spare_info = [step[:,:num_data_cols] for step in step_data]
+    return data, spare_info, timesteps
 
 # Plots the data, saves the graph and then appends the 2 images side by side.
 def plot(step_info, mind, files, plt, optX=[], optY=[]):
@@ -139,6 +174,8 @@ def plot(step_info, mind, files, plt, optX=[], optY=[]):
 
 # Checks whether the tachyon path specified is the correct one.
 def check_tachyon(tachyon_path):
+    if not tachyon_path:
+        return False
     tachyon_out =os.popen(tachyon_path, 'r').read()
     tachyon_spiel_ind = tachyon_out.lower().find("tachyon parallel/multiprocessor ray tracer")
     if tachyon_spiel_ind != -1:
@@ -151,24 +188,71 @@ def read_write_perm_settings(filepath, setting, value):
     new_txt = txt_lib.change_perm_settings(txt, setting, value)
     open_write(filepath, new_txt,'w')
 
+def check_dir_for_tachyon(directory):
+    """
+    Will check a directory for the tachyon_LINUXAMD64 file. This should be found
+    in the vmd program directory as it is a plugin that come with it. The
+    tachyon program is a ray tracer engine that renders the pictures.
+    """
+    for dpath, dnames, fnames in os.walk(directory):
+        for dname, fname in zip(dnames, fnames):
+            if 'tachyon' in dname or 'tachyon' in fname:
+                return dpath+'/'+fname
+    return False
+
 # Searches recursively for the VMD tachyon renderer path.
 def find_tachyon(current_tachyon_path=''):
     if check_tachyon(current_tachyon_path):
         return current_tachyon_path
-    vmd_path = sb.check_output("which vmd", shell=True)
-    vmd_path = str(vmd_path, 'utf-8')
+    print("Finding Tachyon Ray-Tracer")
+    try:
+      vmd_path = sb.check_output("which vmd", shell=True)
+    except sb.CalledProcessError:
+      print("\n\n\n*******   CAN'T FIND VMD ERROR    ************")
+      print("Sorry you don't seem to have VMD installed on your computer.")
+      print("\nAt least I can't find it with the command 'which vmd'")
+      print("\nPlease make sure you have set a bash alias `vmd' to open VMD")
+      print("*******   CAN'T FIND VMD ERROR    ************\n")
+      raise SystemExit("Exiting... Can't find VMD")
+    vmd_path = vmd_path.decode('utf-8')
     for N in range(1,vmd_path.count('/')-1):
         vmd_path = txt_lib.folderpath_back_N(vmd_path,N)
-        tachyon_path  = sb.check_output("find %s -name '*tachyon_*'"%vmd_path, shell=True)
+        tachyon_path  = check_dir_for_tachyon(vmd_path)
         if tachyon_path:
             break
     if not tachyon_path:
         return False
-    tachyon_path = str(tachyon_path, 'utf-8').replace('\n','')
-    return tachyon_path
+    if check_tachyon(tachyon_path):
+         return tachyon_path
+    else:
+        raise SystemExit("""
+           *******    CAN'T FIND TACHYON ERROR   ***********
+Sorry I couldn't find the path to the tachyon ray tracer.
+
+Please specify this as a string in the Templates/permanent_settings.py
+file. This is required for rendering the images.
+
+To find the tachyon ray tracer engine try:
+   * Open VMD
+
+   * Select File/Render... in the menu bar at the top of the VMD main
+     window.
+
+   * Select 'Tachyon' from the 'Render the current scene using:'
+     drop-down menu (first box).
+
+   * At the begining of the 'Render Command' (third box down) you
+     should see a string with the path to the tachyon ray-tracer
+     engine. Something such as "/usr/local/lib/vmd/tachyon_LINUXAMD64"
+
+   * Copy this into the Templates/permanent_settings.py file. (In the
+   Orb_Mov_Mak directory)
+
+If this doesn't work you may not have the tachyon ray-tracer with your
+VMD package. Try re-installing VMD.""")
 
 # Will stitch together an mp4 video
-def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='aac', Vcodec='libx264', extra_flags="-pix_fmt yuv420p -preset slow", log_file="a.log", err_file="a.err"):
+def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='aac', Vcodec='libx264', extra_flags="-pix_fmt yuv420p -preset slow -qscale 14", log_file="a.log", err_file="a.err"):
     if all(i in files for i in ['%','d','.']):
         ext = files.split('.')[-1]
         num_of_nums = eval(files.split('%')[-1].split('d')[0].strip('0'))
@@ -177,11 +261,29 @@ def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='
         all_files = [i for i in all_files if ext in i.split('.')[-1]] #removing files that don't have the correct extension
         all_files = [i for i in all_files if len(i[len(prefix):i.find('.')]) == num_of_nums] # only files with the correct amount of nums
         num_files = len(all_files)
-        framerate = num_files/length
+        framerate = int(np.round(num_files/length,0))
+        if framerate == 0:
+            framerate = 1
+        in_files = files_folder+files
+        pre_flags = ""
+    elif "*" in files and '.' in files:
+        ext = files.split('.')[-1]
+        print(ext)
+        all_files = os.listdir(files_folder)
+        all_files = [i for i in all_files if ext in i.split('.')[-1]] #removing files that don't have the correct extension
+        num_files = len(all_files)
+        framerate = int(np.round(num_files/length,0))
+        if framerate == 0:
+            framerate = 1
+        pre_flags = '-pattern_type glob' # Glob type input files
+        in_files = '"%s"'%(files_folder+files) #input files must be inside string
     else:
         EXC.ERROR("Input format for image files is incorrect.\nPlease input them in the format:\n\n\t'pre%0Xd.ext'\n\nwhere pre is the prefix (can be nothing), X is the number of numbers in the filename, and ext is the file extensions (e.g. png or tga).")
-    options = (ffmpeg_binary, framerate, files_folder+files, Vcodec, Acodec, extra_flags, output_name, log_file, err_file)
-    Stitch_cmd = "%s -f image2  -r %s -i %s -vcodec %s -acodec %s %s %s.mp4 > %s 2> %s"%options
+    if path_leads_somewhere(output_name+'.mp4'):  os.remove(output_name+'.mp4') #remove file before starting to prevent hanging on 'are you sure you want to overwrite ...'
+    options = (ffmpeg_binary, pre_flags, framerate, in_files, Vcodec, Acodec, extra_flags, output_name, log_file, err_file)
+
+    Stitch_cmd = "%s -f image2 %s -r %s -i %s -vcodec %s -acodec %s %s %s.mp4 > %s 2> %s"%options
+    print(Stitch_cmd)
     return Stitch_cmd, log_file, err_file
 
 # Decides whether to use the previous rotations and scaling from the calibration step
@@ -198,22 +300,39 @@ def use_prev_scaling(path):
         return False
 
 # Reads the VMD log file and parses the information then updates the settings file
-def settings_update(step_info):
-    vmd_log_text = open_read(step_info['vmd_log_file'], False)
-    script_text = open_read(step_info['vmd_script'][list(step_info['vmd_script'].keys())[0]])
+def settings_update(all_settings):
+    vmd_log_text = open_read(all_settings['vmd_log_file'], False)
+    # script_text = open_read(all_settings['vmd_script'][list(all_settings['vmd_script'].keys())[0]])
     if vmd_log_text != False:
-         os.remove(step_info['vmd_log_file'])
-         log_ltxt = txt_lib.vmd_log_file_parse(vmd_log_text, script_text, step_info)
-         log_ltxt.append('\n')
-         if use_prev_scaling(step_info['path']):
-             open_write(step_info['tcl']['vmd_source_file'], '\n'.join(log_ltxt[1:]),type_open='a')
-         else:
-             open_write(step_info['tcl']['vmd_source_file'], '\n'.join(log_ltxt[1:]),type_open='w+')
-         write_settings_file(step_info)
-         return step_info
+        os.remove(all_settings['vmd_log_file'])
+        new_transforms = vmd_log_text[vmd_log_text.find(consts.end_of_vmd_file)+len(consts.end_of_vmd_file):].split('\n')
+
+        # First handle the scalings
+        new_zoom = txt_lib.combine_vmd_scalings(new_transforms) * all_settings['zoom_value']
+        inp_zoom = all_settings['clean_settings_dict'].get('zoom_value')
+        if type(inp_zoom) != type(None): # If the settings file declare a zoom value use the comments from it
+           inp_zoom[0] = new_zoom
+        else: # else use a standard comment
+           inp_zoom = [new_zoom, '# How much to zoom by']
+        all_settings['clean_settings_dict']['zoom_value'] = inp_zoom
+
+        new_translations = np.array(txt_lib.combine_vmd_translations(new_transforms))+all_settings['translate_by']
+        inp_translate = all_settings['clean_settings_dict'].get("translate_by")
+        if type(inp_translate) != type(None): # If the settings file declare a zoom value use the comments from it
+           inp_translate[0] = new_translations
+        else: # else use a standard comment
+           inp_translate = [new_translations, '# How much to translate in xyz directions']
+        all_settings['clean_settings_dict']['translate_by'] = inp_translate
+
+        # Now save only certain actions to the include.vmd file to be sourced later
+        whitelist = ['rotate']
+        new_transforms = [line for line in new_transforms if any(j in line for j in whitelist)]
+        new_include = open_read(all_settings['tcl']['vmd_source_file'], False) +'\n'*2 + '\n'.join(new_transforms)
+        open_write(all_settings['tcl']['vmd_source_file'], new_include)
+        write_cleaned_orig_settings(all_settings['clean_settings_dict'], 'settings.inp')
     else:
-         EXC.WARN("VMD hasn't created a logfile!", step_info['verbose_output'])
-         return step_info
+        EXC.WARN("VMD hasn't created a logfile!", all_settings['verbose_output'])
+        return all_settings
 
 # Writes the settings file with updated info from the step_info dict
 def write_settings_file(step_info):
@@ -270,7 +389,6 @@ def vmd_variable_writer(step_info, PID):
         if type(val) == dict:
             val = val[PID]
         txt = txt.replace("$%s"%str(i),str(val) )
-    print("\n\n\nVMD_SCRIPT = ",step_info['vmd_script'][PID], "\n\n\n")
     open_write(step_info['vmd_script'][PID], str(txt) )
 
 # Prints on a same line
@@ -307,7 +425,7 @@ def open_read(filename, throw_error=True):
     else:
         if throw_error:
             EXC.ERROR("The %s file doesn't exist!"%filename)
-        return False
+        return ''
 
 # Checks if a filepath or folderpath exists
 def path_leads_somewhere(path):
@@ -439,18 +557,11 @@ def times_print(times,step, max_len, tot_time=False):
                txt_lib.align(format(times[i][step], ".2g"),13,'r'), "%")
 
 # Will take care of saving png images
-def file_handler(i, Type, step_info):
-    folderpath = folder_correct(step_info['img_fold']+step_info['Title'])
+def file_handler(i, extension, step_info):
+    folderpath = folder_correct(step_info['img_fold']+step_info['title'])
     check_mkdir(folderpath)
-    filename = "%s.%s"%(str(i),Type)
+    filename = "%s.%s"%(str(i), extension)
     return folderpath, filename, folderpath+filename
-
-# Concatenates a string up to a specified substring
-def remove_substr_after_str(txt, substr):
-    ind = txt.find(substr)
-    if ind < 0:
-        ind = len(txt) + 1 + ind
-    return txt[:ind]
 
 # Opens and write a string to a file
 def open_write(filename, message, mkdir=False, type_open='w+'):
@@ -462,19 +573,6 @@ def open_write(filename, message, mkdir=False, type_open='w+'):
     f.write(message)
     f.close()
 
-# Reads a file and closes it
-def open_read(filename, throw_error=True):
-    filename = folder_correct(filename)
-    if path_leads_somewhere(filename):
-        f = open(filename, 'r')
-        txt = f.read()
-        f.close()
-        return txt
-    else:
-        if throw_error:
-            EXC.ERROR("The %s file doesn't exist!"%filename)
-        return False
-
 # Creates the data and img folders
 def create_data_img_folders(step_info):
     if not path_leads_somewhere(step_info['data_fold']):
@@ -484,6 +582,91 @@ def create_data_img_folders(step_info):
     if not path_leads_somewhere(step_info['img_fold']):
         print("Making a folder for images at:\n%s"%step_info['img_fold'])
         os.mkdir(step_info['img_fold'])
+
+# Will change all the filenames in a folder to add leading zeros to them so
+# alphabetesising them preserves order.
+def add_leading_zeros(folder):
+    tga_files = [i for i in os.listdir(folder) if '.tga' in i]
+    dts = [float(f.replace(",",".")[:f.find('_')]) for f in tga_files]
+    num_leading_zeros = int(np.floor(np.log10(np.max(dts))))
+    for f in tga_files:
+        dt_str = f[:f.find('_')]
+        dt = float(dt_str.replace(',','.'))
+        if dt != 0:
+          num_zeros_needed = num_leading_zeros - int(np.floor(np.log10(dt)))
+        else:
+           num_zeros_needed = num_leading_zeros
+        new_dt = '0'*num_zeros_needed + "%.2f"%dt
+        os.rename(folder+f, folder+f.replace(dt_str, new_dt.replace(".",",")))
+
+# Find which file inputs aren't in the folder
+def find_missing_files(CP2K_output_files, all_files):
+    bad_files = {}
+    for f in CP2K_output_files:
+        if type(CP2K_output_files[f]) == str:
+            if CP2K_output_files[f] in all_files:
+                bad_files[f] = [True]
+            else:
+                bad_files[f] = [False]
+        elif any(type(CP2K_output_files['pos']) == j for j in (list, range)):
+            if bad_files.get(f):
+                if CP2K_output_files[f] in all_files:
+                    bad_files[f].append(True)
+                else:
+                    bad_files[f].append(False)
+            else:
+                if CP2K_output_files[f] in all_files:
+                    bad_files[f] = [True]
+                else:
+                    bad_files[f] = [False]
+    return bad_files
+
+# Will find the files using fuzzy logic.
+def fuzzy_file_find(path):
+    all_files = np.sort(os.listdir(path))
+
+    strs_to_match = {'pvecs' : ['.xyz', 'pvec'],
+                     'pos'   : ['.xyz', 'n-pos'],
+                     'coeff' : ['.xyz', 'n-coeff'],
+                     'AOM'   : ['AOM', 'COEFF'],
+                     'inp'   : ['run.inp']}
+    fuzzy_files = {ftype:[f for f in all_files if all(j in f for j in strs_to_match[ftype]) and '.' != f[0] and '.sw' not in f] for ftype in strs_to_match}
+    if any(len(fuzzy_files['pvecs']) != len(fuzzy_files[i]) for i in ['pos','pvecs','coeff']):
+        raise SystemExit("Sorry I can't find the same number of files for pvecs, posistions and coefficients")
+    if any(len(fuzzy_files[i]) == 0 for i in fuzzy_files):
+        no_files = [i for i in fuzzy_files if len(fuzzy_files[i]) == 0 ]
+        raise SystemExit("Sorry I can't seem to find any files for \n\t* %s"%('\n\t* '.join(no_files)))
+    return fuzzy_files
+
+
+# Will write the original settings (with typos fixed etc...) to a settings file
+def write_cleaned_orig_settings(orig_settings_dict, settings_file):
+    settings_whitelist = ['calibrate', 'load_in_vmd', 'calibration_step','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
+    s = ''
+    for sett_name in orig_settings_dict:
+        # If type is list or array then put square brackets and commas in the settings file.
+        if typ.is_list_array(orig_settings_dict[sett_name][0]):
+            if all(i == j for i,j in zip(orig_settings_dict[sett_name][0], dft.defaults[sett_name])):
+                continue
+            s += "%s = [%s] %s\n"%(sett_name, ','.join(["%.2g"%i for i in orig_settings_dict[sett_name][0]]), orig_settings_dict[sett_name][1])
+            continue
+
+        # If the sett_name is int then it is a carriage return
+        if type(sett_name) == int:
+            s += orig_settings_dict[sett_name][1] + '\n'
+            continue
+
+        # Remove settings from file that are the defaults (apart from certain ones in whitelist)
+        if orig_settings_dict[sett_name][0] == dft.defaults.get(sett_name) and sett_name not in settings_whitelist:
+            continue
+
+        # Need to put quotations around strings
+        if type(orig_settings_dict[sett_name][0]) == str:
+            s += "%s = '%s' %s\n"%(sett_name, orig_settings_dict[sett_name][0].strip("'").strip('"'), orig_settings_dict[sett_name][1])
+        else:
+            s += '%s = %s %s\n'%(sett_name, orig_settings_dict[sett_name][0], orig_settings_dict[sett_name][1])
+    with open(settings_file, 'w') as f:
+        f.write(s.strip('\n'))
 
 # Old Code
 # # Wrapper for the full xyz_reader step for parellisation

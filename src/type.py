@@ -53,6 +53,10 @@ def is_int(Float):
     else:
         return False
 
+# Checks whether an object is a list or array etc...
+def is_list_array(array):
+    return type(array) == type([1,2]) or type(array) == type(np.array([1,2])) 
+
 # The resolution needs to divide neatly into the cell size otherwise the wavefunction ends up being translated into another place as there can only be an integer number of voxels in each direction.
 def int_res_marry(nums, res, cell_sze):
     nums = [np.ceil(i) for i in nums]

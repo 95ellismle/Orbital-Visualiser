@@ -17,21 +17,6 @@ def tcl_3D_input(data, dims, tcl_info, start_str):
         tcl_info["%s%s"%(start_str, dim)] = str(data[i])
     return tcl_info
 
-# Will find and replace items in the original settings dictionary, can replace via a sum, product or direct replace
-def settings_find_replace(step_info, setting, new_value,type_replace='replace'):
-   setting_before = step_info['clean_settings_dict'].get(setting)
-   if type(new_value) == list:
-       new_value = np.array(new_value)
-   _,to_prod,to_sum = fuzzy_variable_translate(type_replace, ["replace", "product", "sum"], False)
-   if type(setting_before) == type(None):
-      to_prod, to_sum = False,False
-   if to_prod:
-      new_value *= setting_before
-   if to_sum:
-      new_value += setting_before
-   step_info['clean_settings_dict'][setting] = new_value
-   return step_info
-
 # Will fix typos in a line of the settings file.
 def setting_typo_check(line, defaults, setting_file_settings, replacer_settings):
     sett = line.split('=')[0].strip()
@@ -92,71 +77,25 @@ def find_tcl_variable(string, variables=[]):
     variables = [i.replace('\n','').strip() for i in variables if i]
     return [i for i in list(set(variables)) if i and "$" in i]
 
-# Puts info into the original settings dictionary (needs sorting out!)
-def put_into_orig(setting, step_info):
-    SETTING = step_info['clean_settings_dict'].get(setting)
-    if type(SETTING) == type(np.array([1,2])):
-        SETTING = list(SETTING)
-    if SETTING == None:
-        SETTING = step_info['defaults'][setting]
-    if type(SETTING) == type(np.array([1,2])):
-        SETTING = list(SETTING)
-    if step_info['orig_settings'].get(setting) == None:
-        step_info['orig_settings'][setting] = str(step_info['defaults'][setting])
-    step_info['orig_settings'][setting] = str(SETTING)+'    #'+'#'.join(step_info['orig_settings'][setting].split('#')[1:])
-
 # Removes any data already in the TCL script from the log file so it isn't repeated
 def vmd_log_clean(log_txt, script_txt):
     script_ltxt = comment_remove(script_txt).split('\n')
     log_ltxt = comment_remove(log_txt).split('\n')
-    
     # Find lines that look very much like the last line of the script
     poss_ends = [i for i in range(len(log_ltxt)) if dfl.SequenceMatcher(None, script_ltxt[-1], log_ltxt[i]).ratio() > 0.9]
-    if len(poss_ends) > 0: #Only 1 line that could possibly be the end line
-        start_of_new_log = max(poss_ends)+1
-    else:
-        raise SystemExit("""Could find the end of the vmd script!
-
-The vmd script doesn't seem to share any lines with the vmd log. The vmd log is
-the file vmd writes when it is called. Try checking the VMD_TEMP file and see if
-'logfile $vmd_log_file' is at the top of it.
-
-If not save the data you are using and the error message and ask Matt to fix it!
-""")
-
+    if len(poss_ends) == 1: #Only 1 line that could possibly be the end line
+        start_of_new_log = poss_ends[0]+1
+    #else:
     # remove lines that appear in the MainProcess.tcl script.
     log_ltxt = log_ltxt[start_of_new_log:]
     return log_ltxt
 
-# # Shortens the log file to write by combining some rotations
-# def shorten_rotations(log_ltxt):
-#     count = 0
-#     dtxt = coll.OrderedDict()
-#     for line in log_ltxt:
-#         if 'rotate' in line:
-#             line = line.replace('rotate ','')
-#             line = line.split(' by ')
-#             dtxt[str(count)+line[0]] = eval(line[1])
-#             count += 1
-#     prev_dim = list(dtxt.keys())[0][-1]
-#     prev_key = list(dtxt.keys())[0]
-
-# Parses Relevant info from the vmd_log_file
-def vmd_log_file_parse(log_txt, script_txt, step_info):
-    log_ltxt = vmd_log_clean(log_txt, script_txt)
-
-    new_scale = combine_vmd_scalings(log_ltxt)
-    settings_find_replace(step_info, "zoom_value", new_scale, "prod")
-    put_into_orig('zoom_value', step_info)
-
-    new_translation = combine_vmd_translations(log_ltxt)
-    settings_find_replace(step_info, 'translate_by', new_translation, 'sum')
-    put_into_orig('translate_by', step_info)
-
-    whitelist = ['rotate']
-    log_ltxt  = [line for line in log_ltxt if any(cmd in line for cmd in whitelist)]
-    step_info['tmp'] = log_ltxt
-    return log_ltxt
+# Concatenates a string up to a specified substring
+def remove_substr_after_str(txt, substr):
+    ind = txt.find(substr)
+    if ind < 0:
+        ind = len(txt) + 1 + ind
+    return txt[:ind]
 
 # Removes a folder away from the filepath
 def folderpath_back_N(folderpath, N=1):
@@ -249,6 +188,7 @@ def cube_file_text(Dat, vdim, An, Ac, tit, mol_info,
     s = ""
     s += tit + "\n"
     s += "\n"
+
     s += align(str(natom)) + tab + tab.join(["%.6f"%i for i in orig]) + "\n"
     for i in range(3):
         s += align(str(vdim[i])) + tab + tab.join(["%.6f"%i for i in basis_vec[i]]) + "\n"
@@ -335,8 +275,6 @@ def ltxt_clean(ltxt, end_line=',', joiner=','):
     ltxt = [j.strip() for j in ltxt if j.strip()]
     ltxt = triple_string_clean(ltxt)
     return ltxt
-
-
 
 
 # #Combines rotations and gives back Euler angles
