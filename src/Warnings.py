@@ -1,3 +1,9 @@
+"""
+Contains functions that provide warnings.
+
+N.B. This should be merged with EXCEPT.py
+"""
+
 from src import text as txt_lib
 from src import type as typ
 

@@ -1,3 +1,11 @@
+"""
+Contains functions involved in type checking or changing. E.g. converting
+seconds to hours and minutes, converting atomic number to element, checking if a
+str is a number etc...
+
+N.B. periodic_table belongs in consts.py
+"""
+
 import numpy as np
 from src import EXCEPT as EXC
 import difflib as dfl
@@ -55,7 +63,7 @@ def is_int(Float):
 
 # Checks whether an object is a list or array etc...
 def is_list_array(array):
-    return type(array) == type([1,2]) or type(array) == type(np.array([1,2])) 
+    return type(array) == type([1,2]) or type(array) == type(np.array([1,2]))
 
 # The resolution needs to divide neatly into the cell size otherwise the wavefunction ends up being translated into another place as there can only be an integer number of voxels in each direction.
 def int_res_marry(nums, res, cell_sze):

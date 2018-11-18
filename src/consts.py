@@ -1,3 +1,9 @@
+"""
+Defines constants used throughout the code.
+
+e.g. img_folderpath, data_folderpath, template_folderpath, pi, img_prefix etc...
+"""
+
 import numpy as np
 
 pi = np.pi

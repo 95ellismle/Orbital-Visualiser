@@ -1,5 +1,10 @@
 '''
-This module contains all the functions that are used to manipulate text.
+Contains functions used to manipulate/handle text. This is quite a loose
+collection of function and probably needs tidying up.
+
+These include functions like
+a fuzzy variable translator, remove substr after string, comment remove, setting
+typos check etc...
 '''
 
 from src import type as typ
