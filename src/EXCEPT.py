@@ -1,3 +1,7 @@
+"""
+Contains code used in exceptions/errors. 
+"""
+
 # Handles general errors with a message (for some reason standard python XXError("..") won't work)
 def ERROR(message, line_number=False):
     if type(line_number) != int:
@@ -29,7 +33,7 @@ def WARN(message, line_number=False):
 def replace_perm_settings():
     """
     If the Templates/permanent_settings.py file is deleted
-    for any reason this function will create the file and 
+    for any reason this function will create the file and
     populate it with defaults.
     """
 

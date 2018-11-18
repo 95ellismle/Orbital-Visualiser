@@ -1,3 +1,11 @@
+"""
+Utility functions for the initialisation. These include things like setting all
+the filepaths, initialising the colours, find which steps to ignore etc...
+
+This file does not contain functions to read the coords, pvecs or the coeffs.
+These can be found in the init/init_IO.py file
+"""
+
 from src import type as typ
 from src import text as txt_lib
 from src import IO as io
@@ -34,6 +42,7 @@ def init_output_files_and_folders(all_settings):
     all_settings['vmd_script'] = {}
     all_settings['vmd_err'] = {}
     all_settings['vmd_temp'] = io.folder_correct(all_settings['tmplte_fold']+"VMD_TEMP.vmd")
+
     all_settings['bin_fold'] = io.folder_correct('./bin/')
     all_settings['ffmpeg_bin'] = io.folder_correct(all_settings['bin_fold']+'ffmpeg')
     all_settings['delete_these'] = []

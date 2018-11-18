@@ -3,7 +3,7 @@ path = '/home/Sangeya/copy'
 
 
 # Calibration Settings
-calibrate = '' # Carries out a single 'calibration' step
+calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 100 
 load_in_vmd = 'y' 
 show_img_after_vmd = '' 

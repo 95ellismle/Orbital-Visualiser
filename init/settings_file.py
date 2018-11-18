@@ -1,3 +1,14 @@
+'''
+Will initialise the all_settings dictionary. This will read the settings.inp
+file and fill out any settings that are missing from the default settings. This
+will also correct any typos in the settings file.
+
+N.B. The all_settings dictionary is a big dictionary with every setting used in
+the code. This is where the MainLoop class looks for any settings it needs.
+This is especially important for filepaths as these really need to be consistent
+throughout the code. 
+'''
+
 from src import IO as io
 from src import consts
 from src import text as txt_lib
@@ -8,11 +19,7 @@ import collections as coll
 import numpy as np
 import difflib as dfl
 
-'''
-Will initialise the all_settings dictionary. This involves parsing the
-settings.inp file and filling this out with defaults that are missing from the
-defaults dictionary (Templates/defaults.py)
-'''
+
 # Will remove bad lines from a settings file.
 def remove_bad_lines(settings_ltxt):
     def is_bad_line(line):

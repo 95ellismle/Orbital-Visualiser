@@ -1,17 +1,18 @@
-# This is where all the default settings are stored. 
-# Each setting that can appear in the settings.inp file must be declared here (apart from the path setting).
-# this means that all settings should have a default by design.
+"""
+ This is where all the default settings are stored.
+ Each setting that can appear in the settings.inp file must be declared here (apart from the path setting).
+ this means that all settings should have a default by design.
 
-# Declaring a default setting should follow a few simple rules:
-#  *  The default setting names should all be lowercase
-#  *  The default setting should have a comment string after it explaining what it does (this is for documentation)
-#                  @ The comment string should contain: @
-#     * A description | A list of possible values | whether it has been tested
+ Declaring a default setting should follow a few simple rules:
+  *  The default setting names should all be lowercase
+  *  The default setting should have a comment string after it explaining what it does (this is for documentation)
+                  @ The comment string should contain: @
+     * A description | A list of possible values | whether it has been tested
 
 
 
-# N.B The tested declaration in the comment string isn't currently used so just put 'not-tested' for now!
-
+ N.B The tested declaration in the comment string isn't currently used so just put 'not-tested' for now!
+"""
 
 
 
