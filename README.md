@@ -1,5 +1,7 @@
 # Orbital Visualiser
 
+**This code has only been tested on linux (Ubuntu, Fedora and RedHat)**
+
 This project has been created to visualise the output of the Surface Hopping, Ehrenfest and CTMQC modules of CP2K. Full instructions can be found by initialising the HTML documentation.
 
 To do this run the Create_docs.py file with python3 i.e:
@@ -23,3 +25,22 @@ Some examples of the output of this code to give you an idea of what it does are
 
 #### A still of an Anthracene dimer
 ![Anthracene Dimer](./Docs/Perm_img/Zak_Vis.png)
+
+
+
+TODO:
+====
+
++ Would like to clean up the files, improve code structure. Read the docstrings on top of files and carry out what they say.
+
++ Add a testing code!
+
++ I've added a TACHYON_LINUXAND64 binary. Would like to just use this instead of finding the binary on the computer. I should test if this will work on other OS's -maybe need a windows and mac OS one too? Also could compile a better version which supports rendering straight to png.
+
++ Add and test support for visualising replicas
+
++ Finish the pvecs calculator. It works for ethylene but needs to work in general.
+
++ Try parallelising again! (maybe this means only parallelising the python part and not the VMD part)
+
++ Add support for other rendering engines e.g. Jmol, pymol etc...
