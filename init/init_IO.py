@@ -1,3 +1,9 @@
+"""
+Contains functions that read the pvecs, the coordinates and the coefficients.
+
+N.B. Maybe the AOM_COEFF file reader should be here...
+"""
+
 from src import IO as io
 from src import type as typ
 from src import consts

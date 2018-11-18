@@ -1,3 +1,12 @@
+"""
+Contains math functions -these should probably be conbined with the geometry
+module.
+
+These include finding the rotation angle, creating the orbital data, finding
+localisation etc...
+"""
+
+
 import numpy as np
 import os
 import time

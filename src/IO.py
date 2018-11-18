@@ -1,5 +1,7 @@
 '''
-This module contains all the functions which handle I/O in the code.
+This large module contains many functions that are involved in the input/output
+operations in the code. These are things like reading the xyz file, writing the
+cube file, writing the xyz file, a generic open_read function and open_write.
 '''
 from __future__ import print_function
 

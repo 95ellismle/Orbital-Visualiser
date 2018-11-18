@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Feb 28 20:45:09 2018
+This will Parse the defaults.py file into a set of HTML tables for the
+documentation.
 
-This will Parse the defaults.py file into a set of HTML tables for the documentation.
-
-@author: oem
+N.B. At the momement this file is quite a mess it probably needs a lot of
+tidying.
 """
 from collections import OrderedDict
 # import os

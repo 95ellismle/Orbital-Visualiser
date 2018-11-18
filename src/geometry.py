@@ -1,7 +1,8 @@
 """
-Created on Thu Jan 18 21:24:15 2018
+Similar to math -contains functions that calculate geometric quantities.
 
-@author: oem
+E.g. Euclidian distance between 2 points, K minimum points in a list, K nearest
+neighbours, pvec calculator, minimum bounding box
 """
 import numpy as np
 
@@ -25,7 +26,7 @@ def K_min(L, K, cutoff=np.inf):
         count += 1
     return [Lorig.index(i) for i in mins]
 
-# Finds the K nearest neighbours. I have created my own implementation here instead of using a library such as scikitlearn for portability.
+# Finds the K nearest neighbours. There are probably better implementations in scikitlearn
 def KNN(coords, num_nbours, a_ind, cutoff=np.inf):
    dist = [Euclid_dist(coords[a_ind], coord) for i,coord in enumerate(coords)]
    #dist = dist[dist > cutoff]
