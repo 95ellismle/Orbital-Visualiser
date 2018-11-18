@@ -1,3 +1,20 @@
+"""
+ This is the file that runs everything. The MainLoop class is responsible for
+ actually carrying out the visualisation once everything has been initialised.
+
+ The initialisation is carried out by files in the init folder. By importing the
+ init module we run these methods and initialise (read all the files and parse
+ them into a computer friendly format).
+
+ After this we create an instance of the MainLoop class. This class handles all
+ the visualisation stuff, from creating the data, to visualising in vmd and
+ stitching together images into a movie.
+
+ To get a feel for what the MainLoop is doing a good place to start is the
+ do_step method which is the function which makes an image from the data.
+"""
+
+
 """Will import the python3 print function."""
 from __future__ import print_function
 from src import EXCEPT as EXC
@@ -23,13 +40,6 @@ if sys.version_info[0] > 2:
     xrange = range
     raw_input = input
 
-"""
- The program that calls all the necessary functions and actually runs the code.
-
- This will initialise the code by reading everything, write the spherical
- harmonic data as a cube file, visualise the cube file with VMD and save them,
- then stitch them all together.
-"""
 
 
 class MainLoop(object):
@@ -71,7 +81,7 @@ class MainLoop(object):
             self._create_cube_file_txt(step)
             self._write_cube_file(step, mol_id)
         self._vmd_visualise(step)
-        if self.all_settings['side_by_side_graph']:
+        if self.all_settings['side_by_side_graph']: #(Not currently supported.
             self._plot(step)
 
     # Finds a dynamic bounding box scale. Makes the bounding box smaller when the mol_coeff is smaller
