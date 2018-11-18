@@ -55,17 +55,24 @@ class MainLoop(object):
         self.neg_iso_cols = {}
         self.pos_iso_cols = {}
         self.PID = "MainProcess"
-        for step in all_steps:
+        for step in all_steps: # Loop over all steps and visualise them
             self.step = step
-            self.theta1 = np.angle(self.all_settings['mol'][self.step][0])
+            self.theta1 = np.angle(self.all_settings['mol'][self.step][0]) #Find the phase of the first mol as a reference. (angle in comple plane)
             self.all_settings['img_prefix'] = consts.Orig_img_prefix.replace("$fs","%.2f"%self.all_settings['Ntime-steps'][self.step]).replace(".",",")
             start_time = time.time()
-            self.do_step(step)
-            self._print_timings(step, len(all_steps), start_time)
+            self.do_step(step) # Do a visualisation step
+            self._print_timings(step, len(all_steps), start_time) #Will print the timings in a nice way
         self._finalise(len(all_steps))
 
     # Completes 1 step
     def do_step(self, step):
+        """
+        Will carry out a single visualisation step. This involves creating the
+        wavefunction data, writing this to a file and rendering it with VMD.
+
+        Inputs:
+            * step  =>  Which step to visualise.
+        """
         self._find_active_molecules()
         self.data_files_to_visualise = []
         self._vmd_filename_handling()
@@ -80,20 +87,36 @@ class MainLoop(object):
             self._save_wf_colors()
             self._create_cube_file_txt(step)
             self._write_cube_file(step, mol_id)
-        self._vmd_visualise(step)
-        if self.all_settings['side_by_side_graph']: #(Not currently supported.
-            self._plot(step)
+        self._vmd_visualise(step) # run the vmd script and visualise the data
+        if self.all_settings['side_by_side_graph']: #(Not currently supported).
+            self._plot(step) # Will plot a graph to one side (not supported)
 
     # Finds a dynamic bounding box scale. Makes the bounding box smaller when the mol_coeff is smaller
     def _dynamic_bounding_box_scale(self, mol_ind, BBS): # Can calculate the mol_C_abs here instead of in the create_wf_data function
-        c = int(BBS)/2
-        #grad = (BBS-c)/0.8
-        new_bb_scale = np.tanh((np.abs(self.all_settings['mol'][self.step][mol_ind])**2) *5)*(BBS-c) + c
+        """
+        Calculates the new bounding box scale according to how much population
+        there is on the molecule. Uses a tanh function to vary scale. This is an
+        optimisation (makes bounding box smaller for smaller densities).
+
+        Inputs:
+            BBS      =>  Original bounding box scale
+            mol_ind  =>  The index of the molecule
+        """
+        w = 0.4 # When do we first start getting there
+        c = 4  # minimum bounding box scale
+        pop = np.abs(self.step_info['mol'][self.mind][mol_ind])**2
+        new_bb_scale = np.tanh(pop/w)
+        new_bb_scale *= (BBS - c)
+        new_bb_scale += c
         new_bb_scale = np.ceil(new_bb_scale)
         return int(new_bb_scale)
 
     # Will handle where to save the various vmd files created
     def _vmd_filename_handling(self):
+        """
+        Will handle the setting of the filepaths involved in the vmd part of the
+        process.
+        """
         self.all_settings['vmd_script'][self.PID] = self.all_settings['vmd_script_folder']+ self.PID+".tcl"
         self.all_settings['vmd_junk'][self.PID] = self.all_settings['vmd_script_folder'] + self.PID + '.out'
         self.all_settings['vmd_err'][self.PID] = self.all_settings['vmd_script_folder'] + self.PID + '.error'
@@ -102,6 +125,11 @@ class MainLoop(object):
 
     # Will save the background molecules in an xyz file to be loaded by vmd
     def _write_background_mols(self):
+        """
+        Will write the background molecules as a seperate xyz file. The
+        background molecules are the inactive FIST molecules as part of the wider
+        crystal.
+        """
         # Dealing with the background molecules
         largest_dim = np.argmax([np.max(self.all_settings['coords'][self.step][:,i]) for i in range(3)])
         #dims = [Xdims, Ydims, Zdims][largest_dim]
@@ -116,6 +144,12 @@ class MainLoop(object):
 
     # Finds how many molecules have a significant charge to visualise
     def _localisation(self): # Probably isn't actually that useful! The min tolerance thing is actually more useful.
+        """
+        Finds the number of molecules that the charge is localised over.
+
+        I was going to use this to set a cutoff for the number of molecules to
+        be visualised as an optimisation. But it didn't go anywhere.
+        """
         localisation = MT.IPR(self.all_settings['mol'][self.step])
         if localisation > 1.00001:
             localisation *= 1+np.exp(-localisation)
@@ -124,6 +158,9 @@ class MainLoop(object):
 
     # Will find the active molecules which need looping over
     def _find_active_molecules(self):
+        """
+        Will find which molecules are active and which can be ignored.
+        """
         self.active_step_mols = np.arange(0,self.all_settings['nmol'])[self.all_settings['pops'][self.step] > self.all_settings['min_abs_mol_coeff'] ]
         self.all_settings['mols_plotted'] = len(self.active_step_mols)
         if self.all_settings['mols_plotted'] == 0:
@@ -134,6 +171,13 @@ class MainLoop(object):
 
     # Will find the active atoms to loop over
     def _find_active_atoms(self, mol_id):
+        """
+        Find which atoms are active (on a molecule?) according to the
+        AOM_COEFF.include file.
+
+        Inputs:
+            * mol_id  =>  The molecule to find active atoms for
+        """
         self.active_coords = np.array([self.all_settings['coords'][self.step][i] for i in self.all_settings['active_atoms_index'][mol_id]])
         if len(self.active_coords) <= 0:
             if any(act_mol_id > self.all_settings['num_mols_active'] for act_mol_id in self.active_step_mols):
@@ -147,7 +191,16 @@ class MainLoop(object):
 
     # Will create the wavefunction data
     def _create_wf_data(self, mol_id, step):
+        """
+        Will create the wavefunction data. This involves creating a bounding box
+        big enough to encapsulate the wf and creating the p-orbital data.
+
+        Inputs:
+            * mol_id  =>  The molecule index
+            * step    =>  The step number
+        """
         start_data_create_time = time.time()
+
         # Drawing a bounding box around the active atoms to prevent creating unecessary data
         if self.all_settings['dyn_bound_box']:
              BBS_dyn = [self._dynamic_bounding_box_scale(mol_id, i) for i in self.all_settings['bounding_box_scale']]
@@ -156,6 +209,8 @@ class MainLoop(object):
         trans, active_size  = geom.min_bounding_box([self.active_coords[:,k] for k in range(3)],
                                                          BBS_dyn)
         self.sizes  = typ.int_res_marry(active_size, self.all_settings['resolution'], [1,1,1])     #How many grid points
+
+        # Create wf data
         scale_factors = np.array([i*self.all_settings['resolution'] for j, i in enumerate(self.sizes)])
         # Actually create the data
         self.data = np.zeros(self.sizes, dtype=complex)
@@ -177,6 +232,11 @@ class MainLoop(object):
 
     # Creates the cube file to save
     def _create_cube_file_txt(self, step):
+        """
+        Creates the cube file as a string. This is created as a string first
+        then written to a file as this is much more efficient than writing each
+        line to a file on the fly
+        """
         start_cube_create_time = time.time()
         xyz_basis_vectors    = np.array([[self.all_settings['resolution'],0,0], # Probably not too bad creating this tiny list here at every step.
                                 [0,self.all_settings['resolution'], 0],
@@ -194,6 +254,14 @@ class MainLoop(object):
 
     # Handles the saving the wf colors in a dictionary of the wavefunction.
     def _set_wf_colors(self):
+        """
+        Will determine the colour of the wavefunction depending on the setting
+        chosen. If density is chosen then the wavefunction will all be one
+        colour. If real-phase is chosen the wavefunction will be one colour for
+        positive values and another for negative values. If full phase is chosen
+        the colour will be dependent on which quadrant in the complex plane the
+        coefficient appears in.
+        """
          thetai = np.angle(self.mol_C*self.atom_I) - self.theta1
          # Could optimise (and tidy) this, the code doesn't need to do all this at every step
          if self.all_settings['color_type'] == 'density':
@@ -219,6 +287,9 @@ class MainLoop(object):
 
     # Saves the wavefunction coloring in the tcl dictionary
     def _save_wf_colors(self):
+        """
+        Saves the wf colours in the tcl dictionary to be visualised by vmd
+        """
          neg_col_dict_str = "set Negcols " + str(self.neg_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
          pos_col_dict_str = "set Poscols " + str(self.pos_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
          self.all_settings['tcl']['neg_cols'] = neg_col_dict_str
@@ -226,6 +297,10 @@ class MainLoop(object):
 
     # Visualises the vmd data and adds timings to the dictionary
     def _vmd_visualise(self, step):
+        """
+        Visualises the data. This fills in the variables in the vmd template,
+        writes the script and runs it in vmd.
+        """
         start_vmd_time = time.time()
         for i in self.all_settings['tcl']['cube_files'].split(' '):
             if not io.path_leads_somewhere(i.strip()):
@@ -241,6 +316,9 @@ class MainLoop(object):
 
     # Handles the writing of the necessary files
     def _write_cube_file(self, step, mol_id):
+        """
+        Converts each molecular wavefunction to a cube file to be loaded in vmd.
+        """
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
            data_filename = "%i-%s.cube"%(step, mol_id)
@@ -260,6 +338,11 @@ class MainLoop(object):
 
     # Handles the plotting of the side graph.
     def _plot(self, step):
+        """
+        Unsupported.
+
+        Will plot a graph along side the visualisation.
+        """
         # Plotting if required
        start_plot_time = time.time()
        files  = {'name':"G%i"%step, 'tga_fold':self.tga_filepath}
@@ -268,6 +351,11 @@ class MainLoop(object):
 
     # Runs the garbage collection and deals with stitching images etc...
     def _finalise(self, num_steps):
+        """
+        Updates the setting file with changes that occured in the vmd file. Will
+        also display the img or stitch the movie. It will finally collect
+        garbage.
+        """
         io.settings_update(self.all_settings)
         if not all_settings['calibrate']:
             self._stitch_movie()
@@ -278,6 +366,9 @@ class MainLoop(object):
 
     # Show the image in VMD or load the image in a default image viewer
     def _display_img(self):
+        """
+        Displays the created image in the default viewer. Only works in linux!
+        """
         if self.all_settings['mols_plotted'] > 0:
             if self.all_settings['load_in_vmd']:
                 self.all_settings['tcl']['pic_filename'][self.PID] = self.tga_filepath
@@ -292,6 +383,9 @@ class MainLoop(object):
 
     # Handles Garbage Collection
     def _garbage_collector(self):
+        """
+        Deletes temporary files.
+        """
         #self.all_settings['delete_these'].append(self.all_settings['vmd_log_file'])
         self.all_settings['delete_these'].append(io.folder_correct('./vmdscene.dat'))
         # Garbage collection
@@ -302,6 +396,10 @@ class MainLoop(object):
 
     # Handles converting the image to another img format for storing
     def _store_imgs(self):
+        """
+        Will convert images from tga to jpg (for storage). jpg is smaller than
+        tga.
+        """
         # Convert all .tga to .img
         if 'img' in self.all_settings['files_to_keep']:
             cnvt_command = "mogrify -format %s %s*.tga"%(self.all_settings['img_format'], self.tga_folderpath)
@@ -311,6 +409,10 @@ class MainLoop(object):
 #Need to change all the filenames of the tga files to add leading zeros
 # Stitches the movie together from other files
     def _stitch_movie(self):
+        """
+        Stitches the individual images together into a movie using the ffmpeg
+        binary in the bin/ folder.
+        """
         io.add_leading_zeros(self.tga_folderpath)
         files = "*.tga"
         # Creating the ffmpeg and convert commands for stitching
@@ -326,6 +428,9 @@ class MainLoop(object):
 
     # Prints the timing info
     def _print_timings(self, step, num_steps, start_step_time):
+        """
+        Will pretty print the timings
+        """
         traj_print = "\n"+txt_lib.align("Trajectory %i/%i    %s    Timestep %s"%(step+1, num_steps,
           typ.seconds_to_minutes_hours(time.time()-start_step_time, "CPU: "), self.all_settings['Mtime-steps'][self.step]),
                    69, "l") + "*"
