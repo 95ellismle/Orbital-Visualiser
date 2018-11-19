@@ -1,10 +1,10 @@
 # The path to the folder containing the data.
-path = '/home/Sangeya/copy' 
+path = '/home/Sangeya/Documents/PhD/Data/copy2' 
 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 100 
+calibration_step = 1000 
 load_in_vmd = 'y' 
 show_img_after_vmd = '' 
 

@@ -1,6 +1,12 @@
-previous_path = '/home/Sangeya/copy/'
-previous_runtime = '17/11/18 54:20:15'
-tachyon_path = '/usr/local/lib/vmd/tachyon_LINUXAMD64'
+"""
+This file contains settings that are needed between runs. This is created and
+changed by the code. If this file is corrupted simply delete it and re-run the
+code.
+"""
+
+previous_path = ''
+previous_runtime = '01/01/1900 01:01:01'
+tachyon_path = ''
 time_format = "%d/%m/%y %M:%H:%S"
-created_docs = True
-previous_calibrate = True
+created_docs = False
+previous_calibrate = False

@@ -1,5 +1,5 @@
 """
-Contains code used in exceptions/errors. 
+Contains code used in exceptions/errors.
 """
 
 # Handles general errors with a message (for some reason standard python XXError("..") won't work)
@@ -38,11 +38,17 @@ def replace_perm_settings():
     """
 
     # The default settings
-    s = """previous_path = ''
+    s = '''"""
+This file contains settings that are needed between runs. This is created and
+changed by the code. If this file is corrupted simply delete it and re-run the
+code.
+"""
+
+previous_path = ''
 previous_runtime = '01/01/1900 01:01:01'
 tachyon_path = ''
 time_format = "%d/%m/%y %M:%H:%S"
 created_docs = False
-previous_calibrate = False"""
+previous_calibrate = False'''
     with open("./Templates/permanent_settings.py", "w") as f:
         f.write(s)

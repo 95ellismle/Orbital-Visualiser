@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Will call all the relevant functions to initialise the program. The import
 settings_file statement will read and parse the settings file into the
@@ -5,7 +6,6 @@ all_settings dictionary.
 """
 
 """Will import the python3 print function."""
-from __future__ import print_function
 
 from src import EXCEPT as EXC
 from src import consts

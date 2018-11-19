@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
  This is the file that runs everything. The MainLoop class is responsible for
  actually carrying out the visualisation once everything has been initialised.
@@ -16,7 +17,6 @@
 
 
 """Will import the python3 print function."""
-from __future__ import print_function
 from src import EXCEPT as EXC
 
 
@@ -262,38 +262,38 @@ class MainLoop(object):
         the colour will be dependent on which quadrant in the complex plane the
         coefficient appears in.
         """
-         thetai = np.angle(self.mol_C*self.atom_I) - self.theta1
-         # Could optimise (and tidy) this, the code doesn't need to do all this at every step
-         if self.all_settings['color_type'] == 'density':
-              self.neg_iso_cols[self.tcl_dict_ind] = 22
-              self.pos_iso_cols[self.tcl_dict_ind] = 22
-         elif self.all_settings['color_type'] == 'real-phase':
-              self.neg_iso_cols[self.tcl_dict_ind] = 21
-              self.pos_iso_cols[self.tcl_dict_ind] = 20
-         elif self.all_settings['color_type'] == 'phase':
-           if -np.pi/4<thetai<=np.pi/4: # Pos Real Quadrant
-              self.neg_iso_cols[self.tcl_dict_ind] = 21
-              self.pos_iso_cols[self.tcl_dict_ind] = 20
-           elif np.pi/4<thetai<=3*np.pi/4: # Pos Imag Quadrant
-              self.neg_iso_cols[self.tcl_dict_ind] = 19
-              self.pos_iso_cols[self.tcl_dict_ind] = 18
-           elif 3*np.pi/4<thetai<=5*np.pi/4: # Neg Real Quadrant
-              self.neg_iso_cols[self.tcl_dict_ind] = 20
-              self.pos_iso_cols[self.tcl_dict_ind] = 21
-           else:                         # Neg imag Quadrant
-              self.neg_iso_cols[self.tcl_dict_ind] = 18
-              self.pos_iso_cols[self.tcl_dict_ind] = 19
-         self.tcl_dict_ind += 1
+        thetai = np.angle(self.mol_C*self.atom_I) - self.theta1
+        # Could optimise (and tidy) this, the code doesn't need to do all this at every step
+        if self.all_settings['color_type'] == 'density':
+             self.neg_iso_cols[self.tcl_dict_ind] = 22
+             self.pos_iso_cols[self.tcl_dict_ind] = 22
+        elif self.all_settings['color_type'] == 'real-phase':
+             self.neg_iso_cols[self.tcl_dict_ind] = 21
+             self.pos_iso_cols[self.tcl_dict_ind] = 20
+        elif self.all_settings['color_type'] == 'phase':
+          if -np.pi/4<thetai<=np.pi/4: # Pos Real Quadrant
+             self.neg_iso_cols[self.tcl_dict_ind] = 21
+             self.pos_iso_cols[self.tcl_dict_ind] = 20
+          elif np.pi/4<thetai<=3*np.pi/4: # Pos Imag Quadrant
+             self.neg_iso_cols[self.tcl_dict_ind] = 19
+             self.pos_iso_cols[self.tcl_dict_ind] = 18
+          elif 3*np.pi/4<thetai<=5*np.pi/4: # Neg Real Quadrant
+             self.neg_iso_cols[self.tcl_dict_ind] = 20
+             self.pos_iso_cols[self.tcl_dict_ind] = 21
+          else:                         # Neg imag Quadrant
+             self.neg_iso_cols[self.tcl_dict_ind] = 18
+             self.pos_iso_cols[self.tcl_dict_ind] = 19
+        self.tcl_dict_ind += 1
 
     # Saves the wavefunction coloring in the tcl dictionary
     def _save_wf_colors(self):
         """
         Saves the wf colours in the tcl dictionary to be visualised by vmd
         """
-         neg_col_dict_str = "set Negcols " + str(self.neg_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
-         pos_col_dict_str = "set Poscols " + str(self.pos_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
-         self.all_settings['tcl']['neg_cols'] = neg_col_dict_str
-         self.all_settings['tcl']['pos_cols'] = pos_col_dict_str
+        neg_col_dict_str = "set Negcols " + str(self.neg_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
+        pos_col_dict_str = "set Poscols " + str(self.pos_iso_cols).replace(',','').replace('[','{').replace(']',' }').replace(':','').replace("'","")
+        self.all_settings['tcl']['neg_cols'] = neg_col_dict_str
+        self.all_settings['tcl']['pos_cols'] = pos_col_dict_str
 
     # Visualises the vmd data and adds timings to the dictionary
     def _vmd_visualise(self, step):
@@ -344,10 +344,10 @@ class MainLoop(object):
         Will plot a graph along side the visualisation.
         """
         # Plotting if required
-       start_plot_time = time.time()
-       files  = {'name':"G%i"%step, 'tga_fold':self.tga_filepath}
-       self.all_settings['delete_these'].append(io.plot(self.all_settings, self.step, files, plt))
-       self.all_settings['times']['Plot and Save Img'][step] += time.time() - start_plot_time
+        start_plot_time = time.time()
+        files  = {'name':"G%i"%step, 'tga_fold':self.tga_filepath}
+        self.all_settings['delete_these'].append(io.plot(self.all_settings, self.step, files, plt))
+        self.all_settings['times']['Plot and Save Img'][step] += time.time() - start_plot_time
 
     # Runs the garbage collection and deals with stitching images etc...
     def _finalise(self, num_steps):
