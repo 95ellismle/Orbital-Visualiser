@@ -90,7 +90,7 @@
        <div style="margin-left: 190px;">
          <div class="container">
            <br />
-           <h2>Movie Creation</h2>
+           <h2>colors and Materials</h2>
            <div class="datagrid">
              <table id=table1><tr>
     <th>
@@ -108,13 +108,98 @@
   </tr>
 <tr>
     <td>
-      "title"
+      pos_real_iso_col
     </td>
     <td>
-      None
+      (1,0,0)
     </td>
     <td>
-      This will change the name of the movie and the folder it is saved in. Will save the movie in ./img/Title/ 
+      The color of positive real isosurfaces 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red, green, blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      neg_real_iso_col
+    </td>
+    <td>
+      (0,0,1)
+    </td>
+    <td>
+      The color of negative real isosurfaces 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red, green, blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      neg_imag_iso_col
+    </td>
+    <td>
+      (0,0.4,1)
+    </td>
+    <td>
+      The color of positive imaginary isosurfaces 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red, green, blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      pos_imag_iso_col
+    </td>
+    <td>
+      (1,0.4,0)
+    </td>
+    <td>
+      The color of negative imaginary isosurfaces 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red, green, blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      density_iso_col
+    </td>
+    <td>
+      (0.3, 0.32,0.3)
+    </td>
+    <td>
+      The color of the isosurface in a density visualisation 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red,green,blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      carbon_color
+    </td>
+    <td>
+      'black'
+    </td>
+    <td>
+      The color of the Carbon atoms 
     </td>
     <td>
       
@@ -125,123 +210,104 @@
   </tr>
 <tr>
     <td>
-      end_step
+      hydrogen_color
     </td>
     <td>
-      'all'
+      'white'
     </td>
     <td>
-      Which step to iterate up to for the movie 
+      The color of the Hydrogen atoms 
     </td>
     <td>
       
         <ul>
-            <li>  all </li>
-            <li>  integer </li>
+            <li>  string </li>
         </ul>
     </td>
   </tr>
 <tr>
     <td>
-      stride
+      background_color
     </td>
     <td>
-      1
+      [1,1,1]
     </td>
     <td>
-      What stride to use to iterate with for the movie (a stride of 2 would render every 2nd frame) 
+      The color of the background 
     </td>
     <td>
       
         <ul>
-            <li>  integer </li>
+            <li>  string </li>
+            <li>  list (rgb values e.g. [1,0,0]) </li>
         </ul>
     </td>
   </tr>
 <tr>
     <td>
-      start_step
+      neon_color
     </td>
     <td>
-      0
+      'yellow'
     </td>
     <td>
-      Which step to start iterating on 
+      The color of the Neon atoms 
     </td>
     <td>
       
         <ul>
-            <li>  integer (zero is the first) </li>
+            <li>  string (VMD colors) </li>
         </ul>
     </td>
   </tr>
 <tr>
     <td>
-      verbose_output
+      mol_style
     </td>
     <td>
-      'no'
+      'CPK'
     </td>
     <td>
-      Shows lots of info about what is happening 
+      The visualisation style of the molecules (see VMD) 
     </td>
     <td>
       
         <ul>
-            <li>  yes </li>
-            <li>  no </li>
+            <li>  string </li>
         </ul>
     </td>
   </tr>
 <tr>
     <td>
-      movie_length
+      mol_material
     </td>
     <td>
-      6
+      "Edgy"
     </td>
     <td>
-      The length of the finished movie (will adjust the framerate to match the time) 
+      The visualisation material used for the molecules (see VMD) 
     </td>
     <td>
       
         <ul>
-            <li>  integter </li>
+            <li>  string </li>
         </ul>
     </td>
   </tr>
 <tr>
     <td>
-      movie_format
+      iso_material
     </td>
     <td>
-      "mp4"
+      "BrushedMetal"
     </td>
     <td>
-      The format of the created movie 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  mp4 </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      restart_vis
-    </td>
-    <td>
-      'yes'
-    </td>
-    <td>
-      Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end 
+      The visualisation material used for the isosurface (see VMD) 
     </td>
     <td>
       
         <ul>
-            <li>  yes </li>
-            <li>  no </li>
+            <li>  string </li>
         </ul>
     </td>
   </tr>
