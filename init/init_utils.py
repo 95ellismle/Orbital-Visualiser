@@ -114,6 +114,11 @@ def init_rep_files(all_settings):
 # Will find which steps have already been completed so we can ignore them and
 #   only do the steps that need doing.
 def find_ignoring_steps(all_settings):
+    """
+    Find the global steps to ignore. These come from steps already completed in
+    a previous run. This function will loop through the img folder and find the
+    timesteps already completed and decide to ignore these steps.
+    """
     if all_settings['title'] in os.listdir(all_settings['img_fold']):
         all_steps = range(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
         img_folderpath = io.folder_correct(all_settings['img_fold']+all_settings['title'])
@@ -122,7 +127,8 @@ def find_ignoring_steps(all_settings):
         ltxt = io.open_read(all_settings['CP2K_output_files']['coeff'][0]).split('\n')
         max_step = int(len(ltxt)/all_settings['coeff_metadata']['lines_in_step'])
         timesteps = ["%.2f"%float(txt_lib.string_between(ltxt[all_settings['coeff_metadata']['lines_in_step']*i + all_settings['coeff_metadata']['time_ind']], "time = ", all_settings['coeff_metadata']['time_delim'])) for i in range(max_step)]
-        return [i for i in all_steps if all_steps[i] in completed_timesteps]
+        common_timesteps = np.intersect1d( completed_timesteps, timesteps, return_indices=True)
+        return common_timesteps[1] # return indices of timesteps
     else:
         return []
 
@@ -271,7 +277,7 @@ def read_cp2k_inp_file(all_settings):
 def init_global_steps_to_ignore(all_settings):
     all_settings['global_steps_to_ignore'] = []
     if all_settings['restart_vis'] and not all_settings['calibrate']:
-        all_settings['global_steps_to_ignore'] = find_ignoring_steps(all_settings)
+        all_settings['global_steps_to_ignore'] = list( find_ignoring_steps(all_settings) ) 
 
 # Will find which atoms should be plotted
 def init_atoms_to_plot(all_settings):
@@ -358,9 +364,18 @@ def find_step_numbers(all_settings):
                                        all_settings['coeff_metadata']['nsteps'],
                                        all_settings['pvecs_metadata']['nsteps']])
 
-# Will initialise which timesteps to carry out based on which steps are available
-# E.g. if nuclear timesteps = [1,2,3,6] and coeff timesteps = [1,2,3,4,5,6] we would carry out [1,2,3,6]...
+
 def init_local_steps_to_ignore(all_settings):
+    """
+    Will initialise which timesteps to carry out based on which steps are
+    available.
+        E.g. if nuclear timesteps = [1,2,3,    6]
+             and coeff timesteps =  [1,2,3,4,5,6]
+             we would carry out     [1,2,3,    6]...
+
+    We do this by finding which steps aren't common to all 3 lists as that is
+    the way the xyz reader works.
+    """
     all_nucl_steps = np.arange(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
 
     # Read in which timesteps are available
@@ -368,40 +383,9 @@ def init_local_steps_to_ignore(all_settings):
     c_avail_dt = all_settings['coeff_metadata']['tsteps']
     p_avail_dt = all_settings['pvecs_metadata']['tsteps']
 
-    # Create some arrays to store the steps we are going to want to ignore
-    nucl_to_ignore = all_nucl_steps[:]
-    all_coef_steps, coef_to_ignore = np.arange(len(c_avail_dt)), np.arange(len(c_avail_dt))
-    all_pvec_steps, pvec_to_ignore = np.arange(len(p_avail_dt)), np.arange(len(p_avail_dt))
-
-    # First remove any nuclear timesteps not found in coeffs or pvecs
-    nc_mask = [i in c_avail_dt for i in n_avail_dt]
-    all_nucl_steps = all_nucl_steps[nc_mask]
-    np_mask = [i in p_avail_dt for i in n_avail_dt]
-    all_nucl_steps = all_nucl_steps[nc_mask]
-    if len(all_nucl_steps) == 0: raise SystemExit("Sorry I can't seem to find any timesteps that overlap between the nuclear, coefficients and pvecs!")
-
-    # We can now remove any steps in the coefficients array that aren't found elsewhere
-    cp_mask = [i in p_avail_dt for i in c_avail_dt]
-    all_coef_steps = all_coef_steps[cp_mask]
-    cn_mask = [i in n_avail_dt for i in c_avail_dt]
-    all_coef_steps = all_coef_steps[cn_mask]
-    if len(all_coef_steps) == 0: raise SystemExit("Sorry I can't seem to find any timesteps that overlap between the nuclear, coefficients and pvecs!")
-
-    #Finally do the same for pvecs
-    pc_mask = [i in c_avail_dt for i in p_avail_dt]
-    all_pvec_steps = all_pvec_steps[pc_mask]
-    pn_mask = [i in n_avail_dt for i in p_avail_dt]
-    all_pvec_steps = all_pvec_steps[pn_mask]
-    if len(all_pvec_steps) == 0: raise SystemExit("Sorry I can't seem to find any timesteps that overlap between the nuclear, coefficients and pvecs!")
-
-    # Finally save any steps to ignore in arrays to be read later
-    all_settings['c_steps_to_ignore'] = np.array([i for i in coef_to_ignore if i not in all_coef_steps ]+list(all_settings['global_steps_to_ignore']))
-    all_settings['p_steps_to_ignore'] = np.array([i for i in pvec_to_ignore if i not in all_pvec_steps ]+list(all_settings['global_steps_to_ignore']))
-    if not all_settings['calibrate']:
-        all_settings['n_steps_to_ignore'] = np.array([i for i in nucl_to_ignore if i not in all_nucl_steps ]+list(all_settings['global_steps_to_ignore']))
-    else:
-        all_settings['n_steps_to_ignore'] = [i for i in range(all_settings['pos_metadata']['nsteps']) if i != all_nucl_steps[0]]
-
+    # Find timesteps that are in all sets
+    common_timesteps = np.intersect1d(np.intersect1d(n_avail_dt, c_avail_dt), p_avail_dt)
+    all_settings['common_timesteps'] = common_timesteps
 
 # Will check the last lines of the file TemplatesVMD_TEMP.vmd are known
 def check_VMD_TEMP(all_settings):

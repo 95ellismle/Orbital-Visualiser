@@ -16,6 +16,7 @@ rotate x by -360.000000
 scale by 1.000000
 scale by 1.000000
 """
+alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
 img_folderpath      = './img/'
 data_folderpath     = './data/'

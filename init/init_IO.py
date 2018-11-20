@@ -17,7 +17,8 @@ def read_coords(all_settings):
                                        min_step=all_settings['start_step'],
                                        max_step=all_settings['max_step'],
                                        stride=all_settings['stride'],
-                                       ignore_steps=all_settings['n_steps_to_ignore'],
+                                       do_timesteps=all_settings['common_timesteps'],
+                                       ignore_steps=all_settings['global_steps_to_ignore'],
                                        metadata=all_settings['pos_metadata']) for filename in all_settings['CP2K_output_files']['pos']]
 # Mean the reps
     if all_settings['mean_rep']:
@@ -32,7 +33,8 @@ def read_coords(all_settings):
     # We only read the atom numbers for the first step and assume they're always the same
     all_settings['at_num'] = np.array([typ.atomic_num_convert(i) for i in all_settings['at_num'][0]])
 
-    if all_settings['global_steps_to_ignore']: print("Finished reading coords, %i steps (already completed steps %s and %i)"%(len(all_settings['coords']),", ".join([str(i) for i in all_settings['global_steps_to_ignore']][:-1]), all_settings['steps_to_ignore'][-1]))
+    if type(all_settings['global_steps_to_ignore']) == type(np.array(2)): all_settings['global_steps_to_ignore'] = list(all_settings['global_steps_to_ignore'])
+    if all_settings['global_steps_to_ignore']: print("Finished reading coords, %i steps (already completed steps %s and %i)"%(len(all_settings['coords']),", ".join([str(i) for i in all_settings['global_steps_to_ignore']][:-1]), all_settings['global_steps_to_ignore'][-1]))
     else: print("Finished reading coords (%i steps)"%len(all_settings['coords']))
 
 # Will read the coefficient files
@@ -43,7 +45,8 @@ def read_coeffs(all_settings):
                                      min_step=all_settings['start_step'],
                                      max_step=all_settings['max_step'],
                                      stride=all_settings['stride'],
-                                     ignore_steps=all_settings['c_steps_to_ignore'],
+                                     do_timesteps=all_settings['common_timesteps'],
+                                     ignore_steps=all_settings['global_steps_to_ignore'],
                                      metadata=all_settings['coeff_metadata']) for f in all_settings['CP2K_output_files']['coeff']]
     if all_settings['mean_rep']:
         all_settings['mol'] = np.mean([i[0] for i in all_mol_data], axis=0)
@@ -59,7 +62,8 @@ def read_pvecs(all_settings):
                               min_step=all_settings['start_step'],
                               max_step=all_settings['max_step'],
                               stride=all_settings['stride'],
-                              ignore_steps=all_settings['p_steps_to_ignore'],
+                              do_timesteps=all_settings['common_timesteps'],
+                              ignore_steps=all_settings['global_steps_to_ignore'],
                               metadata=all_settings['pvecs_metadata'])[0]
              for f in all_settings['CP2K_output_files']['pvecs']]
 
