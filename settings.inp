@@ -3,7 +3,7 @@ path = '/home/Sangeya/Documents/PhD/Data/copy2'
 
 
 # Calibration Settings
-calibrate = 'y' # Carries out a single 'calibration' step
+calibrate = '' # Carries out a single 'calibration' step
 calibration_step = 0 
 load_in_vmd = '' 
 show_img_after_vmd = 'y' 

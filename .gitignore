@@ -14,3 +14,8 @@ data
 */__pycache__
 */__pycache__/*
 
+Templates/permanent_settings.py
+settings.inp
+src/TCL/MainProcess.tcl
+
+
