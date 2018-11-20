@@ -4,9 +4,9 @@ path = '/home/Sangeya/Documents/PhD/Data/copy2'
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 1000 
-load_in_vmd = 'y' 
-show_img_after_vmd = '' 
+calibration_step = 0 
+load_in_vmd = '' 
+show_img_after_vmd = 'y' 
 
 title = 'test' 
 keep_cube_files = True 
@@ -20,7 +20,7 @@ background_color = (0.9, 0.87, 0.87)
 
 start_step = 0 
 end_step = 'all' 
-stride = 3 
+stride = 10 
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
@@ -28,8 +28,7 @@ atoms_to_plot = 'all'
 
 isosurface_to_plot = 1e-06 
 
-bounding_box_scale = 12 
+bounding_box_scale = 13 
 
-zoom_value = 1.7601203435105475 #
-
-translate_by = [0.03,-0.08,0] # How much to translate in xyz directions
+zoom_value = 1.9 
+translate_by = [0,-0.03,0] 

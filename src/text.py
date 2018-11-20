@@ -9,6 +9,7 @@ typos check etc...
 
 from src import type as typ
 from src import EXCEPT as EXC
+from src import consts
 
 import difflib as dfl
 import numpy as np
@@ -114,15 +115,26 @@ def folderpath_back_N(folderpath, N=1):
 
 # Changes variables in the permanent settings file
 def change_perm_settings(settings_txt, setting, value):
+    """
+    Changes variables in the permanent settings file, should ignore any triple
+    string docstrings
+    """
     if type(value) == str:
         value = "'%s'"%value.strip()
-    ltxt = ltxt_clean(settings_txt.split('\n'))
-    dtxt = {i.split('=')[0].replace(' ',''):i.split('=')[1] for i in ltxt}
-    dtxt[setting] = value
-    ltxt = ["%s = %s"%(str(i).strip(),str(dtxt[i]).strip()) for i in dtxt]
-    settings_txt = '\n'.join(ltxt)
-    return settings_txt
+    ltxt = ltxt_clean(settings_txt.split('\n')) # clean up the file
+    for i, line in enumerate(ltxt):
+        if '=' in line:
+            old_setting = line.split('=')[0].replace(' ','')
+            if old_setting == setting:
+                ltxt[i] = "%s = %s"%(setting, value)
+                return '\n'.join(ltxt)
+    else:
+        raise SystemExit("""
+Couldn't find the correct setting in the Templates/permanent settings.py file.
 
+The file has probably been corrupted somehow. Please try deleting it and
+restarting the code.
+""")
 # Adds zeros at the begining of an integer
 def add_leading_zeros(in_int, len_str):
     I = str(in_int)
@@ -207,52 +219,81 @@ def cube_file_text(Dat, vdim, An, Ac, tit, mol_info,
 
 # Puts all the instances of a triple string quotation on one line to be read in main.py
 def triple_string_clean(ltxt):
+    """
+    Will concatenate all instances of a triple string in the list of lines to a
+    single item.
+    """
     triple_stings = ['"""',"'''"]
-    trip_str_instances = False
+    str_mark = triple_stings[0]
     txt = '\n'.join(ltxt)
-    for str_mark in triple_stings:
-        if str_mark in txt:
-            trip_str_instances = True
-            break
-    if not trip_str_instances:
-        return ltxt
-    count = 0
-    L = []
-    end_strs = []
-    begin_strs = []
-    for str_mark in triple_stings:
-        for linei, line in enumerate(ltxt):
-            if line.count(str_mark) > 2:
-                break
-            if line.count(str_mark) == 2:
-                L.append(line)
-                begin_strs.append(linei)
-                end_strs.append(linei+1)
-            if line.count(str_mark) == 1:
-                line_split = line.split(str_mark)
-                if count == 0:
-                    if '=' in line_split[0]:
-                        eq_split = [i.strip() for i  in line.split('=')]
-                        if eq_split[0].count(' ') == 0:
-                            count = 1
-                            start_i = linei
-                            begin_strs.append(linei)
-                if count == 1:
-                    for nlinei, nline in enumerate(ltxt[start_i+1:]):
-                        if nline.count(str_mark):
-                            L.append('\n'.join(ltxt[start_i:nlinei+start_i+2]))
-                            end_strs.append(nlinei+start_i+2)
-                            break
-                    count = 0
-        ltxt_tmp = ltxt[:begin_strs[0]]
-        for i in range(len(begin_strs)-1):
-            ltxt_tmp += ltxt[end_strs[i]:begin_strs[i+1]]
-        ltxt_tmp += ltxt[end_strs[-1]:]
 
-        for line in ltxt_tmp:
-            if str_mark not in ltxt_tmp and line not in L:
-                L.append(line)
-    return L
+    # Create a unique identifier
+    unique_replace_mark = "*54987&&*4637"
+    if unique_replace_mark in txt:
+        import random
+        while (unique_replace_mark in txt):
+            unique_replace_mark = ''.join([consts.alphabet[random.randint(0,25)] for i in range(15)])
+
+    # Find all triple string sections and replace \n with unique identifier
+    for str_mark in triple_stings:
+        first_trip_str = txt.find(str_mark)
+        if first_trip_str == -1: break
+        next_trip_str  = txt[first_trip_str+len(str_mark):].find(str_mark)
+        if next_trip_str == -1:
+            raise SystemExit("Sorry I think there is no end to a string in the following text:\n\n%s"%txt)
+        # Grab the bit of text between triple strings and replace carriage returns with a unique identifier
+        partial_txt = txt[first_trip_str : next_trip_str+len(str_mark)*2]
+        partial_txt = partial_txt.replace("\n", unique_replace_mark)
+        txt = txt[:first_trip_str] + partial_txt + txt[next_trip_str+len(str_mark)*2:]
+        # Make sure the carriage returns in the triple string are preserved
+    ltxt = [i.replace(unique_replace_mark, '\n') for i in txt.split('\n')]
+    return ltxt
+
+    # trip_str_instances = False
+    # txt = '\n'.join(ltxt)
+    # for str_mark in triple_stings:
+    #     if str_mark in txt:
+    #         trip_str_instances = True
+    #         break
+    # if not trip_str_instances:
+    #     return ltxt
+    # count = 0
+    # L = []
+    # end_strs = []
+    # begin_strs = []
+    # for str_mark in triple_stings:
+    #     for linei, line in enumerate(ltxt):
+    #         if line.count(str_mark) > 2:
+    #             break
+    #         if line.count(str_mark) == 2:
+    #             L.append(line)
+    #             begin_strs.append(linei)
+    #             end_strs.append(linei+1)
+    #         if line.count(str_mark) == 1:
+    #             line_split = line.split(str_mark)
+    #             if count == 0:
+    #                 if '=' in line_split[0]:
+    #                     eq_split = [i.strip() for i  in line.split('=')]
+    #                     if eq_split[0].count(' ') == 0:
+    #                         count = 1
+    #                         start_i = linei
+    #                         begin_strs.append(linei)
+    #             if count == 1:
+    #                 for nlinei, nline in enumerate(ltxt[start_i+1:]):
+    #                     if nline.count(str_mark):
+    #                         L.append('\n'.join(ltxt[start_i:nlinei+start_i+2]))
+    #                         end_strs.append(nlinei+start_i+2)
+    #                         break
+    #                 count = 0
+    #     ltxt_tmp = ltxt[:begin_strs[0]]
+    #     for i in range(len(begin_strs)-1):
+    #         ltxt_tmp += ltxt[end_strs[i]:begin_strs[i+1]]
+    #     ltxt_tmp += ltxt[end_strs[-1]:]
+    #
+    #     for line in ltxt_tmp:
+    #         if str_mark not in ltxt_tmp and line not in L:
+    #             L.append(line)
+    # return L
 
 # Returns the substring between 2 substrings within a string
 def string_between(Str, substr1, substr2):
