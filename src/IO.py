@@ -105,6 +105,26 @@ def get_xyz_step_metadata(filename, ltxt=False):
 # This function is quite obscure and terse as this is a bottle neck in the code and has been optimised.
 # It relies heavily on numpy arrays and list\dictionary comphrensions to give speed things up.
 def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1, ignore_steps=[], do_timesteps=[], metadata=False):
+    """
+    Reads an xyz file.
+
+    Inputs:
+        * filename       =>  filename [str] -required
+        * num_data_cols  =>  how many columns (on the right) are data [int] -required
+        * min_step       => The minimum step to iterate over [int] -optional (default 0)
+        * max_step       => The maximum step to iterate over [int, or 'all'] -optional (default 'all')
+        * stride         => The stride to take when iterating over steps [int] -optional (default 1)
+        * ignore_steps   => Step indices to ignore [list <int>] -optional (default [])
+        * do_timesteps   => Timesteps to complete [list <float>] -optional (default [])
+        * metadata       => The metadata of the xyz file [dict] -optional (default False)
+
+    Outputs:
+        tuple with data, data from the columns and the timesteps
+
+    N.B. Will do timesteps that aren't in ignore timesteps, and are in
+    do_timesteps (unless it is empty) in the list created by the min, max and
+    stride.
+    """
     num_data_cols = -num_data_cols
     ltxt = open_read(filename).split('\n')
     if not metadata:
@@ -112,12 +132,17 @@ def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1,
 
     if max_step == 'all':              max_step = metadata['nsteps']
     if max_step > metadata['nsteps']:  max_step = metadata['nsteps']
-    timesteps = metadata['tsteps']
-    if type(do_timesteps) == type(np.array([1,2])) or do_timesteps: # Add steps that don't correspond to do_timesteps to the ignore steps list
-        ignore_steps = ignore_steps + [i for i, t in enumerate(metadata['tsteps']) if t not in do_timesteps]
-        timesteps = [t for i, t in enumerate(metadata['tsteps']) if i not in ignore_steps]
+    #First find the min, max, stride set of timesteps
+    all_steps = metadata['tsteps'][np.arange(min_step, max_step, stride)]
+    if len(do_timesteps) > 0:
+        #Find the timesteps which are in do_timesteps and range
+        common_timesteps = np.intersect1d(all_steps, do_timesteps)
+        #Find the indices of these and remove steps to ignore.
+        all_steps = np.searchsorted(metadata['tsteps'], common_timesteps)
+    else: all_steps = range(len(all_steps)) # All steps needs to be indices here
+    all_steps = [i for i in all_steps if i not in ignore_steps]
+    timesteps = metadata['tsteps'][np.array(all_steps)]
 
-    all_steps = [i for i in range(min_step, max_step, stride) if i not in ignore_steps]
     step_data = [i for i in all_steps]
 
     for i, step_num in enumerate(all_steps):

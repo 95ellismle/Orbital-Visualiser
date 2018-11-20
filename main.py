@@ -104,7 +104,7 @@ class MainLoop(object):
         """
         w = 0.4 # When do we first start getting there
         c = 4  # minimum bounding box scale
-        pop = np.abs(self.step_info['mol'][self.mind][mol_ind])**2
+        pop = np.abs(self.all_settings['pops'][self.step][mol_ind])
         new_bb_scale = np.tanh(pop/w)
         new_bb_scale *= (BBS - c)
         new_bb_scale += c
