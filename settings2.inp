@@ -1,0 +1,37 @@
+# The path to the folder containing the data.
+path = '/home/Sangeya/Documents/PhD/Code/Data/christmas_tree_SH2' 
+
+
+# Calibration Settings
+calibrate = 'y' # Carries out a single 'calibration' step
+calibration_step = 3000 
+load_in_vmd = 'y' 
+show_img_after_vmd = '' 
+
+title = 'test' 
+keep_cube_files = True 
+
+carbon_color = 'green' 
+hydrogen_color = 'tan' 
+neg_real_iso_col = (0, 1, 0) # rgb
+pos_real_iso_col = (1, 0, 0) # rgb
+neg_imag_iso_col = (0.15, 0.85, 0) 
+pos_imag_iso_col = (0.85, 0.15, 0.8) 
+background_color = (0.98, 0.97, 0.97) 
+show_box = True
+
+start_step = 0 
+end_step = 'all' 
+stride = 10 
+verbose_output = 'y' 
+
+atoms_to_plot = 'all' 
+
+min_abs_mol_coeff = 0.075 
+
+isosurface_to_plot = 1e-06 
+
+bounding_box_scale = 19 
+
+zoom_value = 1.9 
+translate_by = [0,-0.03,0] 
