@@ -20,8 +20,8 @@ from __future__ import print_function
 from src import EXCEPT as EXC
 
 
-from init import init
-all_settings = init.all_settings
+from init import INIT
+all_settings = INIT.all_settings
 
 from src import geometry as geom
 from src import type as typ
@@ -445,22 +445,22 @@ class MainLoop(object):
         self.all_settings['times_taken'].append(time.time()-start_step_time)
 
 all_settings['img_prefix'] = consts.Orig_img_prefix.replace("$fs_","")
-all_settings['to_stitch'] = '\n'.join([io.file_handler(all_settings['img_prefix'], 'tga', all_settings)[2] for step in init.all_steps])
+all_settings['to_stitch'] = '\n'.join([io.file_handler(all_settings['img_prefix'], 'tga', all_settings)[2] for step in INIT.all_steps])
 
 errors = {}
-step_data = MainLoop(init.all_settings, init.all_steps, errors)
+step_data = MainLoop(INIT.all_settings, INIT.all_steps, errors)
 
 
 #
 #
 # # # Print timings for full code
 # print("\r                             ")
-# time_elapsed_str = typ.seconds_to_minutes_hours(time.time()-init.START_TIME,"\nTotal Time Elapsed: ")
+# time_elapsed_str = typ.seconds_to_minutes_hours(time.time()-INIT.START_TIME,"\nTotal Time Elapsed: ")
 # print(time_elapsed_str)
 # #
 # # if not all_settings['calibrate'] or not all_settings['verbose_output']:
 # #    for i in all_settings['times']:
 # #         all_settings['times'][i] = [np.sum(all_settings['times'][i])]
 # #
-# #    io.times_g_info['times'],0, time.time()-init.START_TIME)
+# #    io.times_g_info['times'],0, time.time()-INIT.START_TIME)
 #
