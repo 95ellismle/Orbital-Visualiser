@@ -4,7 +4,7 @@ path = '/home/Sangeya/Documents/PhD/Code/Data/christmas_tree_SH2'
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 3000 
+calibration_step = 0 
 load_in_vmd = 'y' 
 show_img_after_vmd = '' 
 

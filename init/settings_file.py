@@ -20,16 +20,20 @@ import numpy as np
 import difflib as dfl
 
 
+def is_bad_line(line):
+    """
+    Checks whether something is a valid line in the settings.inp file.
+    """
+    if '=' not in line:
+        return True
+    else:
+        try:
+            exec(line)
+        except:
+            return True
+
 # Will remove bad lines from a settings file.
 def remove_bad_lines(settings_ltxt):
-    def is_bad_line(line):
-        if '=' not in line:
-            return True
-        else:
-            try:
-                exec(line)
-            except:
-                return True
     return [i for i in settings_ltxt if not is_bad_line(i)]
 
 # Creates a dictionary with only settings that make sense
