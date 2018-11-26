@@ -1,4 +1,8 @@
 Documentation.html
+Docs/tables/*
+Docs/tables/
+Docs/Static
+Docs/Static/*
 
 */*.pyc
 *.pyc
@@ -7,6 +11,10 @@ Documentation.html
 *vmdscene*
 *visualisation*
 *.png*
+*.jpg
+*.tga
+*.eps
+*.mp4
 img/*
 img
 data

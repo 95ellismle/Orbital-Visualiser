@@ -46,7 +46,7 @@ code.
 
 previous_path = ''
 previous_runtime = '01/01/1900 01:01:01'
-tachyon_path = ''
+tachyon_path = './bin/tachyon_LINUXAMD64'
 time_format = "%d/%m/%y %M:%H:%S"
 created_docs = False
 previous_calibrate = False'''
