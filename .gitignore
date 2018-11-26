@@ -7,6 +7,10 @@ Documentation.html
 *vmdscene*
 *visualisation*
 *.png*
+*.jpg
+*.tga
+*.eps
+*.mp4
 img/*
 img
 data
