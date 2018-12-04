@@ -1,5 +1,5 @@
 # The path to the folder containing the data.
-path = '../Data/run-fssh-1/' 
+path = '/home/Sangeya/Documents/PhD/Code/Data/christmas_tree_realistic' 
 
 
 # Calibration Settings
@@ -8,7 +8,7 @@ calibration_step = 0
 load_in_vmd = 'y' 
 show_img_after_vmd = '' 
 
-title = 'test' 
+title = 'test2' 
 keep_cube_files = True 
 
 carbon_color = 'green' 
