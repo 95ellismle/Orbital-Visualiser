@@ -28,17 +28,20 @@ html_filepaths = { 'table': io.folder_correct(docs_folder+"tables/", make_file=T
 'index': io.folder_correct("./Documentation.html"),
 'how_it_works': io.folder_correct(static_folder+"How_it_works.html"),
 'FAQs': io.folder_correct(static_folder+"FAQs.html"),
+'How_to_edit': io.folder_correct(static_folder+"How_to_edit.html"),
 'examples': io.folder_correct(static_folder+"Examples.html"),}
 
 template_filepaths = {'table' : io.folder_correct(templates_folder+"table.html"),
 'index' : io.folder_correct(templates_folder+"index.html"),
 'how_it_works' : io.folder_correct(templates_folder+"How_it_works.html"),
+'How_to_edit': io.folder_correct(templates_folder+"How_to_edit.html"),
 'FAQs' : io.folder_correct(templates_folder+"FAQs.html"),
 'examples' : io.folder_correct(templates_folder+"Examples.html"),}
 
 replacers = {"*index_file*":html_filepaths['index'],
              "*doc_img_folder*":io.folder_correct(docs_folder+"img"),
              "*how_it_works*": html_filepaths['how_it_works'],
+             "*How_to_edit*":html_filepaths["How_to_edit"],
              "*examples*": html_filepaths['examples'],
              "*FAQs*": html_filepaths['FAQs'],
              "*docs_folder*" : docs_folder,
@@ -47,6 +50,7 @@ replacers = {"*index_file*":html_filepaths['index'],
              "*quick_start*":io.open_read(static_folder+"Quick_Start.html"),
              "*intro_text*":io.open_read(static_folder+"Intro.html"),
              "*header_text*":io.open_read(static_folder+"Header_text.html"),
+             "*top_nav*":io.open_read(static_folder+"TopNav.html"),
              "*sidebar_text*":"",
              "*title*":"Movie Maker Documentation",
             }
@@ -162,6 +166,7 @@ def replace_filepaths_in_template(template_text, replacers):
     return template_text
 
 replacers['*header_text*'] = replace_filepaths_in_template(replacers['*header_text*'],replacers)
+replacers['*top_nav*'] = replace_filepaths_in_template(replacers['*top_nav*'],replacers)
 for key in template_data:
     template_data[key] = replace_filepaths_in_template(template_data[key],replacers)
 
@@ -172,6 +177,7 @@ for variable in all_variables_which_section:
         </a>'''%(table_filepaths[all_variables_which_section[variable]],variable)
         template_data[section] = template_data[section].replace("*%s*"%variable, link_txt)
 
+# Write html files which aren't a table file
 for i in html_filepaths:
     if 'tab' not in i:
         io.open_write(html_filepaths[i], template_data[i])
@@ -184,7 +190,7 @@ for section in params_parsed:
         elif params_parsed[section][param]['default'].strip() == 'False':
             params_parsed[section][param]['default'] = "'no'"
 
-
+# Create and write the tables
 for table_title in table_filepaths:
     table_file_text = template_data['table']
     table_file_text = table_file_text.replace("*table_name*",table_title)
