@@ -1,5 +1,5 @@
 # The path to the folder containing the data.
-path = '/home/Sangeya/Documents/PhD/Code/Data/christmas_tree_SH2' 
+path = '../Data/run-fssh-1/' 
 
 
 # Calibration Settings
