@@ -17,7 +17,7 @@ from src import Warnings as WRN
 #from src import Colour as col
 from src import geometry as geom
 
-from init import init_utils as IU
+from init import I_utils as IU
 from init import init_IO as i_IO
 from init import settings_file #Importing this will initialise the all_settings dict
 all_settings = settings_file.all_settings
