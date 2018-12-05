@@ -126,23 +126,6 @@
   </tr>
 <tr>
     <td>
-      img_format
-    </td>
-    <td>
-      "jpg"
-    </td>
-    <td>
-      The format to store the img files in 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  str (e.g. "png" or "jpg"  </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
       keep_tga_files
     </td>
     <td>
@@ -172,24 +155,24 @@
                 </tr>
                 
                 <tr>
-                    <td> <font size="2"> mol_coeff </font> </td>
-                    <td> <font size="2"> run-coeff-1.xyz </font> </td>
-                </tr>
-                <tr>
-                    <td> <font size="2"> xyz </font> </td>
-                    <td> <font size="2"> run-pos-1.xyz </font> </td>
+                    <td> <font size="2"> pvecs </font> </td>
+                    <td> <font size="2"> run-pvecs-1.xyz </font> </td>
                 </tr>
                 <tr>
                     <td> <font size="2"> AOM </font> </td>
                     <td> <font size="2"> AOM_COEFF.include </font> </td>
                 </tr>
                 <tr>
+                    <td> <font size="2"> mol_coeff </font> </td>
+                    <td> <font size="2"> run-coeff-1.xyz </font> </td>
+                </tr>
+                <tr>
                     <td> <font size="2"> inp </font> </td>
                     <td> <font size="2"> run.inp </font> </td>
                 </tr>
                 <tr>
-                    <td> <font size="2"> pvecs </font> </td>
-                    <td> <font size="2"> run-pvecs-1.xyz </font> </td>
+                    <td> <font size="2"> xyz </font> </td>
+                    <td> <font size="2"> run-pos-1.xyz </font> </td>
                 </tr></table>
     </td>
     <td>
@@ -199,6 +182,24 @@
       
         <ul>
             <li>  dictionary (see default value) </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      find_fuzzy_files
+    </td>
+    <td>
+      'yes'
+    </td>
+    <td>
+      Uses a fuzzy file finder to find files within a folder 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  yes </li>
+            <li>  no </li>
         </ul>
     </td>
   </tr>
@@ -222,19 +223,18 @@
   </tr>
 <tr>
     <td>
-      find_fuzzy_files
+      img_format
     </td>
     <td>
-      'yes'
+      "jpg"
     </td>
     <td>
-      Uses a fuzzy file finder to find files within a folder 
+      The format to store the img files in 
     </td>
     <td>
       
         <ul>
-            <li>  yes </li>
-            <li>  no </li>
+            <li>  str (e.g. "png" or "jpg"  </li>
         </ul>
     </td>
   </tr>

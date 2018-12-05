@@ -108,23 +108,6 @@
   </tr>
 <tr>
     <td>
-      stride
-    </td>
-    <td>
-      1
-    </td>
-    <td>
-      What stride to use to iterate with for the movie (a stride of 2 would render every 2nd frame) 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  integer </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
       "title"
     </td>
     <td>
@@ -142,57 +125,6 @@
   </tr>
 <tr>
     <td>
-      start_step
-    </td>
-    <td>
-      0
-    </td>
-    <td>
-      Which step to start iterating on 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  integer (zero is the first) </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      movie_format
-    </td>
-    <td>
-      "mp4"
-    </td>
-    <td>
-      The format of the created movie 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  mp4 </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      movie_length
-    </td>
-    <td>
-      6
-    </td>
-    <td>
-      The length of the finished movie (will adjust the framerate to match the time) 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  integter </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
       verbose_output
     </td>
     <td>
@@ -200,24 +132,6 @@
     </td>
     <td>
       Shows lots of info about what is happening 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  yes </li>
-            <li>  no </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      restart_vis
-    </td>
-    <td>
-      'yes'
-    </td>
-    <td>
-      Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end 
     </td>
     <td>
       
@@ -242,6 +156,92 @@
         <ul>
             <li>  all </li>
             <li>  integer </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      movie_length
+    </td>
+    <td>
+      6
+    </td>
+    <td>
+      The length of the finished movie (will adjust the framerate to match the time) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  integter </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      stride
+    </td>
+    <td>
+      1
+    </td>
+    <td>
+      What stride to use to iterate with for the movie (a stride of 2 would render every 2nd frame) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  integer </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      movie_format
+    </td>
+    <td>
+      "mp4"
+    </td>
+    <td>
+      The format of the created movie 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  mp4 </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      start_step
+    </td>
+    <td>
+      0
+    </td>
+    <td>
+      Which step to start iterating on 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  integer (zero is the first) </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      restart_vis
+    </td>
+    <td>
+      'yes'
+    </td>
+    <td>
+      Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  yes </li>
+            <li>  no </li>
         </ul>
     </td>
   </tr>

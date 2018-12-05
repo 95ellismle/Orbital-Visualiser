@@ -138,7 +138,7 @@ class MainLoop(object):
         background_mols_pos = self.all_settings['coords'][self.step][mask]
         background_mols_at_num = self.all_settings['at_num'][mask]
         backgrnd_mols_filepath = self.all_settings['data_fold']+ "bckgrnd_mols-%s.xyz"%self.PID
-        io.xyz_step_writer(background_mols_pos, background_mols_at_num, self.all_settings['Mtime-steps'][self.step], self.step, backgrnd_mols_filepath, bohr2ang)
+        io.xyz_step_writer(background_mols_pos, background_mols_at_num, self.all_settings['Mtime-steps'][self.step], self.step, backgrnd_mols_filepath, consts.bohr2ang)
         tcl_load_xyz_cmd = 'mol new {%s} type {xyz} first 0 last -1 step 1 waitfor 1'%backgrnd_mols_filepath
         self.all_settings['tcl']['backgrnd_mols'] = tcl_load_xyz_cmd
 

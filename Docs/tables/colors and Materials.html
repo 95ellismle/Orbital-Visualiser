@@ -108,13 +108,64 @@
   </tr>
 <tr>
     <td>
-      hydrogen_color
+      mol_material
     </td>
     <td>
-      'white'
+      "Edgy"
     </td>
     <td>
-      The color of the Hydrogen atoms 
+      The visualisation material used for the molecules (see VMD) 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  string </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      density_iso_col
+    </td>
+    <td>
+      (0.3, 0.32,0.3)
+    </td>
+    <td>
+      The color of the isosurface in a density visualisation 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red,green,blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      pos_imag_iso_col
+    </td>
+    <td>
+      (1,0.4,0)
+    </td>
+    <td>
+      The color of negative imaginary isosurfaces 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red, green, blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      iso_material
+    </td>
+    <td>
+      "BrushedMetal"
+    </td>
+    <td>
+      The visualisation material used for the isosurface (see VMD) 
     </td>
     <td>
       
@@ -142,30 +193,47 @@
   </tr>
 <tr>
     <td>
-      carbon_color
+      neon_color
     </td>
     <td>
-      'black'
+      'yellow'
     </td>
     <td>
-      The color of the Carbon atoms 
+      The color of the Neon atoms 
     </td>
     <td>
       
         <ul>
-            <li>  string </li>
+            <li>  string (VMD colors) </li>
         </ul>
     </td>
   </tr>
 <tr>
     <td>
-      iso_material
+      neg_real_iso_col
     </td>
     <td>
-      "BrushedMetal"
+      (0,0,1)
     </td>
     <td>
-      The visualisation material used for the isosurface (see VMD) 
+      The color of negative real isosurfaces 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  list [red, green, blue] </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      mol_style
+    </td>
+    <td>
+      'CPK'
+    </td>
+    <td>
+      The visualisation style of the molecules (see VMD) 
     </td>
     <td>
       
@@ -194,81 +262,13 @@
   </tr>
 <tr>
     <td>
-      neg_real_iso_col
+      hydrogen_color
     </td>
     <td>
-      (0,0,1)
+      'white'
     </td>
     <td>
-      The color of negative real isosurfaces 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  list [red, green, blue] </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      density_iso_col
-    </td>
-    <td>
-      (0.3, 0.32,0.3)
-    </td>
-    <td>
-      The color of the isosurface in a density visualisation 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  list [red,green,blue] </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      neon_color
-    </td>
-    <td>
-      'yellow'
-    </td>
-    <td>
-      The color of the Neon atoms 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  string (VMD colors) </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      mol_material
-    </td>
-    <td>
-      "Edgy"
-    </td>
-    <td>
-      The visualisation material used for the molecules (see VMD) 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  string </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      mol_style
-    </td>
-    <td>
-      'CPK'
-    </td>
-    <td>
-      The visualisation style of the molecules (see VMD) 
+      The color of the Hydrogen atoms 
     </td>
     <td>
       
@@ -296,18 +296,18 @@
   </tr>
 <tr>
     <td>
-      pos_imag_iso_col
+      carbon_color
     </td>
     <td>
-      (1,0.4,0)
+      'black'
     </td>
     <td>
-      The color of negative imaginary isosurfaces 
+      The color of the Carbon atoms 
     </td>
     <td>
       
         <ul>
-            <li>  list [red, green, blue] </li>
+            <li>  string </li>
         </ul>
     </td>
   </tr>

@@ -108,13 +108,30 @@
   </tr>
 <tr>
     <td>
-      calibrate
+      calibration_step
     </td>
     <td>
-      'yes'
+      10 
     </td>
     <td>
-      Performs a single `calibration' step and save the image in the folder ./img/Calibration/ 
+      Chooses which (nuclear) timestep to perform the calibration on 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  integer </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      show_img_after_vmd
+    </td>
+    <td>
+      'no'
+    </td>
+    <td>
+      Loads the calibration img after the code has ran 
     </td>
     <td>
       
@@ -161,30 +178,13 @@
   </tr>
 <tr>
     <td>
-      calibration_step
+      calibrate
     </td>
     <td>
-      10 
+      'yes'
     </td>
     <td>
-      Chooses which (nuclear) timestep to perform the calibration on 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  integer </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
-      show_img_after_vmd
-    </td>
-    <td>
-      'no'
-    </td>
-    <td>
-      Loads the calibration img after the code has ran 
+      Performs a single `calibration' step and save the image in the folder ./img/Calibration/ 
     </td>
     <td>
       
