@@ -3,12 +3,7 @@
 <body>
 
   <!-- Nav-Bar start -->
-  <div class="topnav">
-    <a class="active" href="*index_file*">Home</a>
-    <a href="*how_it_works*">How it Works</a>
-    <a href="*examples*">Examples</a>
-    <a href="*FAQs*">FAQs</a>
-  </div>
+  *top_nav*
   <!-- Nav-Bar end -->
 
   <div class="container">
@@ -19,13 +14,11 @@
         <p>
           The python code works by looking in the path specified for the relevant files. It then parses this data and uses it to create the wavefunction data. This data is then saved as a cube file and visualised by VMD. VMD then uses the tachyon ray-tracing engine to render the image as a tachyon, .tga, file. Python will loop through all the steps specified, calling VMD to create a .tga image for each one. To create the shape of the wavefunction at each step the code uses the following formula:
         </p>
-        \[\Psi(x,y,z) = \Psi^{*} \Psi =  \left|\sum\limits_{n}^{N_{mol}}  C^{MOL}_{n}  \sum\limits_{i}^{N_{atom}}C^{AOM}_{i}\sum\limits_{\alpha=x,y,z}P^{vec}_{i, \alpha} SH_{i, \alpha} \right|^2\]
+        <img src="../../Docs/Perm_img/Equation_for_calculation_of_the_wavefunction.png" alt="Equation for the movie maker (tell Matt that the image isn't showing!)" style="width: 100%; z-index: 0;">
         <p>
           <p>
-            The P-orbitals are calculated using a modified form of <a href='https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics' target="_blank">real spherical harmonics</a>, that is:
+            The P-orbitals are calculated using a modified form of <a href='https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics' target="_blank">real spherical harmonics</a>. This is to make the calculation slightly more efficient and I didn't find it changed the shape in a significant way (the visualisations are meant to give a qualitative idea of the shape of the orbital).
           </p>
-          \[ SH_{i,\alpha} = \frac{\alpha}{r} e^{-r} \]
-            <br />
           <p>
             The other terms are just scalar quantities: the pvecs, aom coefficients and molecular coefficients. The molecular coefficients are complex numbers so the magnitude is used. Depending on the *type_of_wavefunction* chosen the isosurfaces will be coloured based on the position of the product of the molecular and AOM coefficients in the complex plane.
           </p>
