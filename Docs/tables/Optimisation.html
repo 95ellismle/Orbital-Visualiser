@@ -108,24 +108,6 @@
   </tr>
 <tr>
     <td>
-      bounding_box_scale
-    </td>
-    <td>
-      7
-    </td>
-    <td>
-      What to add to the dimension of the bounding box surrounding the atoms 
-    </td>
-    <td>
-      
-        <ul>
-            <li>  integer </li>
-            <li>  list [x,y,z] </li>
-        </ul>
-    </td>
-  </tr>
-<tr>
-    <td>
       dynamic_bounding_box
     </td>
     <td>
@@ -139,6 +121,23 @@
         <ul>
             <li>  yes </li>
             <li>  no </li>
+        </ul>
+    </td>
+  </tr>
+<tr>
+    <td>
+      min_abs_mol_coeff
+    </td>
+    <td>
+      0.05
+    </td>
+    <td>
+      A threshold for the minimum absolute molecular expansion coefficient, will ignore any value less than this. A value too low will make the code inefficient a value too high may miss wavefunctions 
+    </td>
+    <td>
+      
+        <ul>
+            <li>  float </li>
         </ul>
     </td>
   </tr>
@@ -161,18 +160,19 @@
   </tr>
 <tr>
     <td>
-      min_abs_mol_coeff
+      bounding_box_scale
     </td>
     <td>
-      0.05
+      7
     </td>
     <td>
-      A threshold for the minimum absolute molecular expansion coefficient, will ignore any value less than this. A value too low will make the code inefficient a value too high may miss wavefunctions 
+      What to add to the dimension of the bounding box surrounding the atoms 
     </td>
     <td>
       
         <ul>
-            <li>  float </li>
+            <li>  integer </li>
+            <li>  list [x,y,z] </li>
         </ul>
     </td>
   </tr>
