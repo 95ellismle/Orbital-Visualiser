@@ -662,7 +662,9 @@ def fuzzy_file_find(path):
                      'inp'   : ['run.inp']}
     fuzzy_files = {ftype:[f for f in all_files if all(j in f for j in strs_to_match[ftype]) and '.' != f[0] and '.sw' not in f] for ftype in strs_to_match}
     if any(len(fuzzy_files['pvecs']) != len(fuzzy_files[i]) for i in ['pos','pvecs','coeff']):
-        raise SystemExit("Sorry I can't find the same number of files for pvecs, posistions and coefficients")
+        files_with_numbers = ["I have found %i files for the %s"%(len(fuzzy_files[i]), i) for i in fuzzy_files]
+        files_with_numbers = "\n\t*"+ "\n\t*".join(files_with_numbers)
+        raise SystemExit("Sorry I can't find the same number of files for pvecs, posistions and coefficients:%s"%files_with_numbers)
     if any(len(fuzzy_files[i]) == 0 for i in fuzzy_files):
         no_files = [i for i in fuzzy_files if len(fuzzy_files[i]) == 0 ]
         raise SystemExit("Sorry I can't seem to find any files for \n\t* %s"%('\n\t* '.join(no_files)))

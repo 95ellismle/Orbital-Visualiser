@@ -56,12 +56,27 @@ def SH_pz(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]  ):
 
 # Real Spherical Harmonic, Optimised for 3 dimensions.
 def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
+    """
+    Will create a p orbital centered at Origin. Been optimised
+    for 3 dimensions. Psi_i = i * exp{-r} (r = |(x,y,z)|)
+
+    Inputs:
+        * sizeX        =>   size of X dim
+        * sizeY        =>   size of Y dim
+        * sizeZ        =>   size of Z dim
+        * resolution   =>   resultion of the data (lower is better)
+        * Origin       =>   center of the p orbital
+    """
+    # Creates an empty container for the orbital data.
     x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(float)
+
     x -= (sizeX/2 + Origin[0]/resolution)
     y -= (sizeY/2 + Origin[1]/resolution)
     z -= (sizeZ/2 + Origin[2]/resolution)
+
     r = np.sqrt(x**2 + y**2 + z**2)
     exp_neg_r = np.exp(-r)
+
     x *= exp_neg_r
     y *= exp_neg_r
     z *= exp_neg_r
