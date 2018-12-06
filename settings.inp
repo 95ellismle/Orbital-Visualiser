@@ -9,27 +9,28 @@ load_in_vmd = 'y'
 show_img_after_vmd = '' 
 
 title = 'test2' 
-keep_cube_files = True 
 
 carbon_color = 'green' 
 hydrogen_color = 'tan' 
 neg_real_iso_col = (0, 1, 0) # rgb
-neg_imag_iso_col = (0.15, 0.85, 0) 
-pos_imag_iso_col = (0.85, 0.15, 0.8) 
-background_color = (0.98, 0.97, 0.97) 
+neg_imag_iso_col = (0.05, 0.95, 0) 
+pos_imag_iso_col = (0.95, 0.05, 0.8) 
+background_color = (1.0, 0.97, 0.97) 
 
 start_step = 0 
 end_step = 'all' 
-stride = 10 
+stride = 1 
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
 background_mols = 'y' 
 
-min_abs_mol_coeff = 0.075 
+atoms_to_plot = 'all' 
 
-isosurface_to_plot = 1e-06 
+isosurface_to_plot = 1e-05 
 
 bounding_box_scale = 26 
+restart_vis = '' 
 
-zoom_value = 1.57771867142 
+zoom_value = 1.91 
+translate_by = [0,-0.03,0] 
