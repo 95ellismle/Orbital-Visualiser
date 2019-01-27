@@ -31,6 +31,10 @@ Some examples of the output of this code to give you an idea of what it does are
 TODO:
 ====
 
++ Optimise by only drawing half the orbital for the negative and postive wf. Currently I am drawing 2 full orbitals for each molecule. Should only draw 2 halves.
+
++ Add option to visualise general orbitals. E.g. visualise sulphur with it's s orbital and maybe transition metal with their funky d ones... Need to have a general AOM_COEFFICIENT reader.
+
 + Add feature to use last timestep in calibration
 
 + Would like to clean up the files, improve code structure. Read the docstrings on top of files and carry out what they say.
@@ -45,4 +49,4 @@ TODO:
 
 + Try parallelising again! (maybe this means only parallelising the python part and not the VMD part)
 
-+ Add support for other rendering engines e.g. Jmol, pymol etc...
++ Add support for other rendering engines e.g. Jmol, pymol etc... (maybe learn/implement own openGL renderer -might be quite a big task!)
