@@ -1,5 +1,24 @@
 """Will import the python3 print function."""
 from __future__ import print_function
+
+import numpy as np
+import time
+import os
+import subprocess
+import sys
+
+from src import EXCEPT as EXC
+from src import geometry as geom
+from src import type as typ
+from src import math as MT
+from src import text as txt_lib
+from src import IO as io
+from src import consts
+
+from init import INIT
+all_settings = INIT.all_settings
+
+
 """
  This is the file that runs everything. The MainLoop class is responsible for
  actually carrying out the visualisation once everything has been initialised.
@@ -15,25 +34,6 @@ from __future__ import print_function
  To get a feel for what the MainLoop is doing a good place to start is the
  do_step method which is the function which makes an image from the data.
 """
-
-
-from src import EXCEPT as EXC
-
-from init import INIT
-all_settings = INIT.all_settings
-
-from src import geometry as geom
-from src import type as typ
-from src import math as MT
-from src import text as txt_lib
-from src import IO as io
-from src import consts
-
-import numpy as np
-import time
-import os
-import subprocess
-import sys
 
 if sys.version_info[0] > 2:
     xrange = range
@@ -65,7 +65,7 @@ class MainLoop(object):
             start_time = time.time()
             self.do_step(step)  # Do a visualisation step
             # Pretty print timings
-            self._print_timings(step, len(all_steps), start_time)
+            self.__print_timings(step, len(all_steps), start_time)
         self._finalise(len(all_steps))
 
     # Completes 1 step
@@ -510,7 +510,7 @@ class MainLoop(object):
                 os.system("vmd -nt -e %s" % (
                                      self.all_settings['vmd_script'][self.PID]
                                             )
-                         )
+                          )
                 io.settings_update(self.all_settings)
             if self.all_settings['show_img_after_vmd']:
                 open_pic_cmd = "xdg-open %s" % (self.tga_filepath)
@@ -571,40 +571,38 @@ class MainLoop(object):
         subprocess.call(Stitch_cmd, shell=True)  # Actually stitch the movie
 
     # Prints the timing info
-    def _print_timings(self, step, num_steps, start_step_time):
+    def __print_timings(self, step, num_steps, start_step_time):
         """
         Will pretty print the timings
         """
-        traj_print = "\n"+txt_lib.align("Trajectory %i/%i    %s    Timestep %s"%(step+1, num_steps,
-          typ.seconds_to_minutes_hours(time.time()-start_step_time, "CPU: "), self.all_settings['Mtime-steps'][self.step]),
-                   69, "l") + "*"
+        tmpTime = time.time() - start_step_time
+        timeTaken = typ.seconds_to_minutes_hours(tmpTime, "CPU: ")
+        timeStep = self.all_settings['Mtime-steps'][self.step]
+        msg = "Trajectory %i/%i    %s    Timestep %s" % (step + 1,
+                                                         num_steps,
+                                                         timeTaken,
+                                                         timeStep)
+        traj_print = "\n"+txt_lib.align(msg, 69, "l") + "*"
+
         if self.all_settings['verbose_output']:
             print("*"*70)
-            print (traj_print)
-            io.times_print(self.all_settings['times'],step, 70, time.time()-start_step_time)
+            print(traj_print)
+            io.times_print(self.all_settings['times'], step, 70, tmpTime)
         else:
             io.print_same_line(traj_print, sys, print)
         if self.all_settings['verbose_output']:
             print("*"*70, "\n")
-        self.all_settings['times_taken'].append(time.time()-start_step_time)
+        self.all_settings['times_taken'].append(time.time() - start_step_time)
 
-all_settings['img_prefix'] = consts.Orig_img_prefix.replace("$fs_","")
-all_settings['to_stitch'] = '\n'.join([io.file_handler(all_settings['img_prefix'], 'tga', all_settings)[2] for step in INIT.all_steps])
+
+all_settings['img_prefix'] = consts.Orig_img_prefix.replace("$fs_", "")
+
+tgaFiles = [io.file_handler(all_settings['img_prefix'],
+                            'tga',
+                            all_settings)[2]
+            for step in INIT.all_steps]
+
+all_settings['to_stitch'] = '\n'.join(tgaFiles)
 
 errors = {}
 step_data = MainLoop(INIT.all_settings, INIT.all_steps, errors)
-
-
-#
-#
-# # # Print timings for full code
-# print("\r                             ")
-# time_elapsed_str = typ.seconds_to_minutes_hours(time.time()-INIT.START_TIME,"\nTotal Time Elapsed: ")
-# print(time_elapsed_str)
-# #
-# # if not all_settings['calibrate'] or not all_settings['verbose_output']:
-# #    for i in all_settings['times']:
-# #         all_settings['times'][i] = [np.sum(all_settings['times'][i])]
-# #
-# #    io.times_g_info['times'],0, time.time()-INIT.START_TIME)
-#
