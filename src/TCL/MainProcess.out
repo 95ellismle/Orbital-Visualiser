@@ -1,1577 +1,0 @@
-Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
-Info) http://www.ks.uiuc.edu/Research/vmd/                         
-Info) Email questions and bug reports to vmd@ks.uiuc.edu           
-Info) Please include this reference in published work using VMD:   
-Info)    Humphrey, W., Dalke, A. and Schulten, K., `VMD - Visual   
-Info)    Molecular Dynamics', J. Molec. Graphics 1996, 14.1, 33-38.
-Info) -------------------------------------------------------------
-Info) Multithreading available, 24 CPUs detected.
-Info)   CPU features: SSE2 AVX AVX2 FMA 
-Info) Free system memory: 53GB (84%)
-Info) Creating CUDA device pool and initializing hardware...
-Info) Detected 1 available CUDA accelerator:
-Info) [0] Quadro K620         3 SM_5.0 @ 1.12 GHz, 2.0GB RAM, KTO, AE1, ZCP
-Info) Detected 1 available TachyonL/OptiX ray tracing accelerator
-Info)   Compiling 1 OptiX shaders on 1 target GPU...
-Info) Dynamically loaded 2 plugins in directory:
-Info) /homes/mellis/programs/usr/lib/vmd/plugins/LINUXAMD64/molfile
-Info) Logging commands to '/homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/visualisation.log'.
-0.95 0.05 0.8
-0.05 0.95 0
-1 0 0
-0 1 0
-0.3 0.32 0.3
-0 21 1 21 2 20 3 18 4 18 5 21 6 21 7 21 8 18 9 18 10 20 11 18 12 18 13 19 14 18 15 21 16 18 17 18 18 21 19 21 20 18 21 18 22 19 23 21 24 18 25 18 26 21 27 21 28 21 29 18 30 18 31 18 32 21 33 18 34 18 35 18 36 18 37 18 38 21 39 18 40 18 41 21 42 18 43 21 44 19 45 18 46 18 47 19 48 19 49 18 50 18 51 18 52 18 53 18 54 18 55 18 56 19 57 18 58 21 59 18 60 19 61 19 62 19 63 18 64 18 65 19 66 19 67 19 68 21 69 21 70 18 71 18 72 19 73 19 74 19 75 18 76 18 77 18 78 19 79 18 80 21 81 21 82 18 83 19 84 21 85 18 86 18 87 19 88 19 89 20 90 21 91 19 92 18 93 21 94 20 95 21 96 19 97 18 98 21 99 21 100 20 101 21 102 20 103 21 104 21 105 19 106 21 107 21 108 21 109 20 110 20 111 20 112 20 113 21 114 21 115 21 116 20 117 20 118 20 119 19 120 21 121 21 122 18 123 20 124 20 125 20 126 18 127 21 128 21 129 21 130 20 131 20 132 21 133 21 134 19 135 19 136 18 137 20 138 20 139 21 140 19 141 21 142 21 143 19 144 20 145 20 146 18 147 19 148 19 149 18 150 19 151 19 152 20 153 18 154 19 155 19 156 19 157 18 158 19 159 18 160 19 161 20 162 19 163 19 164 19 165 18 166 18 167 18 168 18 169 18 170 19 171 19 172 19 173 18 174 18 175 18 176 19 177 19 178 19 179 19 180 18 181 20 182 18 183 18 184 21 185 19 186 18 187 19 188 19 189 19 190 18 191 20 192 19 193 19 194 18 195 19 196 21 197 20 198 18 199 18 200 19 201 19 202 18 203 18 204 18 205 19 206 19 207 19 208 20 209 19 210 18 211 18 212 18 213 19 214 21 215 21 216 20 217 20 218 21 219 20 220 20 221 19 222 18 223 21 224 20 225 20 226 20 227 21 228 20 229 21 230 21 231 20 232 20 233 21 234 21 235 21 236 18 237 20 238 21 239 19 240 21 241 21 242 21 243 20 244 20 245 18 246 20 247 21 248 18 249 18 250 21 251 21 252 19 253 20 254 21 255 20 256 20 257 20 258 21 259 18 260 20 261 20 262 20 263 19 264 21 265 18 266 20 267 20 268 21 269 20 270 19 271 20 272 20 273 21 274 18 275 20 276 21 277 21 278 21 279 20 280 20 281 18 282 21 283 18 284 18 285 21 286 21 287 18 288 18 289 18 290 18 291 18 292 18 293 18 294 18 295 18 296 18 297 18 298 18 299 18 300 18 301 18 302 18 303 18 304 18 305 18 306 18 307 18 308 18 309 18 310 18 311 18 312 18 313 21 314 18 315 18 316 18 317 18 318 21 319 18 320 18 321 18 322 18 323 18 324 18 325 18 326 18 327 18 328 18 329 18 330 18 331 18 332 21 333 18 334 18 335 18 336 18 337 18 338 18 339 18 340 18 341 18 342 21 343 18 344 18 345 18 346 18 347 18 348 18 349 18 350 19 351 21 352 21 353 19 354 18 355 21 356 18 357 19 358 18 359 21 360 21 361 19 362 18 363 18 364 18 365 21 366 21 367 19 368 19 369 18 370 21 371 18 372 18 373 18 374 19 375 18 376 19 377 18 378 19 379 21 380 18 381 18 382 18 383 19 384 21 385 19 386 18 387 18 388 21 389 18 390 18 391 19 392 19 393 18 394 21 395 21 396 18 397 18 398 18 399 18 400 19 401 19 402 18 403 18 404 18 405 21 406 18 407 19 408 19 409 19 410 18 411 21 412 21 413 18 414 18 415 18 416 19 417 21 418 18 419 18 420 19 421 19 422 18 423 21 424 18 425 18 426 18 427 19 428 19 429 18 430 18 431 18 432 19 433 18 434 21 435 19 436 19 437 21 438 18 439 19 440 19 441 18 442 21 443 20 444 21 445 18 446 18 447 19 448 21 449 19 450 18 451 21 452 18 453 18 454 18 455 21 456 20 457 21 458 21 459 21 460 18 461 18 462 21 463 19 464 18 465 21 466 18 467 18 468 21 469 19 470 21 471 21 472 18 473 18 474 18 475 21 476 21 477 18 478 19 479 21 480 18 481 18 482 18 483 21 484 19 485 21 486 18 487 18 488 18 489 18 490 18 491 21 492 21 493 21 494 18 495 18 496 18 497 21 498 21 499 18 500 21 501 18 502 18 503 21 504 18 505 21 506 18 507 19 508 21 509 19 510 21 511 18 512 18 513 18 514 21 515 20 516 20 517 18 518 21 519 19 520 20 521 18 522 18 523 18 524 18 525 19 526 18 527 19 528 18 529 18 530 19 531 19 532 18 533 18 534 19 535 18 536 18 537 18 538 18 539 19 540 19 541 19 542 18 543 18 544 19 545 18 546 19 547 18 548 18 549 19 550 19 551 18 552 18 553 19 554 18 555 18 556 19 557 19 558 19 559 18 560 18 561 19 562 19 563 18 564 18 565 19 566 19 567 18 568 18 569 19 570 19 571 18 572 18 573 18 574 19 575 18 576 21 577 19 578 18 579 18 580 19 581 18 582 19 583 19 584 18 585 18 586 19 587 21 588 21 589 18 590 21 591 20 592 20 593 21 594 20 595 21 596 21 597 21 598 20 599 21 600 21 601 21 602 20 603 20 604 21 605 21 606 20 607 21 608 21 609 21 610 21 611 20 612 20 613 20 614 21 615 21 616 20 617 21 618 20 619 21 620 21 621 20 622 20 623 21 624 21 625 20 626 20 627 21 628 21 629 20 630 20 631 21 632 21 633 20 634 21 635 21 636 20 637 20 638 21 639 19 640 20 641 20 642 21 643 21 644 21 645 20 646 21 647 20 648 18 649 21 650 20 651 20 652 21 653 21 654 20 655 20 656 21 657 20 658 20 659 21 660 20 661 20 662 21
-0 20 1 20 2 21 3 19 4 19 5 20 6 20 7 20 8 19 9 19 10 21 11 19 12 19 13 18 14 19 15 20 16 19 17 19 18 20 19 20 20 19 21 19 22 18 23 20 24 19 25 19 26 20 27 20 28 20 29 19 30 19 31 19 32 20 33 19 34 19 35 19 36 19 37 19 38 20 39 19 40 19 41 20 42 19 43 20 44 18 45 19 46 19 47 18 48 18 49 19 50 19 51 19 52 19 53 19 54 19 55 19 56 18 57 19 58 20 59 19 60 18 61 18 62 18 63 19 64 19 65 18 66 18 67 18 68 20 69 20 70 19 71 19 72 18 73 18 74 18 75 19 76 19 77 19 78 18 79 19 80 20 81 20 82 19 83 18 84 20 85 19 86 19 87 18 88 18 89 21 90 20 91 18 92 19 93 20 94 21 95 20 96 18 97 19 98 20 99 20 100 21 101 20 102 21 103 20 104 20 105 18 106 20 107 20 108 20 109 21 110 21 111 21 112 21 113 20 114 20 115 20 116 21 117 21 118 21 119 18 120 20 121 20 122 19 123 21 124 21 125 21 126 19 127 20 128 20 129 20 130 21 131 21 132 20 133 20 134 18 135 18 136 19 137 21 138 21 139 20 140 18 141 20 142 20 143 18 144 21 145 21 146 19 147 18 148 18 149 19 150 18 151 18 152 21 153 19 154 18 155 18 156 18 157 19 158 18 159 19 160 18 161 21 162 18 163 18 164 18 165 19 166 19 167 19 168 19 169 19 170 18 171 18 172 18 173 19 174 19 175 19 176 18 177 18 178 18 179 18 180 19 181 21 182 19 183 19 184 20 185 18 186 19 187 18 188 18 189 18 190 19 191 21 192 18 193 18 194 19 195 18 196 20 197 21 198 19 199 19 200 18 201 18 202 19 203 19 204 19 205 18 206 18 207 18 208 21 209 18 210 19 211 19 212 19 213 18 214 20 215 20 216 21 217 21 218 20 219 21 220 21 221 18 222 19 223 20 224 21 225 21 226 21 227 20 228 21 229 20 230 20 231 21 232 21 233 20 234 20 235 20 236 19 237 21 238 20 239 18 240 20 241 20 242 20 243 21 244 21 245 19 246 21 247 20 248 19 249 19 250 20 251 20 252 18 253 21 254 20 255 21 256 21 257 21 258 20 259 19 260 21 261 21 262 21 263 18 264 20 265 19 266 21 267 21 268 20 269 21 270 18 271 21 272 21 273 20 274 19 275 21 276 20 277 20 278 20 279 21 280 21 281 19 282 20 283 19 284 19 285 20 286 20 287 19 288 19 289 19 290 19 291 19 292 19 293 19 294 19 295 19 296 19 297 19 298 19 299 19 300 19 301 19 302 19 303 19 304 19 305 19 306 19 307 19 308 19 309 19 310 19 311 19 312 19 313 20 314 19 315 19 316 19 317 19 318 20 319 19 320 19 321 19 322 19 323 19 324 19 325 19 326 19 327 19 328 19 329 19 330 19 331 19 332 20 333 19 334 19 335 19 336 19 337 19 338 19 339 19 340 19 341 19 342 20 343 19 344 19 345 19 346 19 347 19 348 19 349 19 350 18 351 20 352 20 353 18 354 19 355 20 356 19 357 18 358 19 359 20 360 20 361 18 362 19 363 19 364 19 365 20 366 20 367 18 368 18 369 19 370 20 371 19 372 19 373 19 374 18 375 19 376 18 377 19 378 18 379 20 380 19 381 19 382 19 383 18 384 20 385 18 386 19 387 19 388 20 389 19 390 19 391 18 392 18 393 19 394 20 395 20 396 19 397 19 398 19 399 19 400 18 401 18 402 19 403 19 404 19 405 20 406 19 407 18 408 18 409 18 410 19 411 20 412 20 413 19 414 19 415 19 416 18 417 20 418 19 419 19 420 18 421 18 422 19 423 20 424 19 425 19 426 19 427 18 428 18 429 19 430 19 431 19 432 18 433 19 434 20 435 18 436 18 437 20 438 19 439 18 440 18 441 19 442 20 443 21 444 20 445 19 446 19 447 18 448 20 449 18 450 19 451 20 452 19 453 19 454 19 455 20 456 21 457 20 458 20 459 20 460 19 461 19 462 20 463 18 464 19 465 20 466 19 467 19 468 20 469 18 470 20 471 20 472 19 473 19 474 19 475 20 476 20 477 19 478 18 479 20 480 19 481 19 482 19 483 20 484 18 485 20 486 19 487 19 488 19 489 19 490 19 491 20 492 20 493 20 494 19 495 19 496 19 497 20 498 20 499 19 500 20 501 19 502 19 503 20 504 19 505 20 506 19 507 18 508 20 509 18 510 20 511 19 512 19 513 19 514 20 515 21 516 21 517 19 518 20 519 18 520 21 521 19 522 19 523 19 524 19 525 18 526 19 527 18 528 19 529 19 530 18 531 18 532 19 533 19 534 18 535 19 536 19 537 19 538 19 539 18 540 18 541 18 542 19 543 19 544 18 545 19 546 18 547 19 548 19 549 18 550 18 551 19 552 19 553 18 554 19 555 19 556 18 557 18 558 18 559 19 560 19 561 18 562 18 563 19 564 19 565 18 566 18 567 19 568 19 569 18 570 18 571 19 572 19 573 19 574 18 575 19 576 20 577 18 578 19 579 19 580 18 581 19 582 18 583 18 584 19 585 19 586 18 587 20 588 20 589 19 590 20 591 21 592 21 593 20 594 21 595 20 596 20 597 20 598 21 599 20 600 20 601 20 602 21 603 21 604 20 605 20 606 21 607 20 608 20 609 20 610 20 611 21 612 21 613 21 614 20 615 20 616 21 617 20 618 21 619 20 620 20 621 21 622 21 623 20 624 20 625 21 626 21 627 20 628 20 629 21 630 21 631 20 632 20 633 21 634 20 635 20 636 21 637 21 638 20 639 18 640 21 641 21 642 20 643 20 644 20 645 21 646 20 647 21 648 19 649 20 650 21 651 21 652 20 653 20 654 21 655 21 656 20 657 21 658 21 659 20 660 21 661 21 662 20
-ERROR) No molecules loaded.
-0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp220-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00144972  Max: 0.00152757  Range: 0.00297728
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp220-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp220-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp219-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000583318  Max: 0.00063116  Range: 0.00121448
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp219-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp219-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp218-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x37x75  (1 MB)
-Info)    Total voxels: 130425
-Info)    Min: -0.000446413  Max: 0.000409603  Range: 0.000856016
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp218-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp218-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp214-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.00110822  Max: 0.00106963  Range: 0.00217784
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp214-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp214-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp213-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000373366  Max: 0.000356991  Range: 0.000730357
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp213-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp213-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp212-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 55x47x82  (3 MB)
-Info)    Total voxels: 211970
-Info)    Min: -0.00217419  Max: 0.00209528  Range: 0.00426946
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp212-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp212-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp210-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.00101801  Max: 0.00105067  Range: 0.00206868
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp210-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp210-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp200-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.00104489  Max: 0.000977481  Range: 0.00202237
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp200-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp200-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp192-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00148873  Max: 0.0015407  Range: 0.00302943
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp192-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp192-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp190-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000904145  Max: 0.00083183  Range: 0.00173598
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp190-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp190-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp185-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00123038  Max: 0.00117906  Range: 0.00240944
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp185-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp185-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp183-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000345754  Max: 0.000319633  Range: 0.000665386
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp183-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp183-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp182-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000702173  Max: 0.000731795  Range: 0.00143397
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp182-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp182-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp181-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000322702  Max: 0.000320647  Range: 0.000643349
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp181-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp181-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp179-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000475347  Max: 0.000469636  Range: 0.000944984
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp179-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp179-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp173-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000403803  Max: 0.000420069  Range: 0.000823872
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp173-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp173-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp171-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x40x77  (2 MB)
-Info)    Total voxels: 154000
-Info)    Min: -0.000849057  Max: 0.000840955  Range: 0.00169001
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp171-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp171-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp168-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000763678  Max: 0.000822697  Range: 0.00158637
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp168-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp168-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp166-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000405508  Max: 0.00040529  Range: 0.000810798
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp166-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp166-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp165-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000439889  Max: 0.000479187  Range: 0.000919076
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp165-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp165-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp164-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 55x47x82  (3 MB)
-Info)    Total voxels: 211970
-Info)    Min: -0.00205139  Max: 0.0020374  Range: 0.0040888
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp164-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp164-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp163-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00125192  Max: 0.00118511  Range: 0.00243703
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp163-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp163-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp162-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00139488  Max: 0.00140502  Range: 0.0027999
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp162-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp162-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp157-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 57x50x85  (3 MB)
-Info)    Total voxels: 242250
-Info)    Min: -0.00240917  Max: 0.0024899  Range: 0.00489906
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp157-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp157-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp149-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000392367  Max: 0.000388361  Range: 0.000780728
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp149-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp149-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp147-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00125907  Max: 0.00132978  Range: 0.00258885
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp147-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp147-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp146-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.00061505  Max: 0.000614309  Range: 0.00122936
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp146-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp146-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp145-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00140075  Max: 0.00138836  Range: 0.00278912
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp145-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp145-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp144-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000315086  Max: 0.000323512  Range: 0.000638597
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp144-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp144-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp142-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000532358  Max: 0.000492371  Range: 0.00102473
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp142-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp142-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp140-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000464949  Max: 0.00040964  Range: 0.00087459
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp140-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp140-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp139-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 60x52x87  (4 MB)
-Info)    Total voxels: 271440
-Info)    Min: -0.00352149  Max: 0.00373704  Range: 0.00725853
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp139-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp139-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp137-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 57x50x85  (3 MB)
-Info)    Total voxels: 242250
-Info)    Min: -0.00278868  Max: 0.00277448  Range: 0.00556315
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp137-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp137-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp136-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 65x57x92  (5 MB)
-Info)    Total voxels: 340860
-Info)    Min: -0.0052067  Max: 0.00467831  Range: 0.00988501
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp136-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp136-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp135-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00137016  Max: 0.00144432  Range: 0.00281447
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp135-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp135-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp134-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 60x52x87  (4 MB)
-Info)    Total voxels: 271440
-Info)    Min: -0.00338211  Max: 0.00331511  Range: 0.00669722
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp134-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp134-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp132-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000326527  Max: 0.00030903  Range: 0.000635556
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp132-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp132-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp119-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000742243  Max: 0.000811879  Range: 0.00155412
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp119-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp119-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp115-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 62x55x90  (4 MB)
-Info)    Total voxels: 306900
-Info)    Min: -0.00422828  Max: 0.00431145  Range: 0.00853973
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp115-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp115-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp114-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00140262  Max: 0.00126891  Range: 0.00267153
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp114-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp114-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp113-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 55x47x82  (3 MB)
-Info)    Total voxels: 211970
-Info)    Min: -0.0019981  Max: 0.00206295  Range: 0.00406104
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp113-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp113-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp112-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 65x57x95  (5 MB)
-Info)    Total voxels: 351975
-Info)    Min: -0.00499113  Max: 0.00492108  Range: 0.0099122
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp112-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp112-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp110-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x77  (2 MB)
-Info)    Total voxels: 144760
-Info)    Min: -0.000637098  Max: 0.000644695  Range: 0.00128179
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp110-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp110-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp107-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000980316  Max: 0.000986637  Range: 0.00196695
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp107-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp107-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp106-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 55x47x82  (3 MB)
-Info)    Total voxels: 211970
-Info)    Min: -0.00186728  Max: 0.00175717  Range: 0.00362445
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp106-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp106-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp105-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000324598  Max: 0.000346592  Range: 0.00067119
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp105-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp105-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp102-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 55x45x82  (3 MB)
-Info)    Total voxels: 202950
-Info)    Min: -0.001991  Max: 0.00191504  Range: 0.00390604
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp102-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp102-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp89-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 57x50x85  (3 MB)
-Info)    Total voxels: 242250
-Info)    Min: -0.00262365  Max: 0.00255446  Range: 0.00517811
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp89-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp89-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp88-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 55x47x82  (3 MB)
-Info)    Total voxels: 211970
-Info)    Min: -0.00143551  Max: 0.001428  Range: 0.00286351
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp88-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp88-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp86-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000971628  Max: 0.000968187  Range: 0.00193982
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp86-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp86-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp84-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.00072964  Max: 0.000701808  Range: 0.00143145
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp84-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp84-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp83-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.0012704  Max: 0.00126874  Range: 0.00253914
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp83-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp83-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp82-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00127233  Max: 0.0012238  Range: 0.00249613
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp82-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp82-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp80-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000397812  Max: 0.000392894  Range: 0.000790706
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp80-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp80-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp79-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 65x57x92  (5 MB)
-Info)    Total voxels: 340860
-Info)    Min: -0.00472694  Max: 0.00504388  Range: 0.00977082
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp79-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp79-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp78-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x40x80  (2 MB)
-Info)    Total voxels: 160000
-Info)    Min: -0.000682044  Max: 0.000694649  Range: 0.00137669
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp78-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp78-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp76-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 67x60x95  (5 MB)
-Info)    Total voxels: 381900
-Info)    Min: -0.00691272  Max: 0.00661776  Range: 0.0135305
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp76-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp76-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp59-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 52x45x80  (2 MB)
-Info)    Total voxels: 187200
-Info)    Min: -0.00154598  Max: 0.00150247  Range: 0.00304845
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp59-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp59-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp58-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x80  (2 MB)
-Info)    Total voxels: 168000
-Info)    Min: -0.00101117  Max: 0.000989852  Range: 0.00200102
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp58-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp58-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp57-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 70x62x97  (6 MB)
-Info)    Total voxels: 420980
-Info)    Min: -0.00919537  Max: 0.00850234  Range: 0.0176977
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp57-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp57-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp56-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 60x52x90  (4 MB)
-Info)    Total voxels: 280800
-Info)    Min: -0.0028769  Max: 0.00283216  Range: 0.00570906
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp56-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp56-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp55-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000637639  Max: 0.000621777  Range: 0.00125942
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp55-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp55-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp54-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 65x57x92  (5 MB)
-Info)    Total voxels: 340860
-Info)    Min: -0.00495265  Max: 0.00469899  Range: 0.00965164
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp54-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp54-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp51-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.0005916  Max: 0.000634356  Range: 0.00122596
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp51-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp51-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp50-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x37x75  (1 MB)
-Info)    Total voxels: 130425
-Info)    Min: -0.000596548  Max: 0.000566282  Range: 0.00116283
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp50-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp50-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp34-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 60x52x87  (4 MB)
-Info)    Total voxels: 271440
-Info)    Min: -0.00378068  Max: 0.00364747  Range: 0.00742815
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp34-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp34-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp33-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.000325754  Max: 0.000334095  Range: 0.000659848
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp33-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp33-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp32-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000728821  Max: 0.000706454  Range: 0.00143527
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp32-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp32-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp30-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 50x42x77  (2 MB)
-Info)    Total voxels: 161700
-Info)    Min: -0.000762942  Max: 0.000734053  Range: 0.001497
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp30-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp30-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp19-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 45x37x72  (1 MB)
-Info)    Total voxels: 119880
-Info)    Min: -0.00031656  Max: 0.000324599  Range: 0.000641159
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp19-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp19-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp17-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000461999  Max: 0.00048327  Range: 0.000945269
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp17-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp17-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp16-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x40x75  (2 MB)
-Info)    Total voxels: 141000
-Info)    Min: -0.000455682  Max: 0.000417976  Range: 0.000873658
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp16-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp16-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Using plugin cube for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp14-MainProcess.cube
-cubeplugin) trying to read cube data set 0
-Info) Analyzing Volume...
-Info)    Grid size: 47x37x75  (1 MB)
-Info)    Total voxels: 130425
-Info)    Min: -0.000619915  Max: 0.000620483  Range: 0.0012404
-Info)    Computing volume gradient map for smooth shading
-Info) Added volume data, name=tmp14-MainProcess.cube : Gaussian Cube: test2
-Info) Using plugin cube for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp14-MainProcess.cube
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 8028
-Info)    Bonds: 8920
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 223
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 223   Protein: 0   Nucleic: 0
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 10.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp220-MainProcess.cube.
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 10.1 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp219-MainProcess.cube.
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 10.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp218-MainProcess.cube.
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 9.9 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp214-MainProcess.cube.
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 9.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp213-MainProcess.cube.
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 9.7 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp212-MainProcess.cube.
-Info) Coordinate I/O rate 0.10 frames/sec, 0 MB/sec, 9.6 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp210-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp200-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.4 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp192-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.4 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp190-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.3 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp185-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.3 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp183-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp182-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.1 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp181-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp179-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 9.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp173-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 8.9 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp171-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 8.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp168-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 8.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp166-MainProcess.cube.
-Info) Coordinate I/O rate 0.11 frames/sec, 0 MB/sec, 8.7 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp165-MainProcess.cube.
-Info) Coordinate I/O rate 0.12 frames/sec, 0 MB/sec, 8.6 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp164-MainProcess.cube.
-Info) Coordinate I/O rate 0.12 frames/sec, 0 MB/sec, 8.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp163-MainProcess.cube.
-Info) Coordinate I/O rate 0.12 frames/sec, 0 MB/sec, 8.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp162-MainProcess.cube.
-Info) Coordinate I/O rate 0.12 frames/sec, 0 MB/sec, 8.3 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp157-MainProcess.cube.
-Info) Coordinate I/O rate 0.12 frames/sec, 0 MB/sec, 8.3 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp149-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 8.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp147-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.9 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp146-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp145-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp144-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.7 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp142-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.6 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp140-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp139-MainProcess.cube.
-Info) Coordinate I/O rate 0.13 frames/sec, 0 MB/sec, 7.4 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp137-MainProcess.cube.
-Info) Coordinate I/O rate 0.14 frames/sec, 0 MB/sec, 7.3 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp136-MainProcess.cube.
-Info) Coordinate I/O rate 0.14 frames/sec, 0 MB/sec, 7.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp135-MainProcess.cube.
-Info) Coordinate I/O rate 0.14 frames/sec, 0 MB/sec, 7.1 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp134-MainProcess.cube.
-Info) Coordinate I/O rate 0.14 frames/sec, 0 MB/sec, 7.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp132-MainProcess.cube.
-Info) Coordinate I/O rate 0.15 frames/sec, 0 MB/sec, 6.9 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp119-MainProcess.cube.
-Info) Coordinate I/O rate 0.15 frames/sec, 0 MB/sec, 6.6 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp115-MainProcess.cube.
-Info) Coordinate I/O rate 0.15 frames/sec, 0 MB/sec, 6.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp114-MainProcess.cube.
-Info) Coordinate I/O rate 0.16 frames/sec, 0 MB/sec, 6.4 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp113-MainProcess.cube.
-Info) Coordinate I/O rate 0.16 frames/sec, 0 MB/sec, 6.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp112-MainProcess.cube.
-Info) Coordinate I/O rate 0.16 frames/sec, 0 MB/sec, 6.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp110-MainProcess.cube.
-Info) Coordinate I/O rate 0.17 frames/sec, 0 MB/sec, 6.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp107-MainProcess.cube.
-Info) Coordinate I/O rate 0.17 frames/sec, 0 MB/sec, 5.9 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp106-MainProcess.cube.
-Info) Coordinate I/O rate 0.17 frames/sec, 0 MB/sec, 5.7 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp105-MainProcess.cube.
-Info) Coordinate I/O rate 0.18 frames/sec, 0 MB/sec, 5.6 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp102-MainProcess.cube.
-Info) Coordinate I/O rate 0.19 frames/sec, 0 MB/sec, 5.4 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp89-MainProcess.cube.
-Info) Coordinate I/O rate 0.19 frames/sec, 0 MB/sec, 5.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp88-MainProcess.cube.
-Info) Coordinate I/O rate 0.20 frames/sec, 0 MB/sec, 5.1 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp86-MainProcess.cube.
-Info) Coordinate I/O rate 0.20 frames/sec, 0 MB/sec, 4.9 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp84-MainProcess.cube.
-Info) Coordinate I/O rate 0.21 frames/sec, 0 MB/sec, 4.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp83-MainProcess.cube.
-Info) Coordinate I/O rate 0.22 frames/sec, 0 MB/sec, 4.6 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp82-MainProcess.cube.
-Info) Coordinate I/O rate 0.22 frames/sec, 0 MB/sec, 4.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp80-MainProcess.cube.
-Info) Coordinate I/O rate 0.24 frames/sec, 0 MB/sec, 4.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp79-MainProcess.cube.
-Info) Coordinate I/O rate 0.24 frames/sec, 0 MB/sec, 4.1 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp78-MainProcess.cube.
-Info) Coordinate I/O rate 0.26 frames/sec, 0 MB/sec, 3.8 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp76-MainProcess.cube.
-Info) Coordinate I/O rate 0.27 frames/sec, 0 MB/sec, 3.7 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp59-MainProcess.cube.
-Info) Coordinate I/O rate 0.28 frames/sec, 0 MB/sec, 3.5 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp58-MainProcess.cube.
-Info) Coordinate I/O rate 0.31 frames/sec, 0 MB/sec, 3.2 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp57-MainProcess.cube.
-Info) Coordinate I/O rate 0.33 frames/sec, 0 MB/sec, 3.0 sec
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp56-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp55-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp54-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp51-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp50-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp34-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp33-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp32-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp30-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp19-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp17-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp16-MainProcess.cube.
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/tmp14-MainProcess.cube.
-Info) Using plugin xyz for structure file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/bckgrnd_mols-MainProcess.xyz
-Info) Using plugin xyz for coordinates from file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/bckgrnd_mols-MainProcess.xyz
-Info) Determining bond structure from distance search ...
-Info) Analyzing structure ...
-Info)    Atoms: 20808
-Info)    Bonds: 23120
-Info)    Angles: 0  Dihedrals: 0  Impropers: 0  Cross-terms: 0
-Info)    Bondtypes: 0  Angletypes: 0  Dihedraltypes: 0  Impropertypes: 0
-Info)    Residues: 578
-Info)    Waters: 0
-Info)    Segments: 1
-Info)    Fragments: 578   Protein: 0   Nucleic: 0
-Info) Finished with coordinate file /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/data/bckgrnd_mols-MainProcess.xyz.
-Info) Rendering current scene to 'vmdscene.dat' ...
-Info) Tachyon file generation finished
-Info) Executing post-render cmd './bin/tachyon_LINUXAMD64 -aasamples 12 vmdscene.dat -format TARGA -o /homes/mellis/Documents/Code_bits_and_bobs/Orbital-Visualiser/img/test2/33,00_img.tga -trans_max_surfaces 1 -res 950 950' ...
-Tachyon Parallel/Multiprocessor Ray Tracer   Version 0.99.1   
-Copyright 1994-2014,    John E. Stone <john.stone@gmail.com> 
------------------------------------------------------------- 
-Scene Parsing Time:    18.1358 seconds
-Scene contains 3889360 objects.
-Preprocessing Time:     7.2599 seconds
-Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         0% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         1% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         2% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         3% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         4% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         5% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         6% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         7% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         8% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:         9% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        10% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        11% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        12% complete            Rendering Progress:        13% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        14% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        15% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        16% complete            Rendering Progress:        17% complete            Rendering Progress:        17% complete            Rendering Progress:        17% complete            Rendering Progress:        17% complete            Rendering Progress:        17% complete            Rendering Progress:        17% complete            Rendering Progress:        17% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        18% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        19% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        20% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        21% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        22% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        23% complete            Rendering Progress:        24% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        25% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        26% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        27% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        28% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        29% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        30% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        31% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        32% complete            Rendering Progress:        33% complete            Rendering Progress:        33% complete            Rendering Progress:        33% complete            Rendering Progress:        33% complete            Rendering Progress:        33% complete            Rendering Progress:        33% complete            Rendering Progress:        33% complete            Rendering Progress:        34% complete            Rendering Progress:        34% complete            Rendering Progress:        34% complete            Rendering Progress:        34% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        35% complete            Rendering Progress:        36% complete            Rendering Progress:        36% complete            Rendering Progress:        36% complete            Rendering Progress:        36% complete            Rendering Progress:        36% complete            Rendering Progress:        37% complete            Rendering Progress:        37% complete            Rendering Progress:        37% complete            Rendering Progress:        37% complete            Rendering Progress:        37% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        38% complete            Rendering Progress:        39% complete            Rendering Progress:        39% complete            Rendering Progress:        39% complete            Rendering Progress:        39% complete            Rendering Progress:        39% complete            Rendering Progress:        39% complete            Rendering Progress:        39% complete            Rendering Progress:        40% complete            Rendering Progress:        40% complete            Rendering Progress:        40% complete            Rendering Progress:        40% complete            Rendering Progress:        40% complete            Rendering Progress:        40% complete            Rendering Progress:        40% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        41% complete            Rendering Progress:        42% complete            Rendering Progress:        42% complete            Rendering Progress:        42% complete            Rendering Progress:        42% complete            Rendering Progress:        43% complete            Rendering Progress:        43% complete            Rendering Progress:        43% complete            Rendering Progress:        43% complete            Rendering Progress:        43% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        44% complete            Rendering Progress:        45% complete            Rendering Progress:        45% complete            Rendering Progress:        45% complete            Rendering Progress:        45% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        46% complete            Rendering Progress:        47% complete            Rendering Progress:        47% complete            Rendering Progress:        47% complete            Rendering Progress:        47% complete            Rendering Progress:        47% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        48% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        49% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        50% complete            Rendering Progress:        51% complete            Rendering Progress:        51% complete            Rendering Progress:        51% complete            Rendering Progress:        52% complete            Rendering Progress:        52% complete            Rendering Progress:        52% complete            Rendering Progress:        52% complete            Rendering Progress:        52% complete            Rendering Progress:        52% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        53% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        54% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        55% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        56% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        57% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        58% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        59% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        60% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        61% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        62% complete            Rendering Progress:        63% complete            Rendering Progress:        63% complete            Rendering Progress:        63% complete            Rendering Progress:        63% complete            Rendering Progress:        63% complete            Rendering Progress:        63% complete            Rendering Progress:        63% complete            Rendering Progress:        64% complete            Rendering Progress:        64% complete            Rendering Progress:        64% complete            Rendering Progress:        64% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        65% complete            Rendering Progress:        66% complete            Rendering Progress:        66% complete            Rendering Progress:        66% complete            Rendering Progress:        66% complete            Rendering Progress:        66% complete            Rendering Progress:        66% complete            Rendering Progress:        66% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        67% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        68% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        69% complete            Rendering Progress:        70% complete            Rendering Progress:        70% complete            Rendering Progress:        70% complete            Rendering Progress:        70% complete            Rendering Progress:        70% complete            Rendering Progress:        70% complete            Rendering Progress:        72% complete            Rendering Progress:        72% complete            Rendering Progress:        72% complete            Rendering Progress:        72% complete            Rendering Progress:        72% complete            Rendering Progress:        72% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        73% complete            Rendering Progress:        74% complete            Rendering Progress:        74% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        75% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        76% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        77% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        78% complete            Rendering Progress:        79% complete            Rendering Progress:        79% complete            Rendering Progress:        80% complete            Rendering Progress:        80% complete            Rendering Progress:        80% complete            Rendering Progress:        80% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        81% complete            Rendering Progress:        82% complete            Rendering Progress:        82% complete            Rendering Progress:        82% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        83% complete            Rendering Progress:        85% complete            Rendering Progress:        85% complete            Rendering Progress:        85% complete            Rendering Progress:        85% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        86% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        87% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        88% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        89% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        90% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        91% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        92% complete            Rendering Progress:        93% complete            Rendering Progress:        93% complete            Rendering Progress:        93% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:        95% complete            Rendering Progress:       100% complete            
-  Ray Tracing Time:     5.2977 seconds
-    Image I/O Time:     0.6467 seconds
-Info) Rendering complete.
-can't set "vmd_logfile": 
-Info) VMD for LINUXAMD64, version 1.9.3 (November 30, 2016)
-Info) Exiting normally.
