@@ -245,11 +245,11 @@ class MainLoop(object):
                 SystemExit(msg)
                 return False
 
-     # Will create the wavefunction data
+    # Will create the wavefunction data
     def _create_wf_data(self, mol_id, step):
         """
-        Will create the wavefunction data. This involves creating a bounding box
-        big enough to encapsulate the wf and creating the p-orbital data.
+        Will create the wavefunction data. This involves creating a bounding
+        box big enough to encapsulate the wf and creating the p-orbital data.
 
         Inputs:
             * mol_id  =>  The molecule index
@@ -257,34 +257,54 @@ class MainLoop(object):
         """
         start_data_create_time = time.time()
 
-        # Drawing a bounding box around the active atoms to prevent creating unecessary data
+        # Drawing a bounding box around the active atoms to prevent creating
+        #  unecessary data
         if self.all_settings['dyn_bound_box']:
-             BBS_dyn = [self._dynamic_bounding_box_scale(mol_id, i) for i in self.all_settings['bounding_box_scale']]
+            BBS_dyn = [self._dynamic_bounding_box_scale(mol_id, i)
+                       for i in self.all_settings['bounding_box_scale']]
         else:
-             BBS_dyn = self.all_settings['bounding_box']
-        trans, active_size  = geom.min_bounding_box([self.active_coords[:,k] for k in range(3)],
-                                                         BBS_dyn)
-        self.sizes  = typ.int_res_marry(active_size, self.all_settings['resolution'], [1,1,1])     #How many grid points
+            BBS_dyn = self.all_settings['bounding_box']
+        act_crds = [self.active_coords[:, k] for k in range(3)]
+        trans, active_size = geom.min_bounding_box(act_crds, BBS_dyn)
+        self.sizes = typ.int_res_marry(active_size,  # How many grid points
+                                       self.all_settings['resolution'],
+                                       [1, 1, 1])
 
         # Create wf data
-        scale_factors = np.array([i*self.all_settings['resolution'] for j, i in enumerate(self.sizes)])
+        scale_factors = [size*self.all_settings['resolution']
+                         for size in self.sizes]
+        scale_factors = np.array(scale_factors)
+
         # Actually create the data
         self.data = np.zeros(self.sizes, dtype=complex)
         self.origin = scale_factors/-2 + trans
         self.mol_C = self.all_settings['mol'][self.step][mol_id]
         mol_C_abs = np.absolute(self.mol_C)**2
+
         for j in self.all_settings['AOM_D']:
             if self.all_settings['mol_info'][j] == mol_id:
-                ac = self.all_settings['coords'][self.step][j] - trans
+
+                at_crds = self.all_settings['coords'][self.step][j] - trans
                 self.atom_I = self.all_settings['AOM_D'][j][1]
-                self.data += MT.dot_3D(MT.SH_p(self.sizes[0], self.sizes[1], self.sizes[2], self.all_settings['resolution'],ac),
-                            self.all_settings['pvecs'][self.step][self.atom_I])*self.all_settings['AOM_D'][j][0]
+                pvecs = self.all_settings['pvecs'][self.step][self.atom_I]
+                AOM = self.all_settings['AOM_D'][j][0]
+
+                self.data += MT.dot_3D(MT.SH_p(self.sizes[0],
+                                               self.sizes[1],
+                                               self.sizes[2],
+                                               self.all_settings['resolution'],
+                                               at_crds),
+                                       pvecs) * AOM
+        # Density plot shows |psi|^2
         if self.all_settings['color_type'] == 'density':
             self.data *= self.mol_C
             self.data *= np.conjugate(self.data)
         else:
+            # Phase plot shows psi = |u|^2 * SOMO
             self.data *= mol_C_abs
-        self.all_settings['times']['Create Wavefunction'][step] += time.time()-start_data_create_time
+
+        end_time = time.time() - start_data_create_time
+        self.all_settings['times']['Create Wavefunction'][step] += end_time
 
     # Creates the cube file to save
     def _create_cube_file_txt(self, step):
@@ -399,33 +419,50 @@ class MainLoop(object):
             msg += "It hasn't been created (or created in the wrong place)."
             EXC.ERROR(msg)
 
-        if 'tga' not in self.all_settings['files_to_keep'] and not all_settings['calibrate']:
+        cond = 'tga' not in self.all_settings['files_to_keep']
+        cond *= not all_settings['calibrate']
+        if cond:
             self.all_settings['delete_these'].append(self.tga_filepath)
 
         io.VMD_visualise(self.all_settings, self.PID)
-        self.all_settings['times']['VMD Visualisation'][step] +=  time.time() -start_vmd_time
+
+        end_time = time.time() - start_vmd_time
+        self.all_settings['times']['VMD Visualisation'][step] += end_time
 
     # Handles the writing of the necessary files
     def _write_cube_file(self, step, mol_id):
         """
-        Converts each molecular wavefunction to a cube file to be loaded in vmd.
+        Converts each molecular wavefunction to a cube file to be loaded in vmd
         """
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
-           data_filename = "%i-%s.cube"%(step, mol_id)
+            data_filename = "%i-%s.cube" % (step, mol_id)
         else:
-           data_filename = "tmp%i-%s.cube"%(mol_id, self.PID)
+            data_filename = "tmp%i-%s.cube" % (mol_id, self.PID)
         data_filepath = self.all_settings['data_fold'] + data_filename
         if not all_settings['keep_cube_files']:
-           self.all_settings['delete_these'].append(data_filepath)
-        self.data_files_to_visualise = [data_filepath] + self.data_files_to_visualise
-        self.all_settings['tcl']['cube_files'] = ' '.join(self.data_files_to_visualise)
-        self.tga_folderpath, _, self.tga_filepath = io.file_handler(self.all_settings['img_prefix'], 'tga', self.all_settings)
+            self.all_settings['delete_these'].append(data_filepath)
+        self.data_files_to_visualise = [data_filepath] + \
+            self.data_files_to_visualise
+
+        self.all_settings['tcl']['cube_files'] = \
+            ' '.join(self.data_files_to_visualise)
+
+        self.tga_folderpath, _, self.tga_filepath = io.file_handler(
+                                               self.all_settings['img_prefix'],
+                                               'tga',
+                                               self.all_settings)
         if all_settings['draw_time']:
-           self.all_settings['tcl']['time_step'] = '"%s"'%(self.all_settings['time_lab_txt'].replace("*",str(self.all_settings['Mtime-steps'][self.step])))
-        self.all_settings['tcl']['cube_files'] = ' '.join(self.data_files_to_visualise)
+            replace = str(self.all_settings['Mtime-steps'][self.step])
+            tLabelTxt = self.all_settings['time_lab_txt'].replace("*", replace)
+            self.all_settings['tcl']['time_step'] = '"%s"' % (tLabelTxt)
+        self.all_settings['tcl']['cube_files'] = ' '.join(
+                                                   self.data_files_to_visualise
+                                                         )
         io.open_write(data_filepath, self.cube_txt)
-        self.all_settings['times']['Write Cube File'][step] += time.time() - start_data_write_time
+
+        end_time = time.time() - start_data_write_time
+        self.all_settings['times']['Write Cube File'][step] += end_time
 
     # Handles the plotting of the side graph.
     def _plot(self, step):
@@ -436,15 +473,20 @@ class MainLoop(object):
         """
         # Plotting if required
         start_plot_time = time.time()
-        files  = {'name':"G%i"%step, 'tga_fold':self.tga_filepath}
-        self.all_settings['delete_these'].append(io.plot(self.all_settings, self.step, files, plt))
-        self.all_settings['times']['Plot and Save Img'][step] += time.time() - start_plot_time
+        import matplotlib.pyplot as plt
+        files = {'name': "G%i" % step, 'tga_fold': self.tga_filepath}
+        self.all_settings['delete_these'].append(io.plot(self.all_settings,
+                                                         self.step,
+                                                         files,
+                                                         plt))
+        end_time = time.time() - start_plot_time
+        self.all_settings['times']['Plot and Save Img'][step] += end_time
 
     # Runs the garbage collection and deals with stitching images etc...
     def _finalise(self, num_steps):
         """
-        Updates the setting file with changes that occured in the vmd file. Will
-        also display the img or stitch the movie. It will finally collect
+        Updates the setting file with changes that occured in the vmd file.
+        Will also display the img or stitch the movie. It will finally collect
         garbage.
         """
         io.settings_update(self.all_settings)
@@ -462,12 +504,16 @@ class MainLoop(object):
         """
         if self.all_settings['mols_plotted'] > 0:
             if self.all_settings['load_in_vmd']:
-                self.all_settings['tcl']['pic_filename'][self.PID] = self.tga_filepath
+                self.all_settings['tcl']['pic_filename'][self.PID] = \
+                    self.tga_filepath
                 io.vmd_variable_writer(self.all_settings, self.PID)
-                os.system("vmd -nt -e %s"%(self.all_settings['vmd_script'][self.PID]) )
+                os.system("vmd -nt -e %s" % (
+                                     self.all_settings['vmd_script'][self.PID]
+                                            )
+                         )
                 io.settings_update(self.all_settings)
             if self.all_settings['show_img_after_vmd']:
-                open_pic_cmd = "xdg-open %s"%(self.tga_filepath)
+                open_pic_cmd = "xdg-open %s" % (self.tga_filepath)
                 subprocess.call(open_pic_cmd, shell=True)
         else:
             EXC.WARN("There were no wavefunctions plotted on the molecules!")
@@ -477,8 +523,9 @@ class MainLoop(object):
         """
         Deletes temporary files.
         """
-        #self.all_settings['delete_these'].append(self.all_settings['vmd_log_file'])
-        self.all_settings['delete_these'].append(io.folder_correct('./vmdscene.dat'))
+        self.all_settings['delete_these'].append(
+                                            io.folder_correct('./vmdscene.dat')
+                                                )
         # Garbage collection
         self.all_settings['delete_these'].append(self.all_settings['f.txt'])
         for f in self.all_settings['delete_these']:
@@ -493,12 +540,14 @@ class MainLoop(object):
         """
         # Convert all .tga to .img
         if 'img' in self.all_settings['files_to_keep']:
-            cnvt_command = "mogrify -format %s %s*.tga"%(self.all_settings['img_format'], self.tga_folderpath)
+            cnvt_command = "mogrify -format %s %s*.tga" % (
+                                               self.all_settings['img_format'],
+                                               self.tga_folderpath
+                                                          )
             subprocess.call(cnvt_command, shell=True)
 
-
-#Need to change all the filenames of the tga files to add leading zeros
-# Stitches the movie together from other files
+    # Need to change all the filenames of the tga files to add leading zeros
+    # Stitches the movie together from other files
     def _stitch_movie(self):
         """
         Stitches the individual images together into a movie using the ffmpeg
@@ -508,14 +557,18 @@ class MainLoop(object):
         files = "*.tga"
         # Creating the ffmpeg and convert commands for stitching
         if self.all_settings['movie_format'] == 'mp4':
-            Stitch_cmd, tmp, _ = io.stitch_mp4(files, self.tga_folderpath, self.tga_folderpath+self.all_settings['title'], self.all_settings['movie_length'], self.all_settings['ffmpeg_bin'])
+            title_path = self.tga_folderpath + self.all_settings['title']
+            Stitch_cmd, tmp, _ = io.stitch_mp4(
+                                             files,
+                                             self.tga_folderpath,
+                                             title_path,
+                                             self.all_settings['movie_length'],
+                                             self.all_settings['ffmpeg_bin']
+                                              )
             self.all_settings['delete_these'].append(tmp)
             self.all_settings['delete_these'].append(_)
 
-        # # if self.all_settings['movie_format'] == 'gif':
-        # #   io.open_write(self.all_settings['f.txt'], self.all_settings['to_stitch']) #Writing all the image filenames (maybe need to sort this after paralellisation)
-        # #   Stitch_cmd = 'convert -delay '+str(100*(self.all_settings['length_of_animat    ion']/(end_step-start_step)))+' @'+self.all_settings['f.txt']+' -loop 0 "'+self.tga_folderpath+self.all_settings['title']+'.gif"'
-        subprocess.call(Stitch_cmd, shell=True) # Actually stitch the movie
+        subprocess.call(Stitch_cmd, shell=True)  # Actually stitch the movie
 
     # Prints the timing info
     def _print_timings(self, step, num_steps, start_step_time):
