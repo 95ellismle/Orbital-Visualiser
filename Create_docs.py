@@ -255,7 +255,7 @@ class SideBar(object):
             sidebarTxt += '<li>\n'
             sidebarTxt += '%s<a href="%s"> %s </a>' % ("\t" * 5,
                                                        tableFilePath,
-                                                       sectionName)
+                                                       sectionName.title())
             sidebarTxt += '\n</li>\n'
             self.tableFilePaths[sectionName] = tableFilePath
 
@@ -326,18 +326,22 @@ class HTMLFile(object):
         relevant variable in replacers
         """
         allVars = re.findall(r'\*[a-zA-Z_]+.?\*', txt)
+        repl = {i: replacers[i] for i in replacers}  # Don't change dictionary
 
         # Error Checking
         for var in allVars:
-            if var not in replacers:
+            if var not in repl:
                 msg = "Can't find the variable %s" % var
                 msg += " in the replacers dictionary.\n\n"
                 msg += "This is found in the file %s\n\n\n" % self.filePath
                 raise SystemExit(msg)
 
         for var in allVars:
-#            varInVar = self.replacers[var]
-            txt = txt.replace(var, replacers[var])
+            varInVar = re.findall(r'\*[a-zA-Z_]+.?\*', replacers[var])
+            if varInVar:
+                repl[var] = self._replaceVars(repl[var],
+                                              repl)
+            txt = txt.replace(var, repl[var])
         return txt
 
 
@@ -375,11 +379,11 @@ class TableHTMLFile(HTMLFile):
             self.fileTxt = io.open_read(self.filePath)   # Text in table file
             self._create_table()
 
-            self.replacers = {i: replacers[i] for i in replacers}
-            self.replacers['*table_data*'] = self.tableTxt
-            self.replacers['*table_name*'] = self.title.title()
-            self.replacers['*topnavStyle*'] = 'style="margin-left: 205px; width:100%;"'
-            self.fileTxt = self._replaceVars(self.fileTxt, self.replacers)
+            repl = {i: replacers[i] for i in replacers}
+            repl['*table_data*'] = self.tableTxt
+            repl['*table_name*'] = self.title.title()
+            repl['*topnavStyle*'] = 'style="margin-left: 205px; width:100%;"'
+            self.fileTxt = self._replaceVars(self.fileTxt, repl)
 
     def _create_table(self):
         """
@@ -417,7 +421,7 @@ class TableHTMLFile(HTMLFile):
                 strVal += "<li> %s </li>\n" % item
             strVal += "</ul>"
         elif type(val) == tuple:
-            strVal = "(%s)" % ','.join([str(i) for i in val])
+            strVal = "(%s)" % ', '.join([str(i) for i in val])
         elif type(val) == bool:
             strVal = '<span id=false> %s </span>' % val
             if val:
@@ -460,6 +464,8 @@ replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"img"),
              "*intro_text*": io.open_read(templates_folder+"Intro.html"),
              "*Misc*": io.open_read(templates_folder+'IntroMisc.html'),
              "*Pagetitle*": "Movie Maker Documentation",
+             "*header_text*": io.open_read(templates_folder+'HeaderTxt.html'),
+             "*top_nav*": io.open_read(templates_folder+'TopNav.html'),
              }
 
 # Handle the Sidebar
@@ -470,7 +476,7 @@ dstr = docstr.Docstr_Parsing('.')
 replacers['*Mov_Mak_Edit*'] = dstr.docstrTxt
 
 # Complete the files in order (do the TopNav first)
-firstItems = ['TopNav', 'HeaderTxt']
+firstItems = ['TopNav', 'HeaderTxt', 'QuickStart']
 lastItems = ['table']
 templateFilePathsOrder = firstItems
 for i in template_filepaths:
@@ -480,7 +486,8 @@ for i in lastItems:
     templateFilePathsOrder.remove(i)
 templateFilePathsOrder += lastItems
 
-FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation']
+FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation', 
+                   'QuickStart']
 
 # First create all the correct paths to the files
 for key in templateFilePathsOrder:
@@ -513,16 +520,16 @@ for key in templateFilePathsOrder:
                                 section,
                                 replacers)
             filesToWrite[tmp.title] = tmp
-
-    elif 'TopNav' in key:
-        replacers['*top_nav*'] = HTMLFile(template_filepaths[key],
-                                          replacers,
-                                          defaults).fileTxt
-
-    elif 'HeaderTxt' in key:
-        replacers['*header_text*'] = HTMLFile(template_filepaths[key],
-                                              replacers,
-                                              defaults).fileTxt
+#
+#    elif 'TopNav' in key:
+#        replacers['*top_nav*'] = HTMLFile(template_filepaths[key],
+#                                          replacers,
+#                                          defaults).fileTxt
+#
+#    elif 'HeaderTxt' in key:
+#        replacers['*header_text*'] = HTMLFile(template_filepaths[key],
+#                                              replacers,
+#                                              defaults).fileTxt
 
     else:
         tmp = HTMLFile(template_filepaths[key],
