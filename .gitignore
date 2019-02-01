@@ -1,6 +1,8 @@
 Documentation.html
-Docs/tables/*
-Docs/tables/
+Docs/Tables/*
+Docs/Tables/
+Docs/Static/
+Docs/Static/*
 
 */*.pyc
 *.pyc
