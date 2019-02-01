@@ -47,7 +47,7 @@ defaults = {
 ## Positioning
 'zoom_value'        : 1, # How much to scale the image by | ['float', 'integer'] | 'not-tested'
 'rotation'          : 'auto', # How much to rotate the image by: 'Auto' will let the code try and align the long axis along the x axis, you can also use manually set the angle of rotation (as Euler angles), this will rotate in the order z,y,x. You can also turn it off by setting this variable to 'no' | ['auto', 'list [x,y,z]', 'no'] | 'not-tested'
-'translate_by'      : [0,0,0], # How much to translate the image by | ['list [x,y,z]'] | 'not-tested'
+'translate_by'      : (0,0,0), # How much to translate the image by | ['list [x,y,z]'] | 'not-tested'
 ## colors and Materials
 'pos_real_iso_col'  : (1,0,0), # The color of positive real isosurfaces | ['list [red, green, blue]'] | 'not-tested'
 'neg_real_iso_col'  : (0,0,1), # The color of negative real isosurfaces | ['list [red, green, blue]'] | 'not-tested'
@@ -56,7 +56,7 @@ defaults = {
 'density_iso_col'   : (0.3, 0.32,0.3), # The color of the isosurface in a density visualisation | ['list [red,green,blue]'] | 'not-tested'
 'carbon_color'     : 'black', # The color of the Carbon atoms | ['string'] | 'not-tested'
 'hydrogen_color'   : 'white', # The color of the Hydrogen atoms | ['string'] | 'not-tested'
-'background_color' : [1,1,1], # The color of the background | ['string', 'list (rgb values e.g. [1,0,0])'] | 'not-tested'
+'background_color' : (1,1,1), # The color of the background | ['string', 'list (rgb values e.g. [1,0,0])'] | 'not-tested'
 'neon_color'        : 'yellow', # The color of the Neon atoms | ['string (VMD colors)'] | 'not-tested'
 'mol_style'         : 'CPK', # The visualisation style of the molecules (see VMD) | ['string'] | 'not-tested'
 'mol_material'      : "Edgy", # The visualisation material used for the molecules (see VMD) | ['string'] | 'not-tested'

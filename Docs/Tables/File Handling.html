@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Movie Maker Documentation</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+
+    <!-- Bootstrap core CSS -->
+    <link href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/css/simple-sidebar.css" rel="stylesheet">
+    <!-- LaTeX stuff -->
+    <script type="text/javascript" src="http://latex.codecogs.com/latexit.js"></script>
+    <!-- Table Styling -->
+    <link href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/css/table.css" rel="stylesheet">
+    <link href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/css/navbar.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/css/flowchart.css" rel="stylesheet">
+    <style>
+      .CODE {color: magenta;}
+      .param_link:hover {font-weight: bold;}
+    </style>
+</head>
+
+<body>
+    <div id="wrapper">
+       <div class="row">
+           <div width=190px>
+               <!-- Sidebar -->
+                <ul class="sidebar-nav2">
+                    <li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Calibration.html"> Calibration </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Movie Creation.html"> Movie Creation </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/File Handling.html"> File Handling </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Replicas.html"> Replicas </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Positioning.html"> Positioning </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/colors and Materials.html"> colors and Materials </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Dimensions of system.html"> Dimensions of system </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Atoms to plot.html"> Atoms to plot </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Optimisation.html"> Optimisation </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Text on the image.html"> Text on the image </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Graph.html"> Graph </a>
+</li>
+<li>
+					<a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Tables/Miscellaneous.html"> Miscellaneous </a>
+</li>
+
+                </ul>
+			  </div>
+           <!-- /#sidebar-wrapper -->
+           
+           <!-- Nav-Bar start -->
+           <div class="topnav">
+  <a class="active" href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Documentation.html">Home</a>
+  <a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Static/How_it_works.html">How it Works</a>
+  <a href="/home/oem/Documents/PhD/Code/Orbital-Visualiser/Docs/Static/How_to_edit.html">How to Edit</a>
+</div>
+
+           <!-- Nav-Bar end -->
+
+           <div style="margin-left: 190px;">
+             <div class="container">
+               <br />
+               <h2>File Handling</h2>
+               <div class="datagrid">
+                   <table id=table1>
+	<th> Setting </th>	<th> Default Value </th>	<th> Description </th>	<th> Input Type </th>
+<tr><td> CP2K_output_files </td>	<td> 
+<table><th> Key </th>  <th> Value </th>
+
+<tr> <td> AOM </td><td> AOM_COEFF.include </td> </tr>
+<tr> <td> inp </td><td> run.inp </td> </tr>
+<tr> <td> mol_coeff </td><td> run-coeff-1.xyz </td> </tr>
+<tr> <td> pvecs </td><td> run-pvecs-1.xyz </td> </tr>
+<tr> <td> xyz </td><td> run-pos-1.xyz </td> </tr></table> </td>	<td>  The output files required for the simulation  </td>	<td>  ['dictionary (see default value)']  </td>
+</tr>
+
+<tr><td> keep_cube_files </td>	<td> <span id=false> False </span> </td>	<td>  Keeps the data files after the simulation  </td>	<td>  ['yes','no']  </td>
+</tr>
+
+<tr><td> keep_img_files </td>	<td> <span id=true> True </span> </td>	<td>  Converts the outputted tga files to the default *img_format* and saves them  </td>	<td>  ['yes','no']  </td>
+</tr>
+
+<tr><td> keep_tga_files </td>	<td> <span id=false> False </span> </td>	<td>  Keeps the tga files after the simulation  </td>	<td>  ['yes','no']  </td>
+</tr>
+
+<tr><td> img_format </td>	<td> jpg </td>	<td>  The format to store the img files in  </td>	<td>  ['str (e.g. "png" or "jpg" ']  </td>
+</tr>
+
+<tr><td> find_fuzzy_files </td>	<td> <span id=true> True </span> </td>	<td>  Uses a fuzzy file finder to find files within a folder  </td>	<td>  [ 'yes', 'no' ]  </td>
+</tr>
+
+</table>
+</br>
+</br>
+               </div>
+             </div>
+           </div>
+		 </div>
+    </div>
+</body>
+
+</html>
