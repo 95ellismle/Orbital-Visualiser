@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
+r"""
 This will Parse the defaults.py file into a set of HTML tables for the
 documentation. This also fixes the links required for the documentation.
 
-N.B. At the momement this file is quite a mess it definitely needs a lot of
-tidying!
+The folder ./Templates/HTML/ contains some skeleton (template) files with the
+structure of the HTML files without the details filled in. E.g. A template file
+may contain a header tag in the format <h3>*header*<\h3>. Here how the tag
+looks is determined by the template file and what the tag says is determined by
+the *header* variable. The variable is set in the `replacers' dictionary within
+this code. The filepaths for the template files are given in the
+`template_filepaths' dictionary. This is auto-generated and shouldn't need
+changing.
+
+The important variables here are:
+    * replacers => This gives the value of all the variables within the HTML
+                    templates.
+    * template_filepaths => this specifies where all the template files are
 """
 from collections import OrderedDict
 import os
@@ -15,6 +26,13 @@ from src import IO as io
 from src import EXCEPT as EXC
 
 import docstring as docstr
+
+# Define folders
+docs_folder = io.folder_correct('./Docs')
+templates_folder = io.folder_correct('./Templates/HTML')
+static_folder = io.folder_correct(docs_folder+"Static")
+tables_folder = io.folder_correct(docs_folder+"Tables")
+index_filePath = io.folder_correct('./Documentation.html')
 
 
 class ParseDefaults(object):
@@ -220,7 +238,7 @@ class SideBar(object):
             link = self.tableFilePaths[section]
 
             for param in self.params[section]:
-                htmlLink = '<a href="%s"> %s </a>' % (link, param)
+                htmlLink = '<code><a href="%s"> %s </a></code>' % (link, param)
                 self.replacers['*%s*' % param] = htmlLink
 
     def _createSidebar(self):
@@ -259,55 +277,168 @@ class HTMLFile(object):
 
         * htmlFiles = the dictionary containing the links to replace the
                        relative links with
+
+        * getPathOnly = Will only create the filePath for the file
     """
-    def __init__(self, templateFilePath, replacers, defaults):
+    def __init__(self, templateFilePath,
+                 replacers,
+                 defaults,
+                 getPathOnly=False):
+
         self.filePath = templateFilePath
         self.replacers = replacers
-        self.fileTxt = io.open_read(templateFilePath)
         self.defaults = defaults
         self.params = defaults.params
 
-        self._replaceVars()
+        self._getTitle()
+        self._determineSavePath(static_folder)
 
-    def _replaceVars(self):
+        if getPathOnly is not True:
+            self.fileTxt = io.open_read(templateFilePath)
+            self.replacers['*topnavStyle*'] = ' '
+            self.fileTxt = self._replaceVars(self.fileTxt, self.replacers)
+
+    def _getTitle(self):
+        """
+        Will get the filename from the full filepath and store it as the title
+        """
+        self.title = self.filePath[self.filePath.rfind('/') + 1:]
+        self.title = self.title.replace(".html", "")
+
+    def _determineSavePath(self, folder):
+        """
+        Determines where to save the table that is created
+
+        Inputs:
+            * folder => the folder to store the HTML files
+            * title => the name of the filename
+        """
+        self.saveFolder = folder
+        if not os.path.isdir(self.saveFolder):
+            os.makedirs(self.saveFolder)
+
+        fileName = self.title  # .replace(" ", "_")
+        self.savePath = self.saveFolder + fileName + '.html'
+
+    def _replaceVars(self, txt, replacers):
         """
         Will replace the variables in the file text (self.fileTxt) with the
         relevant variable in replacers
         """
-        allVars = re.findall(r'\*[a-zA-Z_]+.?\*', self.fileTxt)
+        allVars = re.findall(r'\*[a-zA-Z_]+.?\*', txt)
 
         # Error Checking
         for var in allVars:
-            if var not in self.replacers:
+            if var not in replacers:
                 msg = "Can't find the variable %s" % var
                 msg += " in the replacers dictionary.\n\n"
                 msg += "This is found in the file %s\n\n\n" % self.filePath
                 raise SystemExit(msg)
 
         for var in allVars:
-            self.fileTxt = self.fileTxt.replace(var,
-                                                self.replacers[var])
+#            varInVar = self.replacers[var]
+            txt = txt.replace(var, replacers[var])
+        return txt
 
 
 class TableHTMLFile(HTMLFile):
     """
     Special case HTML file creator for the table files. Will create the tables
     in the table files.
+
+    Inputs:
+        * templateFilePath => The filepath of the table template file
+
+        * sectionParams => The parameters in the section of the defaults.py
+                            file
+
+        * title => The title of the section of the defaults.py file.
+
+        * replacers => the replacers dictionary
+
+        * getPathOnly = Will only create the filePath for the file
     """
-    def __init__(self, tableFilePath, sectionParams):
-        self.filePath = tableFilePath
-        self.fileTxt = io.open_read(self.filePath)
-        self.params = sectionParams
+    def __init__(self, templateFilePath,
+                 sectionParams,
+                 title,
+                 replacers,
+                 getPathOnly=False):
 
+        self.filePath = templateFilePath  # The template HTML of the table
+        self.title = title  # What the section is called
+        self.params = sectionParams  # All the parameters in the table
 
-section_header = 'h3'
-table_tag = "<table id=table1>"
+        # Borrowed from Parent (HTMLFile)
+        self._determineSavePath(tables_folder)  # Sets the self.savePath
 
-# Define folders
-docs_folder = io.folder_correct('./Docs')
-templates_folder = io.folder_correct('./Templates/HTML')
-static_folder = io.folder_correct(docs_folder+"Static")
-tables_folder = io.folder_correct(docs_folder+"Tables")
+        if getPathOnly is not True:
+            self.fileTxt = io.open_read(self.filePath)   # Text in table file
+            self._create_table()
+
+            self.replacers = {i: replacers[i] for i in replacers}
+            self.replacers['*table_data*'] = self.tableTxt
+            self.replacers['*table_name*'] = self.title.title()
+            self.replacers['*topnavStyle*'] = 'style="margin-left: 205px; width:100%;"'
+            self.fileTxt = self._replaceVars(self.fileTxt, self.replacers)
+
+    def _create_table(self):
+        """
+        Will create the table (based on the template given in the )
+        """
+        table_tag = "<table id=table1>\n"
+
+        self.tableTxt = table_tag
+        allHeaders = ['Setting', 'Default Value', 'Description', 'Input Type']
+        for header in allHeaders:
+            self.tableTxt += '\t<th> %s </th>' % header
+        for setting in self.params:
+            self.tableTxt += "\n<tr>"
+            self.tableTxt += "<td> %s </td>" % setting
+            for header in self.params[setting]:
+                if header != 'tested':
+                    self.tableTxt += self._createTd(
+                                                   self.params[setting][header]
+                                                   )
+            self.tableTxt += '\n</tr>\n'
+        self.tableTxt += "\n</table>\n</br>\n</br>"
+
+    def _createTd(self, val):
+        """
+        Will create a table data string for the particular value. E.g. if the
+        value was 'bob' then this function would create a <td> bob <\td>
+        """
+        if any(type(val) == typ for typ in (int, str)):
+            strVal = str(val)
+        elif type(val) == float:
+            strVal = "%.3g" % val
+        elif type(val) == list:
+            strVal = "<ul>"
+            for item in val:
+                strVal += "<li> %s </li>\n" % item
+            strVal += "</ul>"
+        elif type(val) == tuple:
+            strVal = "(%s)" % ','.join([str(i) for i in val])
+        elif type(val) == bool:
+            strVal = '<span id=false> %s </span>' % val
+            if val:
+                strVal = r'<span id=true> %s </span>' % val
+        elif type(val) == dict:
+            strVal = "\n<table>"
+            strVal += '<th> Key </th>  <th> Value </th>\n'
+            for key in val:
+                printer = self._createTd(val[key]).replace('<td>', '')
+                printer = printer.replace('</td>', '')
+                printer = printer.strip()
+                strVal += "\n<tr> <td> %s </td>" % key
+                strVal += "<td> %s </td> </tr>" % printer
+            strVal += '</table>'
+        elif val is None:
+            strVal = 'None'
+        else:
+            raise SystemExit("Sorry Can't decied what to do with type:" +
+                             "%s" % type(val))
+
+        return "\t<td> %s </td>" % strVal
 
 
 # The filepaths to the files acting as the templates to the webpages
@@ -327,37 +458,83 @@ replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"img"),
              "*css_folder_path*": io.folder_correct(docs_folder+"css"),
              "*quick_start*": io.open_read(templates_folder+"QuickStart.html"),
              "*intro_text*": io.open_read(templates_folder+"Intro.html"),
-             "*header_text*": io.open_read(templates_folder+"HeaderTxt.html"),
              "*Misc*": io.open_read(templates_folder+'IntroMisc.html'),
-             "*title*": "Movie Maker Documentation",
-             "*index_file*": io.folder_correct("./Documentation"),
-             "*how_it_works_file*":
-                 io.folder_correct("./Docs/Static/HowItWorks.html"),
-             "*how_to_edit_file*":
-                 io.folder_correct("./Docs/Static/HowToEdit.html"),
+             "*Pagetitle*": "Movie Maker Documentation",
              }
 
 # Handle the Sidebar
 SideBar(defaults, replacers, tables_folder)
-dstr = docstr.Docstr_Parsing('.')
 
-# Must do the TopNav bar first
-templateFilePathsOrder = ['TopNav']
+# Handle the docstrings on top of the python files
+dstr = docstr.Docstr_Parsing('.')
+replacers['*Mov_Mak_Edit*'] = dstr.docstrTxt
+
+# Complete the files in order (do the TopNav first)
+firstItems = ['TopNav', 'HeaderTxt']
+lastItems = ['table']
+templateFilePathsOrder = firstItems
 for i in template_filepaths:
     if i not in templateFilePathsOrder:
         templateFilePathsOrder.append(i)
+for i in lastItems:
+    templateFilePathsOrder.remove(i)
+templateFilePathsOrder += lastItems
 
+FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation']
+
+# First create all the correct paths to the files
+for key in templateFilePathsOrder:
+    if key not in FilesToNotWrite:
+        if 'table' in key:
+            for section in defaults.params:
+                tmp = TableHTMLFile(template_filepaths[key],
+                                    defaults.params[section],
+                                    section,
+                                    replacers,
+                                    True)
+
+        else:
+            tmp = HTMLFile(template_filepaths[key],
+                           replacers,
+                           defaults,
+                           True)
+
+        fName = tmp.savePath
+        replacers['*%s*' % tmp.title] = tmp.savePath
+replacers['*index*'] = index_filePath
+
+# Actually parse and replace the variables in the html files
 filesToWrite = {}
 for key in templateFilePathsOrder:
     if 'table' in key:
         for section in defaults.params:
-            filesToWrite[section] = TableHTMLFile(template_filepaths[key],
-                                                  defaults.params[section]
-                                                  )
-    else:
-        filesToWrite[key] = HTMLFile(template_filepaths[key],
-                                     replacers,
-                                     defaults)
+            tmp = TableHTMLFile(template_filepaths[key],
+                                defaults.params[section],
+                                section,
+                                replacers)
+            filesToWrite[tmp.title] = tmp
 
-    if 'TopNav' in key:
-        replacers['*top_nav*'] = filesToWrite[key].fileTxt
+    elif 'TopNav' in key:
+        replacers['*top_nav*'] = HTMLFile(template_filepaths[key],
+                                          replacers,
+                                          defaults).fileTxt
+
+    elif 'HeaderTxt' in key:
+        replacers['*header_text*'] = HTMLFile(template_filepaths[key],
+                                              replacers,
+                                              defaults).fileTxt
+
+    else:
+        tmp = HTMLFile(template_filepaths[key],
+                       replacers,
+                       defaults)
+        filesToWrite[tmp.title] = tmp
+
+
+for key in filesToWrite:
+    tmp = filesToWrite[key]
+    fileName = tmp.savePath
+    with open(fileName, 'w') as f:
+        f.write(tmp.fileTxt)
+
+os.rename(filesToWrite['index'].savePath, index_filePath)
