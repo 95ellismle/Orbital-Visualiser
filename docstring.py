@@ -28,8 +28,7 @@ class Docstr_Parsing(object):
         Docstr_Parsing.all_files = list(os.walk(rootFolder))
         Docstr_Parsing._make_docstr_dict(self)
         Docstr_Parsing._get_README_files(self)
-
-        self.docstrTxt = "Still need to create the string. See docstring.py"
+        Docstr_Parsing._create_docstr_HTML(self)
 
     def _get_docstr(self, fname):
         """
@@ -77,3 +76,59 @@ class Docstr_Parsing(object):
                     if dpath not in self.docstr_dict:
                         self.docstr_dict[dpath] = {}
                     self.docstr_dict[dpath][fpath] = docstr
+
+    @staticmethod
+    def _create_docstr_HTML(self):
+        """
+        Will create a nice HTML file from the information in the docstrings
+        """
+        self.docstrTxt = ''
+        for folder in self.docstr_dict:
+            fold = folder
+            if folder == '.':
+                fold = "Root Folder"
+            self.docstrTxt += "<div>"
+            folderHTML = '<span style="color: darkred;"> %s </span>' % fold
+            self.docstrTxt += "<h4> Folder: %s </h4> </br>" % folderHTML
+            self.docstrTxt += "<h5> What is contained in the folder </h5>"
+
+            Docstr_Parsing.__createFolderExplan(self, folder)
+
+            self.docstrTxt += "<h5> The files: </h5>"
+            self.docstrTxt += "<table id=\"files\" cellspacing=\"0\"> <th>File</th> <th>Explanation</th>"
+            for file in self.docstr_dict[folder]:
+                if 'README' in file or '__init__.py' in file:
+                    continue
+                expl = self.docstr_dict[folder][file]
+                self.docstrTxt += "<tr>"
+                self.docstrTxt += "<td>%s</td>  <td>%s</td>" % (file, expl)
+                self.docstrTxt += "</tr>"
+#                self.docstrTxt += "<tr><td>. </td><td> </td></tr>"
+            self.docstrTxt += "</table>"
+
+            self.docstrTxt += "</div>"
+            self.docstrTxt += "</br></br>"
+
+    @staticmethod
+    def __createFolderExplan(self, folder):
+        """
+        Will create the folder explanation
+        """
+        if folder != '.':
+            if 'README' not in self.docstr_dict[folder]:
+                keys = self.docstr_dict[folder].keys()
+                print("Can't find the README file in the folder:\n\t")
+                print("%s" % folder)
+                print("Files Found: [%s]" % ', '.join(keys))
+                raise SystemExit("Missing README")
+
+            self.docstrTxt += self.docstr_dict[folder]['README']
+        else:
+            self.docstrTxt += "This is the root folder where you will find"
+            self.docstrTxt += " the most important files in running the "
+            self.docstrTxt += "code. These are:"
+            self.docstrTxt += "<ul><li>main.py</li>"
+            self.docstrTxt += "<li>Settings.inp</li>"
+            self.docstrTxt += "<li>Create_docs.py</li></ul>"
+
+        
