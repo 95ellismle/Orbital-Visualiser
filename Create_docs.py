@@ -6,9 +6,9 @@ documentation. This also fixes the links required for the documentation.
 
 The folder ./Templates/HTML/ contains some skeleton (template) files with the
 structure of the HTML files without the details filled in. E.g. A template file
-may contain a header tag in the format <h3>*header*<\h3>. Here how the tag
+may contain a header tag in the format &lth3>*header-var*&lt/h3&gt. Here how the tag
 looks is determined by the template file and what the tag says is determined by
-the *header* variable. The variable is set in the `replacers' dictionary within
+the *header-var* variable. The variable is set in the `replacers' dictionary within
 this code. The filepaths for the template files are given in the
 `template_filepaths' dictionary. This is auto-generated and shouldn't need
 changing.
@@ -520,17 +520,6 @@ for key in templateFilePathsOrder:
                                 section,
                                 replacers)
             filesToWrite[tmp.title] = tmp
-#
-#    elif 'TopNav' in key:
-#        replacers['*top_nav*'] = HTMLFile(template_filepaths[key],
-#                                          replacers,
-#                                          defaults).fileTxt
-#
-#    elif 'HeaderTxt' in key:
-#        replacers['*header_text*'] = HTMLFile(template_filepaths[key],
-#                                              replacers,
-#                                              defaults).fileTxt
-
     else:
         tmp = HTMLFile(template_filepaths[key],
                        replacers,
