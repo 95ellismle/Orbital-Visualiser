@@ -456,7 +456,7 @@ defaults_filepath = io.folder_correct('./Templates/') + 'defaults.py'
 
 defaults = ParseDefaults(defaults_filepath)
 # A dictionary of things to find in the HTML files and replace
-replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"img"),
+replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"Perm_img"),
              "*docs_folder*": docs_folder,
              "*vendor_folder_path*": io.folder_correct(docs_folder+"vendor"),
              "*css_folder_path*": io.folder_correct(docs_folder+"css"),
