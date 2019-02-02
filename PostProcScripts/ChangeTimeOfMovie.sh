@@ -1,10 +1,10 @@
-MOV_LENGTH='...'           # Movie length in seconds
-INPUTMOVIE='...'           # Which file to slow down
-OUTPUTNAME='...'           # Name of output file
+MOV_LENGTH='15'           # Movie length in seconds
+INPUTMOVIE='../Docs/Perm_img/Plane2.mp4'           # Which file to slow down
+OUTPUTNAME='./test.mp4'           # Name of output file
 
 
 
-FFMPEGBINARY=../bin/ffmpeg        # Location of the ffmpeg binary (to slow down movie)
+FFMPEGBINARY=ffmpeg        # Location of the ffmpeg binary (to slow down movie)
 
 
 
