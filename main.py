@@ -137,13 +137,15 @@ class MainLoop(object):
       """
       if self.all_settings['color_type'] == 'density':
          self.data *= self.mol_C
-         self.data *= np.conjugate(self.data) * 100
+         self.data *= np.conjugate(self.data)
+         self.data = np.sqrt(self.data)
       else:
          # Find any wf that is negative according to the AOM Coeff
          negMask = self.data < 0
          self.data *= self.mol_C
          # Get the density
-         self.data *= np.conjugate(self.data) * 100
+         self.data *= np.conjugate(self.data)
+         self.data = np.sqrt(self.data)
          # Get parts with neg/pos phase in the density
          if numCube == 0:
             self.data[negMask] = 0
@@ -415,7 +417,7 @@ class MainLoop(object):
             self.pos_iso_cols[self.tcl_dict_ind] = 22
 
         elif self.all_settings['color_type'] == 'phase':
-            if numCube == 0:
+            if numCube == 0:  # Negative wf data
                 if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
                     self.pos_iso_cols[self.tcl_dict_ind] = 21
                     self.neg_iso_cols[self.tcl_dict_ind] = 20
@@ -428,7 +430,7 @@ class MainLoop(object):
                 else:  # Neg imag Quadrant
                     self.pos_iso_cols[self.tcl_dict_ind] = 18
                     self.neg_iso_cols[self.tcl_dict_ind] = 19
-            elif numCube == 1:
+            elif numCube == 1:  # Positive wf data
                 if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
                     self.neg_iso_cols[self.tcl_dict_ind] = 21
                     self.pos_iso_cols[self.tcl_dict_ind] = 20

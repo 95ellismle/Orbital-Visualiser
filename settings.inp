@@ -19,7 +19,7 @@ verbose_output = 'y'
 min_abs_mol_coeff = 0.075 
 atoms_to_plot = range(0, 48) 
 
-isosurface_to_plot = 5e-05 
+isosurface_to_plot = 0.001 
 
 bounding_box_scale = 10 
 
