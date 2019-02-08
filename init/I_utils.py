@@ -26,6 +26,11 @@ import numpy as np
 import datetime
 import difflib
 import os
+import sys
+
+if sys.version_info[0] > 2:
+    xrange = range
+    raw_input = input
 
 ## TODO: Need to finish using all the consts.py folderpaths instead of declaring them here.
 

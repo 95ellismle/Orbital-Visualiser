@@ -281,8 +281,10 @@ class MainLoop(object):
         self.mol_C = self.all_settings['mol'][self.step][mol_id]
         mol_C_abs = np.absolute(self.mol_C)**2
 
-        for j in self.all_settings['AOM_D']:
-            if self.all_settings['mol_info'][j] == mol_id:
+        for j in self.all_settings['AOM_D']:  # loop over atoms
+ 
+            molIsActive = self.all_settings['mol_info'][j] == mol_id
+            if molIsActive:  # if active molecule
 
                 at_crds = self.all_settings['coords'][self.step][j] - trans
                 self.atom_I = self.all_settings['AOM_D'][j][1]
@@ -302,7 +304,6 @@ class MainLoop(object):
         else:
             # Phase plot shows psi = |u|^2 * SOMO
             self.data *= mol_C_abs
-
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 

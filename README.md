@@ -10,7 +10,7 @@ To do this run the Create_docs.py file with python3 i.e:
 
 you can then open the newly created **Documentation.html** with your favourite browser. For example you could run the command:
 
-`firefox Documentation.html`
+`firefox Documentation.html &`
 
 This file should lead you through your first steps in visualising the output of your simulations.
 
