@@ -5,7 +5,7 @@ path = '/home/oem/Data/OrbMovMak/run-fssh-1'
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 1 
-load_in_vmd = 'n' 
+load_in_vmd = 'y' 
 show_img_after_vmd = '' 
 
 title = 'test2' 
@@ -16,11 +16,10 @@ stride = 1
 verbose_output = 'y' 
 
 min_abs_mol_coeff = 0.075 
-atoms_to_plot = 'all' 
+atoms_to_plot = range(0, 48) 
 
-isosurface_to_plot = 1e-05 
+isosurface_to_plot = 5e-05 
 
-bounding_box_scale = 26 
+bounding_box_scale = 10 
 
-zoom_value = 9.855180472319999 
-translate_by = [4.4,0.99,0] 
+#type_of_wavefunction = 'density' 
