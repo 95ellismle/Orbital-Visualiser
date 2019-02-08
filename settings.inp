@@ -5,10 +5,11 @@ path = '/home/oem/Data/OrbMovMak/run-fssh-1'
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 1 
-load_in_vmd = 'y' 
-show_img_after_vmd = '' 
+load_in_vmd = '' 
+show_img_after_vmd = 'y' 
 
 title = 'test2' 
+keep_cube_files = True 
 
 start_step = 0 
 end_step = 'all' 

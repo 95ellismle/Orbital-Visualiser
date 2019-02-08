@@ -1,5 +1,20 @@
-"""Will import the python3 print function."""
 from __future__ import print_function
+"""
+ This is the file that runs everything. The MainLoop class is responsible for
+ actually carrying out the visualisation once everything has been initialised.
+
+ The initialisation is carried out by files in the init folder. By importing
+ the init module we run these methods and initialise (read all the files and
+ parse them into a computer friendly format).
+
+ After this we create an instance of the MainLoop class. This class handles all
+ the visualisation stuff, from creating the data, to visualising in vmd and
+ stitching together images into a movie.
+
+ To get a feel for what the MainLoop is doing a good place to start is the
+ do_step method which is the function which makes an image from the data.
+"""
+
 
 import numpy as np
 import time
@@ -18,22 +33,6 @@ from src import consts
 from init import INIT
 all_settings = INIT.all_settings
 
-
-"""
- This is the file that runs everything. The MainLoop class is responsible for
- actually carrying out the visualisation once everything has been initialised.
-
- The initialisation is carried out by files in the init folder. By importing
- the init module we run these methods and initialise (read all the files and
- parse them into a computer friendly format).
-
- After this we create an instance of the MainLoop class. This class handles all
- the visualisation stuff, from creating the data, to visualising in vmd and
- stitching together images into a movie.
-
- To get a feel for what the MainLoop is doing a good place to start is the
- do_step method which is the function which makes an image from the data.
-"""
 
 if sys.version_info[0] > 2:
     xrange = range
@@ -57,22 +56,27 @@ class MainLoop(object):
             self.step = step
             # Find the phase of the first mol as a reference.
             # Phase = angle in complex plane
-            self.theta1 = np.angle(self.all_settings['mol'][self.step][0])
+            self.thetaRef = np.angle(self.all_settings['mol'][self.step][0])
             tmp = consts.Orig_img_prefix.replace(
                     "$fs",
                     "%.2f" % self.all_settings['Ntime-steps'][self.step])
             self.all_settings['img_prefix'] = tmp.replace(".", ",")
             start_time = time.time()
-            self.do_step(step)  # Do a visualisation step
+            if self.all_settings['color_type'] == 'density':
+               self.do_step_density(step)  # Do a visualisation step
+            else:
+               self.do_step_phase(step)  # Do a visualisation step
             # Pretty print timings
             self.__print_timings(step, len(all_steps), start_time)
         self._finalise(len(all_steps))
 
     # Completes 1 step
-    def do_step(self, step):
+    def do_step_density(self, step):
         """
         Will carry out a single visualisation step. This involves creating the
         wavefunction data, writing this to a file and rendering it with VMD.
+        This is different to the phase implementation as we only create 1 cube
+        file and don't color by phase.
 
         Inputs:
             * step  =>  Which step to visualise.
@@ -82,11 +86,11 @@ class MainLoop(object):
         self._vmd_filename_handling()
         if self.all_settings['background_mols']:
             self._write_background_mols()
-        self.theta1 = np.angle(self.all_settings['mol'][self.step][0])
 
         for mol_i, mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
             self._create_wf_data(mol_id, step)
+            self.__post_wf_processing()
             self._set_wf_colors()
             self._save_wf_colors()
             self._create_cube_file_txt(step)
@@ -94,6 +98,57 @@ class MainLoop(object):
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         if self.all_settings['side_by_side_graph']:  # (Not supported)
             self._plot(step)  # Will plot a graph to one side (Not supported)
+
+    # Completes 1 step
+    def do_step_phase(self, step):
+        """
+        Will carry out a single visualisation step. This involves creating the
+        wavefunction data, writing this to a file and rendering it with VMD.
+        This is different to the density step as it creates 2 cube files. 1
+        which is negative and 1 which is positive.
+
+        Inputs:
+            * step  =>  Which step to visualise.
+        """
+        self._find_active_molecules()
+        self.data_files_to_visualise = []
+        self._vmd_filename_handling()
+        if self.all_settings['background_mols']:
+            self._write_background_mols()
+
+        for mol_i, mol_id in enumerate(self.active_step_mols):
+            self._find_active_atoms(mol_id)
+
+            # This makes a negative and positive cube file
+            for numCube in range(2):
+               self._create_wf_data(mol_id, step)
+               self.__post_wf_processing(numCube)
+               self._set_wf_colors(numCube)
+               self._save_wf_colors()
+               self._create_cube_file_txt(step)
+               self._write_cube_file(step, mol_id, numCube)
+        self._vmd_visualise(step)  # run the vmd script and visualise the data
+        if self.all_settings['side_by_side_graph']:  # (Not supported)
+            self._plot(step)  # Will plot a graph to one side (Not supported)
+
+    def __post_wf_processing(self, numCube=-1):
+      """
+      Will handle the processing of the data after being created
+      """
+      if self.all_settings['color_type'] == 'density':
+         self.data *= self.mol_C
+         self.data *= np.conjugate(self.data) * 100
+      else:
+         # Find any wf that is negative according to the AOM Coeff
+         negMask = self.data < 0
+         self.data *= self.mol_C
+         # Get the density
+         self.data *= np.conjugate(self.data) * 100
+         # Get parts with neg/pos phase in the density
+         if numCube == 0:
+            self.data[negMask] = 0
+         else:
+            self.data[~ negMask] = 0
 
     # Finds a dynamic bounding box scale. Makes the bounding box smaller
     #  when the mol_coeff is smaller
@@ -297,13 +352,7 @@ class MainLoop(object):
                                                self.all_settings['resolution'],
                                                at_crds),
                                        pvecs) * AOM
-        # Density plot shows |psi|^2
-        if self.all_settings['color_type'] == 'density':
-            self.data *= self.mol_C
-            self.data *= np.conjugate(self.data)
-        else:
-            # Phase plot shows psi = |u|^2 * SOMO
-            self.data *= mol_C_abs
+
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 
@@ -321,6 +370,14 @@ class MainLoop(object):
                              [0, 0, self.all_settings['resolution']]]
         xyz_basis_vectors = np.array(xyz_basis_vectors)
 
+        # Error Checking 
+        if np.sum(self.data.imag) > 1e-12:
+           msg = "The data has an imaginary component and it shouldn't!"
+           msg += "\nThis is a problem with the code let Matt know.\n\n"
+           msg += "\n\n(Keep the input files and the version of the movie"
+           msg += " maker in order for him to fix it)"
+           raise SystemExit(msg)
+
         self.cube_txt = txt_lib.cube_file_text(
                               self.data.real,
                               vdim=self.sizes,
@@ -337,7 +394,7 @@ class MainLoop(object):
         self.all_settings['times']['Create Cube Data'][step] += end_time
 
     # Handles the saving the wf colors in a dictionary of the wavefunction.
-    def _set_wf_colors(self):
+    def _set_wf_colors(self, numCube=-1):
         """
         Will determine the colour of the wavefunction depending on the setting
         chosen. If density is chosen then the wavefunction will all be one
@@ -346,30 +403,45 @@ class MainLoop(object):
         chosen the colour will be dependent on which quadrant in the complex
         plane the coefficient appears in.
         """
-        thetai = np.angle(self.mol_C*self.atom_I) - self.theta1
+        thetai = np.angle(self.mol_C)
+        #if numCube == 0:  # numCube == 0 means we are using the negative data
+        #    thetai *= -1  #  according to the AOM Coefficient
+        thetai -= self.thetaRef  # Set the angle relative to the first mol
+
         # Could optimise (and tidy) this, the code doesn't need to do all
         #  this at every step
         if self.all_settings['color_type'] == 'density':
             self.neg_iso_cols[self.tcl_dict_ind] = 22
             self.pos_iso_cols[self.tcl_dict_ind] = 22
 
-        elif self.all_settings['color_type'] == 'real-phase':
-            self.neg_iso_cols[self.tcl_dict_ind] = 21
-            self.pos_iso_cols[self.tcl_dict_ind] = 20
-
         elif self.all_settings['color_type'] == 'phase':
-            if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
-                self.neg_iso_cols[self.tcl_dict_ind] = 21
-                self.pos_iso_cols[self.tcl_dict_ind] = 20
-            elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
-                self.neg_iso_cols[self.tcl_dict_ind] = 19
-                self.pos_iso_cols[self.tcl_dict_ind] = 18
-            elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
-                self.neg_iso_cols[self.tcl_dict_ind] = 20
-                self.pos_iso_cols[self.tcl_dict_ind] = 21
-            else:  # Neg imag Quadrant
-                self.neg_iso_cols[self.tcl_dict_ind] = 18
-                self.pos_iso_cols[self.tcl_dict_ind] = 19
+            if numCube == 0:
+                if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
+                    self.pos_iso_cols[self.tcl_dict_ind] = 21
+                    self.neg_iso_cols[self.tcl_dict_ind] = 20
+                elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
+                    self.pos_iso_cols[self.tcl_dict_ind] = 19
+                    self.neg_iso_cols[self.tcl_dict_ind] = 18
+                elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
+                    self.pos_iso_cols[self.tcl_dict_ind] = 20
+                    self.neg_iso_cols[self.tcl_dict_ind] = 21
+                else:  # Neg imag Quadrant
+                    self.pos_iso_cols[self.tcl_dict_ind] = 18
+                    self.neg_iso_cols[self.tcl_dict_ind] = 19
+            elif numCube == 1:
+                if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
+                    self.neg_iso_cols[self.tcl_dict_ind] = 21
+                    self.pos_iso_cols[self.tcl_dict_ind] = 20
+                elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
+                    self.neg_iso_cols[self.tcl_dict_ind] = 19
+                    self.pos_iso_cols[self.tcl_dict_ind] = 18
+                elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
+                    self.neg_iso_cols[self.tcl_dict_ind] = 20
+                    self.pos_iso_cols[self.tcl_dict_ind] = 21
+                else:  # Neg imag Quadrant
+                    self.neg_iso_cols[self.tcl_dict_ind] = 18
+                    self.pos_iso_cols[self.tcl_dict_ind] = 19
+
         self.tcl_dict_ind += 1
 
     # Saves the wavefunction coloring in the tcl dictionary
@@ -431,18 +503,20 @@ class MainLoop(object):
         self.all_settings['times']['VMD Visualisation'][step] += end_time
 
     # Handles the writing of the necessary files
-    def _write_cube_file(self, step, mol_id):
+    def _write_cube_file(self, step, mol_id, numCube=-1):
         """
         Converts each molecular wavefunction to a cube file to be loaded in vmd
         """
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
-            data_filename = "%i-%s.cube" % (step, mol_id)
+            data_filename = "%i-%i-%s.cube" % (step, numCube, mol_id)
         else:
-            data_filename = "tmp%i-%s.cube" % (mol_id, self.PID)
+            data_filename = "tmp%i-%i-%s.cube" % (mol_id, numCube, self.PID)
         data_filepath = self.all_settings['data_fold'] + data_filename
+
         if not all_settings['keep_cube_files']:
             self.all_settings['delete_these'].append(data_filepath)
+
         self.data_files_to_visualise = [data_filepath] + \
             self.data_files_to_visualise
 

@@ -12,9 +12,7 @@ you can then open the newly created **Documentation.html** with your favourite b
 
 `firefox Documentation.html &`
 
-This file should lead you through your first steps in visualising the output of your simulations.
-
-Some examples of the output of this code to give you an idea of what it does are below!
+This file should lead you through your first steps in visualising the output of your simulations as well as providing some examples.
 
 
 #### A video of charge transport along a Rubrene Chain at 100K.
@@ -35,9 +33,9 @@ TODO:
 
 + Would like to clean up the files, improve code structure. Read the docstrings on top of files and carry out what they say.
 
-+ Add a testing code!
++ Add testing code!
 
-+ I've added a TACHYON_LINUXAND64 binary. Would like to just use this instead of finding the binary on the computer. I should test if this will work on other OS's -maybe need a windows and mac OS one too? Also could compile a better version which supports rendering straight to png.
++ I've added a TACHYON_LINUXAND64 binary. Would like to just use this instead of finding the binary on the computer. Also could compile a better version which supports rendering straight to png.
 
 + Add and test support for visualising replicas
 
