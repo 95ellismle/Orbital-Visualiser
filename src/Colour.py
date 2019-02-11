@@ -6,7 +6,7 @@ Contains functions that create a colour map for the wf.
 import numpy as np
 
 
-def tanhCol(num, col1, col2, squareness=2):
+def tanhCol(num, col1, col2, squareness=30):
     """
     Will create the tanh interpolation between 2 colors
 
@@ -14,6 +14,7 @@ def tanhCol(num, col1, col2, squareness=2):
         * num = a num between -1 and +1 (float)
         * col1 = color of -1 (list or tuple or np.array)
         * col2 = color of +1 (list or tuple or np.array)
+        * squareness = how sharp the boundary between the quadrants
     """
     col1 = np.array(col1)
     col2 = np.array(col2)
@@ -78,3 +79,8 @@ def testColorMap():
 
     plt.figure()
     plt.imshow(vals)
+    plt.yticks([])
+    plt.xticks([])
+    plt.show()
+
+testColorMap()

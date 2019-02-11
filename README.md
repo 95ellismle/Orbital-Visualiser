@@ -29,7 +29,7 @@ This file should lead you through your first steps in visualising the output of 
 TODO:
 ====
 
-+ Add feature to use last timestep in calibration
++ Add feature to use last timestep in calibration and change how the code handles the user inputting a higher number of timesteps than there are. E.g. if # timsteps in file = 200 and user enters 2000 then currently the code crashes. I would like it to just let the user know and use as many steps as it can.
 
 + Would like to clean up the files, improve code structure. Read the docstrings on top of files and carry out what they say.
 

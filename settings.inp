@@ -23,4 +23,4 @@ isosurface_to_plot = 0.001
 
 bounding_box_scale = 10 
 
-#type_of_wavefunction = 'density' 
+type_of_wavefunction = 'density' 
