@@ -62,21 +62,18 @@ class MainLoop(object):
                     "%.2f" % self.all_settings['Ntime-steps'][self.step])
             self.all_settings['img_prefix'] = tmp.replace(".", ",")
             start_time = time.time()
-            if self.all_settings['color_type'] == 'density':
-               self.do_step_density(step)  # Do a visualisation step
-            else:
-               self.do_step_phase(step)  # Do a visualisation step
+            self._do_step(step)  # Do a visualisation step
             # Pretty print timings
             self.__print_timings(step, len(all_steps), start_time)
         self._finalise(len(all_steps))
 
     # Completes 1 step
-    def do_step_density(self, step):
+    def _do_step(self, step):
         """
         Will carry out a single visualisation step. This involves creating the
         wavefunction data, writing this to a file and rendering it with VMD.
-        This is different to the phase implementation as we only create 1 cube
-        file and don't color by phase.
+        This is different to the density step as it creates 2 cube files. 1
+        which is negative and 1 which is positive.
 
         Inputs:
             * step  =>  Which step to visualise.
@@ -99,58 +96,22 @@ class MainLoop(object):
         if self.all_settings['side_by_side_graph']:  # (Not supported)
             self._plot(step)  # Will plot a graph to one side (Not supported)
 
-    # Completes 1 step
-    def do_step_phase(self, step):
-        """
-        Will carry out a single visualisation step. This involves creating the
-        wavefunction data, writing this to a file and rendering it with VMD.
-        This is different to the density step as it creates 2 cube files. 1
-        which is negative and 1 which is positive.
-
-        Inputs:
-            * step  =>  Which step to visualise.
-        """
-        self._find_active_molecules()
-        self.data_files_to_visualise = []
-        self._vmd_filename_handling()
-        if self.all_settings['background_mols']:
-            self._write_background_mols()
-
-        for mol_i, mol_id in enumerate(self.active_step_mols):
-            self._find_active_atoms(mol_id)
-
-            # This makes a negative and positive cube file
-            for numCube in range(2):
-               self._create_wf_data(mol_id, step)
-               self.__post_wf_processing(numCube)
-               self._set_wf_colors(numCube)
-               self._save_wf_colors()
-               self._create_cube_file_txt(step)
-               self._write_cube_file(step, mol_id, numCube)
-        self._vmd_visualise(step)  # run the vmd script and visualise the data
-        if self.all_settings['side_by_side_graph']:  # (Not supported)
-            self._plot(step)  # Will plot a graph to one side (Not supported)
-
     def __post_wf_processing(self, numCube=-1):
-      """
-      Will handle the processing of the data after being created
-      """
-      if self.all_settings['color_type'] == 'density':
-         self.data *= self.mol_C
-         self.data *= np.conjugate(self.data)
-         self.data = np.sqrt(self.data)
-      else:
-         # Find any wf that is negative according to the AOM Coeff
-         negMask = self.data < 0
-         self.data *= self.mol_C
-         # Get the density
-         self.data *= np.conjugate(self.data)
-         self.data = np.sqrt(self.data)
-         # Get parts with neg/pos phase in the density
-         if numCube == 0:
-            self.data[negMask] = 0
-         else:
-            self.data[~ negMask] = 0
+        """
+        Will handle the processing of the data after being created
+        """
+        start_data_create_time = time.time()
+        if self.all_settings['color_type'] == 'density':
+            self.data *= np.conjugate(self.data)
+            self.data = np.sqrt(self.data)
+        else:
+            # Get the density
+            self.data *= np.conjugate(self.data)
+            self.data = np.sqrt(self.data)
+            self.data[self.negMask] = -self.data[self.negMask]
+
+        end_time = time.time() - start_data_create_time
+        self.all_settings['times']['WF Post Processing'][self.step] += end_time
 
     # Finds a dynamic bounding box scale. Makes the bounding box smaller
     #  when the mol_coeff is smaller
@@ -336,12 +297,12 @@ class MainLoop(object):
         self.data = np.zeros(self.sizes, dtype=complex)
         self.origin = scale_factors/-2 + trans
         self.mol_C = self.all_settings['mol'][self.step][mol_id]
-        mol_C_abs = np.absolute(self.mol_C)**2
 
         for j in self.all_settings['AOM_D']:  # loop over atoms
- 
-            molIsActive = self.all_settings['mol_info'][j] == mol_id
-            if molIsActive:  # if active molecule
+
+            currMol = self.all_settings['mol_info'][j]  # The current molecule
+            atIsOnMol = currMol == mol_id
+            if atIsOnMol:  # if active molecule
 
                 at_crds = self.all_settings['coords'][self.step][j] - trans
                 self.atom_I = self.all_settings['AOM_D'][j][1]
@@ -354,6 +315,10 @@ class MainLoop(object):
                                                self.all_settings['resolution'],
                                                at_crds),
                                        pvecs) * AOM
+
+        # Find any wf that is negative according to the AOM Coeff
+        self.negMask = self.data < 0
+        self.data *= self.mol_C
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
@@ -372,13 +337,13 @@ class MainLoop(object):
                              [0, 0, self.all_settings['resolution']]]
         xyz_basis_vectors = np.array(xyz_basis_vectors)
 
-        # Error Checking 
+        # Error Checking
         if np.sum(self.data.imag) > 1e-12:
-           msg = "The data has an imaginary component and it shouldn't!"
-           msg += "\nThis is a problem with the code let Matt know.\n\n"
-           msg += "\n\n(Keep the input files and the version of the movie"
-           msg += " maker in order for him to fix it)"
-           raise SystemExit(msg)
+            msg = "The data has an imaginary component and it shouldn't!"
+            msg += "\nThis is a problem with the code let Matt know.\n\n"
+            msg += "\n\n(Keep the input files and the version of the movie"
+            msg += " maker in order for him to fix it)"
+            raise SystemExit(msg)
 
         self.cube_txt = txt_lib.cube_file_text(
                               self.data.real,
@@ -406,8 +371,6 @@ class MainLoop(object):
         plane the coefficient appears in.
         """
         thetai = np.angle(self.mol_C)
-        #if numCube == 0:  # numCube == 0 means we are using the negative data
-        #    thetai *= -1  #  according to the AOM Coefficient
         thetai -= self.thetaRef  # Set the angle relative to the first mol
 
         # Could optimise (and tidy) this, the code doesn't need to do all
@@ -417,32 +380,18 @@ class MainLoop(object):
             self.pos_iso_cols[self.tcl_dict_ind] = 22
 
         elif self.all_settings['color_type'] == 'phase':
-            if numCube == 0:  # Negative wf data
-                if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
-                    self.pos_iso_cols[self.tcl_dict_ind] = 21
-                    self.neg_iso_cols[self.tcl_dict_ind] = 20
-                elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
-                    self.pos_iso_cols[self.tcl_dict_ind] = 19
-                    self.neg_iso_cols[self.tcl_dict_ind] = 18
-                elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
-                    self.pos_iso_cols[self.tcl_dict_ind] = 20
-                    self.neg_iso_cols[self.tcl_dict_ind] = 21
-                else:  # Neg imag Quadrant
-                    self.pos_iso_cols[self.tcl_dict_ind] = 18
-                    self.neg_iso_cols[self.tcl_dict_ind] = 19
-            elif numCube == 1:  # Positive wf data
-                if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
-                    self.neg_iso_cols[self.tcl_dict_ind] = 21
-                    self.pos_iso_cols[self.tcl_dict_ind] = 20
-                elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
-                    self.neg_iso_cols[self.tcl_dict_ind] = 19
-                    self.pos_iso_cols[self.tcl_dict_ind] = 18
-                elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
-                    self.neg_iso_cols[self.tcl_dict_ind] = 20
-                    self.pos_iso_cols[self.tcl_dict_ind] = 21
-                else:  # Neg imag Quadrant
-                    self.neg_iso_cols[self.tcl_dict_ind] = 18
-                    self.pos_iso_cols[self.tcl_dict_ind] = 19
+            if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
+                self.pos_iso_cols[self.tcl_dict_ind] = 21
+                self.neg_iso_cols[self.tcl_dict_ind] = 20
+            elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
+                self.pos_iso_cols[self.tcl_dict_ind] = 19
+                self.neg_iso_cols[self.tcl_dict_ind] = 18
+            elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
+                self.pos_iso_cols[self.tcl_dict_ind] = 20
+                self.neg_iso_cols[self.tcl_dict_ind] = 21
+            else:  # Neg imag Quadrant
+                self.pos_iso_cols[self.tcl_dict_ind] = 18
+                self.neg_iso_cols[self.tcl_dict_ind] = 19
 
         self.tcl_dict_ind += 1
 

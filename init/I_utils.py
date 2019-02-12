@@ -341,15 +341,23 @@ def check_charge_spread(all_settings):
             print("Okie doke, you will get empty molecules though!")
     all_active_coords = all_settings['coords'][:,[i[0] for i in all_settings['active_mols']]]
 
+
 # Will create the storage containers to store the timings
 def init_times_dict(all_settings):
+    """
+    Will initialise the dictionary that stores all the timing data. This
+    involves creating arrays that are just big enough to store all the timings
+    from each step for the different categories.
+    """
     all_settings['init_times'] = {}
     num_steps = len(all_settings['coords'])
-    all_settings['times'] = {'Create Wavefunction':np.zeros(num_steps),
-             'Create Cube Data': np.zeros(num_steps),
-             'Write Cube File':np.zeros(num_steps),
-             'VMD Visualisation':np.zeros(num_steps),
-             'Plot and Save Img':np.zeros(num_steps)}
+    all_settings['times'] = {'Create Wavefunction': np.zeros(num_steps),
+                             'Create Cube Data':    np.zeros(num_steps),
+                             'Write Cube File':     np.zeros(num_steps),
+                             'VMD Visualisation':   np.zeros(num_steps),
+                             'Plot and Save Img':   np.zeros(num_steps),
+                             'WF Post Processing':  np.zeros(num_steps),
+                             }
     all_settings['times_taken'] = []
 
 # Will initialise the start_step, end_step and stride variables
