@@ -350,7 +350,7 @@ class MainLoop(object):
         self.origin = scale_factors/-2 + translation
 
         nextMols = self.__get_nearest_mols(molID)
-        for molNum in nextMols:
+        for molNum in self.all_settings['reversed_mol_info']:  # loop all mol
             u_l = self.all_settings['mol'][self.step][molNum]
             self.data += self.__createSOMO(molNum, translation) * u_l
 
