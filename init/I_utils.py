@@ -35,6 +35,16 @@ if sys.version_info[0] > 2:
 ## TODO: Need to finish using all the consts.py folderpaths instead of declaring them here.
 
 
+def reverseDict(Dict):
+    """
+    Will create a dictionary that has all unique values as keys with 
+    """
+    inv = {}
+    for key, val in Dict.items():
+        inv[val] = inv.get(val, []) + [key]
+    return inv
+
+
 # Will declare all the paths that are required in the code
 def init_output_files_and_folders(all_settings):
     all_settings['img_fold']      = io.folder_correct(consts.img_folderpath)

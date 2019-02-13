@@ -331,8 +331,12 @@ def use_prev_scaling(path):
 
 # Reads the VMD log file and parses the information then updates the settings file
 def settings_update(all_settings):
+    """
+    Reads/parses the VMD log file. Then we decide to put the rotations in the
+    include.vmd file and combine the zooms/scalings and translations into a
+    single operation. These are then written into the settings file.
+    """
     vmd_log_text = open_read(all_settings['vmd_log_file'], False)
-    # script_text = open_read(all_settings['vmd_script'][list(all_settings['vmd_script'].keys())[0]])
     if vmd_log_text != False:
         os.remove(all_settings['vmd_log_file'])
         new_transforms = vmd_log_text[vmd_log_text.find(consts.end_of_vmd_file)+len(consts.end_of_vmd_file):].split('\n')
@@ -346,6 +350,7 @@ def settings_update(all_settings):
            inp_zoom = [new_zoom, '# How much to zoom by']
         all_settings['clean_settings_dict']['zoom_value'] = inp_zoom
 
+        # Now handle translations
         new_translations = np.array(txt_lib.combine_vmd_translations(new_transforms))+all_settings['translate_by']
         inp_translate = all_settings['clean_settings_dict'].get("translate_by")
         if type(inp_translate) != type(None): # If the settings file declare a zoom value use the comments from it
@@ -368,11 +373,12 @@ def settings_update(all_settings):
 def write_settings_file(step_info):
     settings_to_write = ''
     for i in step_info['orig_settings']:
-         if "xx" in i:
-             settings_to_write += '\n'
-         elif step_info['orig_settings'][i] == 'cmt':
-             settings_to_write += "%s\n"%i
-         elif i:
+        print(i)
+        if "xx" in i:
+            settings_to_write += '\n'
+        elif step_info['orig_settings'][i] == 'cmt':
+            settings_to_write += "%s\n"%i
+        elif i:
              settings_to_write += "%s\n"%(' = '.join([i.strip(),step_info['orig_settings'][i].strip()]))
     open_write(step_info['settings_file'], settings_to_write)
 

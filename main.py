@@ -96,19 +96,63 @@ class MainLoop(object):
         if self.all_settings['side_by_side_graph']:  # (Not supported)
             self._plot(step)  # Will plot a graph to one side (Not supported)
 
-    def __post_wf_processing(self, numCube=-1):
+    def __post_wf_processing(self):
         """
-        Will handle the processing of the data after being created
+        Will handle the processing of the data after being created. For the
+        phase option this involves finding which quadrant the data points lie
+        within and then correcting the density information to align with that.
+
+        We create an array that store the phase at each grid point in the cube
+        file. With this phase array we then determine whether the point is
+        mostly imaginary or real. We also determine whether the point is in a
+        negative or positive quadrant. This information is then added in later.
+
+        To add in whether something is negative or positive we simply set all
+        the points that lie in the negative quadrant to -'ve.
+
+        To add in the complex or imaginary information we make 2 data arrays.
+        One contains the imaginary points one contains the real points. These
+        are then plotted later.
         """
         start_data_create_time = time.time()
         if self.all_settings['color_type'] == 'density':
             self.data *= np.conjugate(self.data)
             self.data = np.sqrt(self.data)
+            self.ImagData = False  # We don't have imaginary data here
         else:
+            # Get Phase info
+            phase = np.angle(self.data)
             # Get the density
             self.data *= np.conjugate(self.data)
             self.data = np.sqrt(self.data)
-            self.data[self.negMask] = -self.data[self.negMask]
+
+            # Find which quadrants the phase fits into
+            #  Positive Real Quadrant
+            self.PRmask = phase < consts.phaseMasks['PosReal'][1]
+            self.PRmask *= phase > consts.phaseMasks['PosReal'][0]
+            #  Negative Real Quadrant
+            # The negative real quadrant falls in the -pi section that is split
+            # between 2 octants (see consts.phaseMasks)
+            NRmask1 = phase < consts.phaseMasks['NegReal'][0][1]
+            NRmask1 *= phase > consts.phaseMasks['NegReal'][0][0]
+            NRmask2 = phase < consts.phaseMasks['NegReal'][1][1]
+            NRmask2 *= phase > consts.phaseMasks['NegReal'][1][0]
+            self.NRmask = NRmask1 + NRmask2
+            #  Positive Imaginary Quadrant
+            self.PImask = phase < consts.phaseMasks['PosImag'][1]
+            self.PImask *= phase > consts.phaseMasks['PosImag'][0]
+            #  Negative Imaginary Quadrant
+            self.NImask = phase < consts.phaseMasks['NegImag'][1]
+            self.NImask *= phase > consts.phaseMasks['NegImag'][0]
+
+            # Create the imaginary data storage
+            self.ImagData = np.copy(self.data)
+
+            # Add phase back into the imaginary and real data
+            self.data[self.NRmask] = -self.data[self.NRmask]  # make neg
+            self.data[self.NImask + self.PImask] = 0  # Set imag part to 0
+            self.ImagData[self.NImask] = -self.ImagData[self.NImask]  # make neg
+            self.ImagData[self.NRmask + self.PRmask] = 0  # Set real part to 0
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['WF Post Processing'][self.step] += end_time
@@ -264,13 +308,19 @@ class MainLoop(object):
                 return False
 
     # Will create the wavefunction data
-    def _create_wf_data(self, mol_id, step):
+    def _create_wf_data(self, molID, step):
         """
         Will create the wavefunction data. This involves creating a bounding
-        box big enough to encapsulate the wf and creating the p-orbital data.
+        box big enough to encapsulate the wf and creating the SOMO (p orbital
+        stuff). In this for each molecule we loop over it and its nearest
+        neighbours to account for overlap between them. This is an optimisation
+        and could probably be improved with a cutoff distance etc...
+
+        The equation for the molecular wf is:
+          Psi = \sum_{l} u_l \sum_{v} AOM_{v}[\sum_{i=x,y,z} PVEC_{i, v}|p_{i}>]
 
         Inputs:
-            * mol_id  =>  The molecule index
+            * molID  =>  The molecule index
             * step    =>  The step number
         """
         start_data_create_time = time.time()
@@ -278,12 +328,13 @@ class MainLoop(object):
         # Drawing a bounding box around the active atoms to prevent creating
         #  unecessary data
         if self.all_settings['dyn_bound_box']:
-            BBS_dyn = [self._dynamic_bounding_box_scale(mol_id, i)
+            BBS_dyn = [self._dynamic_bounding_box_scale(molID, i)
                        for i in self.all_settings['bounding_box_scale']]
         else:
             BBS_dyn = self.all_settings['bounding_box']
+
         act_crds = [self.active_coords[:, k] for k in range(3)]
-        trans, active_size = geom.min_bounding_box(act_crds, BBS_dyn)
+        translation, active_size = geom.min_bounding_box(act_crds, BBS_dyn)
         self.sizes = typ.int_res_marry(active_size,  # How many grid points
                                        self.all_settings['resolution'],
                                        [1, 1, 1])
@@ -295,33 +346,55 @@ class MainLoop(object):
 
         # Actually create the data
         self.data = np.zeros(self.sizes, dtype=complex)
-        self.origin = scale_factors/-2 + trans
-        self.mol_C = self.all_settings['mol'][self.step][mol_id]
 
-        for j in self.all_settings['AOM_D']:  # loop over atoms
+        self.origin = scale_factors/-2 + translation
 
-            currMol = self.all_settings['mol_info'][j]  # The current molecule
-            atIsOnMol = currMol == mol_id
-            if atIsOnMol:  # if active molecule
-
-                at_crds = self.all_settings['coords'][self.step][j] - trans
-                self.atom_I = self.all_settings['AOM_D'][j][1]
-                pvecs = self.all_settings['pvecs'][self.step][self.atom_I]
-                AOM = self.all_settings['AOM_D'][j][0]
-
-                self.data += MT.dot_3D(MT.SH_p(self.sizes[0],
-                                               self.sizes[1],
-                                               self.sizes[2],
-                                               self.all_settings['resolution'],
-                                               at_crds),
-                                       pvecs) * AOM
-
-        # Find any wf that is negative according to the AOM Coeff
-        self.negMask = self.data < 0
-        self.data *= self.mol_C
+        nextMols = self.__get_nearest_mols(molID)
+        for molNum in nextMols:
+            u_l = self.all_settings['mol'][self.step][molNum]
+            self.data += self.__createSOMO(molNum, translation) * u_l
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
+
+    def __get_nearest_mols(self, molID):
+        """
+        Will get the 2 neighbouring mol numbers for a given mol (including
+        itself). E.g. if molID = 0, create a list containing [-1, 0, 1] and
+        check which ones are actually mols -in this example -1 is defo not a mol
+        """
+        nextMols = [molID-1, molID, molID+1]
+        for mol in nextMols:
+            if mol not in self.all_settings['reversed_mol_info']:
+                nextMols.remove(mol)
+        return nextMols
+
+    def __createSOMO(self, molID, translation):
+        """
+        Will create the SOMO for 1 molecule. This involves looping over all
+        active atoms in one molecule and creating a p orbtial on each one. This
+        is orientated via the pvecs, and it's size and (real) phase is
+        determined by AOM_COEFF.
+        """
+        # Loop over current molecules atoms
+        tmpData = np.zeros(self.sizes, dtype=complex)
+        # Loop over atoms that belong to molecule molID
+        for iat in self.all_settings['reversed_mol_info'][molID]:
+
+            at_crds = self.all_settings['coords'][self.step][iat] - translation
+            self.atom_I = self.all_settings['AOM_D'][iat][1]
+            pvecs = self.all_settings['pvecs'][self.step][self.atom_I]
+            AOM = self.all_settings['AOM_D'][iat][0]
+
+            tmpData += MT.dot_3D(
+                      MT.SH_p(self.sizes[0],
+                              self.sizes[1],
+                              self.sizes[2],
+                              self.all_settings['resolution'],
+                              at_crds),
+                      pvecs) * AOM
+        return tmpData
+        #''' will fix atom syntax highlighting (don't know why)'''
 
     # Creates the cube file to save
     def _create_cube_file_txt(self, step):
@@ -338,14 +411,18 @@ class MainLoop(object):
         xyz_basis_vectors = np.array(xyz_basis_vectors)
 
         # Error Checking
+        msg = "The data has an imaginary component and it shouldn't!"
+        msg += "\nThis is a problem with the code let Matt know.\n\n"
+        msg += "\n\n(Keep the input files and the version of the movie"
+        msg += " maker in order for him to fix it)"
         if np.sum(self.data.imag) > 1e-12:
-            msg = "The data has an imaginary component and it shouldn't!"
-            msg += "\nThis is a problem with the code let Matt know.\n\n"
-            msg += "\n\n(Keep the input files and the version of the movie"
-            msg += " maker in order for him to fix it)"
-            raise SystemExit(msg)
+            raise SystemExit(msg + '    (Bad Real Data)')
+        if type(self.ImagData) == type(np.array(1)):
+            if np.sum(self.ImagData.imag) > 1e-12:
+                raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
 
-        self.cube_txt = txt_lib.cube_file_text(
+
+        self.RCubeTxt = txt_lib.cube_file_text(
                               self.data.real,
                               vdim=self.sizes,
                               mol_info=self.all_settings['mol_info'],
@@ -356,6 +433,18 @@ class MainLoop(object):
                               atoms_to_plot=self.all_settings['atoms_to_plot'],
                               basis_vec=xyz_basis_vectors
                                               )
+        if type(self.ImagData) == type(np.array(1)):
+            self.ICubeTxt = txt_lib.cube_file_text(
+                               self.ImagData.real,
+                               vdim=self.sizes,
+                               mol_info=self.all_settings['mol_info'],
+                               orig=self.origin,
+                               Ac=self.all_settings['coords'][self.step],
+                               An=self.all_settings['at_num'],
+                               tit=self.all_settings['title'],
+                               atoms_to_plot=self.all_settings['atoms_to_plot'],
+                               basis_vec=xyz_basis_vectors
+                               )
 
         end_time = time.time() - start_cube_create_time
         self.all_settings['times']['Create Cube Data'][step] += end_time
@@ -369,10 +458,13 @@ class MainLoop(object):
         positive values and another for negative values. If full phase is
         chosen the colour will be dependent on which quadrant in the complex
         plane the coefficient appears in.
-        """
-        thetai = np.angle(self.mol_C)
-        thetai -= self.thetaRef  # Set the angle relative to the first mol
 
+        22 = density color
+        Phase Colors:
+                           Imag | Real
+                      Neg | 19  |  21
+                      Pos | 18  |  20
+        """
         # Could optimise (and tidy) this, the code doesn't need to do all
         #  this at every step
         if self.all_settings['color_type'] == 'density':
@@ -380,18 +472,14 @@ class MainLoop(object):
             self.pos_iso_cols[self.tcl_dict_ind] = 22
 
         elif self.all_settings['color_type'] == 'phase':
-            if -np.pi/4 < thetai <= np.pi/4:  # Pos Real Quadrant
-                self.pos_iso_cols[self.tcl_dict_ind] = 21
-                self.neg_iso_cols[self.tcl_dict_ind] = 20
-            elif np.pi/4 < thetai <= 3*np.pi/4:  # Pos Imag Quadrant
-                self.pos_iso_cols[self.tcl_dict_ind] = 19
-                self.neg_iso_cols[self.tcl_dict_ind] = 18
-            elif 3*np.pi/4 < thetai <= 5*np.pi/4:  # Neg Real Quadrant
-                self.pos_iso_cols[self.tcl_dict_ind] = 20
-                self.neg_iso_cols[self.tcl_dict_ind] = 21
-            else:  # Neg imag Quadrant
-                self.pos_iso_cols[self.tcl_dict_ind] = 18
-                self.neg_iso_cols[self.tcl_dict_ind] = 19
+            # First real cube file
+            self.pos_iso_cols[self.tcl_dict_ind] = 20
+            self.neg_iso_cols[self.tcl_dict_ind] = 21
+            self.tcl_dict_ind += 1
+            # Then imaginary cube file
+            self.pos_iso_cols[self.tcl_dict_ind] = 18
+            self.neg_iso_cols[self.tcl_dict_ind] = 19
+
 
         self.tcl_dict_ind += 1
 
@@ -410,12 +498,12 @@ class MainLoop(object):
         tmp = str(self.neg_iso_cols)
         for find, replace in replacers:
             tmp = tmp.replace(find, replace)
-        neg_col_dict_str = "set Negcols " + tmp
+        neg_col_dict_str = tmp
 
         tmp = str(self.pos_iso_cols)
         for find, replace in replacers:
             tmp = tmp.replace(find, replace)
-        pos_col_dict_str = "set Poscols " + tmp
+        pos_col_dict_str = tmp
 
         self.all_settings['tcl']['neg_cols'] = neg_col_dict_str
         self.all_settings['tcl']['pos_cols'] = pos_col_dict_str
@@ -460,16 +548,20 @@ class MainLoop(object):
         """
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
-            data_filename = "%i-%i-%s.cube" % (step, numCube, mol_id)
+            RDataFName = "%s-%i-%i.cube" % ('Real', step, mol_id)
+            IDataFName = "%s-%i-%i.cube" % ('Imag', step, mol_id)
         else:
-            data_filename = "tmp%i-%i-%s.cube" % (mol_id, numCube, self.PID)
-        data_filepath = self.all_settings['data_fold'] + data_filename
+            RDataFName = "tmp%s-%i.cube" % ('Real', mol_id)
+            IDataFName = "tmp%s-%i.cube" % ('Imag', mol_id)
+        RDataFPath = self.all_settings['data_fold'] + RDataFName
+        IDataFPath = self.all_settings['data_fold'] + IDataFName
 
         if not all_settings['keep_cube_files']:
-            self.all_settings['delete_these'].append(data_filepath)
+            self.all_settings['delete_these'].append(RDataFPath)
+            self.all_settings['delete_these'].append(IDataFPath)
 
-        self.data_files_to_visualise = [data_filepath] + \
-            self.data_files_to_visualise
+        self.data_files_to_visualise += [RDataFPath]
+        self.data_files_to_visualise += [IDataFPath]
 
         self.all_settings['tcl']['cube_files'] = \
             ' '.join(self.data_files_to_visualise)
@@ -478,14 +570,15 @@ class MainLoop(object):
                                                self.all_settings['img_prefix'],
                                                'tga',
                                                self.all_settings)
-        if all_settings['draw_time']:
-            replace = str(self.all_settings['Mtime-steps'][self.step])
-            tLabelTxt = self.all_settings['time_lab_txt'].replace("*", replace)
-            self.all_settings['tcl']['time_step'] = '"%s"' % (tLabelTxt)
+        # if all_settings['draw_time']:
+        #     replace = str(self.all_settings['Mtime-steps'][self.step])
+        #     tLabelTxt = self.all_settings['time_lab_txt'].replace("*", replace)
+        #     self.all_settings['tcl']['time_step'] = '"%s"' % (tLabelTxt)
         self.all_settings['tcl']['cube_files'] = ' '.join(
                                                    self.data_files_to_visualise
                                                          )
-        io.open_write(data_filepath, self.cube_txt)
+        io.open_write(RDataFPath, self.RCubeTxt)
+        io.open_write(IDataFPath, self.ICubeTxt)
 
         end_time = time.time() - start_data_write_time
         self.all_settings['times']['Write Cube File'][step] += end_time

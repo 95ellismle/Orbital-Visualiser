@@ -18,6 +18,12 @@ scale by 1.000000
 """
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 
+phaseMasks = {'PosReal': (-pi/4, pi/4),
+              'NegReal': ((3/4*pi, pi), (-pi, -3/4*pi)),
+              'PosImag': (pi/4, 3/4*pi),
+              'NegImag': (-3/4*pi, -pi/4),
+             }
+
 img_folderpath      = './img/'
 data_folderpath     = './data/'
 template_folderpath = './Templates'
