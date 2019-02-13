@@ -14,7 +14,7 @@
         <p>
           The python code works by looking in the path specified for the relevant files. It then parses this data and uses it to create the wavefunction data. This data is then saved as a cube file and visualised by VMD. VMD then uses the tachyon ray-tracing engine to render the image as a tachyon, .tga, file. Python will loop through all the steps specified, calling VMD to create a .tga image for each one. To create the shape of the wavefunction at each step the code uses the following formula:
         </p>
-        <img src="*doc_img_folder*/Equation_for_calculation_of_the_wavefunction.png" alt="Equation for the movie maker (tell Matt that the image isn't showing!)" style="width: 100%; z-index: 0;">
+        <img src="*doc_img_folder*/MolecularWavefunction.png" alt="Equation for the movie maker (tell Matt that the image isn't showing!)" style="width: 100%; z-index: 0;">
         <p>
           <p>
             The P-orbitals are calculated using a modified form of <a href='https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics' target="_blank">real spherical harmonics</a>. This is to make the calculation slightly more efficient and I didn't find it changed the shape in a significant way (the visualisations are meant to give a qualitative idea of the shape of the orbital).

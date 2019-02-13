@@ -28,3 +28,5 @@ settings.inp
 src/TCL/MainProcess.tcl
 
 !Docs/Perm_img/*
+*.sw*
+*/.sw*

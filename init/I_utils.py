@@ -27,6 +27,7 @@ import datetime
 import difflib
 import os
 import sys
+import subprocess
 
 if sys.version_info[0] > 2:
     xrange = range

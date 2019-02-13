@@ -676,6 +676,7 @@ class MainLoop(object):
         files = "*.tga"
         # Creating the ffmpeg and convert commands for stitching
         if self.all_settings['movie_format'] == 'mp4':
+            os.chmod(self.all_settings['ffmpeg_bin'], 755)
             title_path = self.tga_folderpath + self.all_settings['title']
             Stitch_cmd, tmp, _ = io.stitch_mp4(
                                              files,

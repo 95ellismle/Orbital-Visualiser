@@ -35,17 +35,20 @@ class Docstr_Parsing(object):
         Will get the docstring on the top of one of the python files.
         """
         with open(fname, 'r') as f:
-            for line in f:
-                if '"""' in line:
-                    delim = '"""'
-                    break
-                elif "'''" in line:
-                    delim = "'''"
-                    break
-            else:
-                print("no delim in %s\n\nskipping..." % fname)
-                return ""
-            docstr = f.read().split(delim)[0]
+            ftxt = f.read().split('\n')
+
+        for line in ftxt:
+            if '"""' in line:
+                delim = '"""'
+                break
+            elif "'''" in line:
+                delim = "'''"
+                break
+        else:
+            print("no delim in %s\n\nskipping..." % fname)
+            return ""
+
+        docstr = '\n'.join(ftxt).split(delim)[1]
         return docstr
 
     @staticmethod

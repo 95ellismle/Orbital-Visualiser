@@ -200,13 +200,18 @@ def plot(step_info, mind, files, plt, optX=[], optY=[]):
     return graph_filepath
 
 # Checks whether the tachyon path specified is the correct one.
-def check_tachyon(tachyon_path):
+def check_tachyon(tachyon_path, times=0):
     if not tachyon_path:
         return False
     tachyon_out =os.popen(tachyon_path, 'r').read()
     tachyon_spiel_ind = tachyon_out.lower().find("tachyon parallel/multiprocessor ray tracer")
     if tachyon_spiel_ind != -1:
         return True
+    else:
+       os.chmod(tachyon_path, 755)
+       if times < 1:
+           result = check_tachyon(tachyon_path, times+1)
+           return result 
     return False
 
 # Reads and writes the updated permanent settings file
