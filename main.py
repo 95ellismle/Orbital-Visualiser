@@ -376,14 +376,14 @@ class MainLoop(object):
         code having to write them N times at each step.
         """
         start_time = time.time()
-        shapeData = [len(self.active_step_mols)] + list(self.sizes)
-        self.allSOMO = np.zeros(shapeData, dtype=complex)
-        for molCount, molID in enumerate(self.active_step_mols):
+        self.allSOMO = {mol: np.zeros(self.sizes, dtype=complex)
+                             for mol in self.active_step_mols}
+        for molID in self.active_step_mols:
             BBS = self.all_settings['bounding_box_scale']
             translation, active_size = geom.min_bounding_box(self.active_coords,
                                                              BBS)
             # Create SOMO for each mol
-            self.allSOMO[molCount] += self.__create_SOMO(molID, translation)
+            self.allSOMO[molID] += self.__create_SOMO(molID, translation)
 
         time_taken = time.time() - start_time
         self.all_settings['times']['Create All SOMOs'][self.step] += time_taken
