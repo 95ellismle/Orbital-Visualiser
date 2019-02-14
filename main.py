@@ -86,8 +86,8 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        self._create_BB_size()  # Determine the bounding box size (cube file)
-        self._calc_all_SOMO()  # Pre-calculate all the SOMOS
+        # self._create_BB_size()  # Determine the bounding box size (cube file)
+        # self._calc_all_SOMO()  # Pre-calculate all the SOMOS
         for mol_i, mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
             self._create_wf_data(mol_id, step)
@@ -294,6 +294,7 @@ class MainLoop(object):
         self.active_coords = [self.active_coords[:, k] for k in range(3)]
         self.active_coords = np.array(self.active_coords)
 
+        # Error Checking
         if len(self.active_coords) <= 0:
             # Check if any molecules are past the number of molecules being
             #  visualised
@@ -345,7 +346,9 @@ class MainLoop(object):
         # Create wf data
         for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
             u_l = self.all_settings['mol'][self.step][molNum]
-            self.data += self.allSOMO[molNum] * u_l
+            tmpData = self.__calc_SOMO(molNum, translation)
+            print(np.mean(self.allSOMO[molNum] - tmpData), molNum, molID)
+            self.data += tmpData * u_l
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
@@ -376,19 +379,21 @@ class MainLoop(object):
         code having to write them N times at each step.
         """
         start_time = time.time()
+        SOMOsToCreate = set(self.nearestNeighbours.keys())
         self.allSOMO = {mol: np.zeros(self.sizes, dtype=complex)
-                             for mol in self.active_step_mols}
-        for molID in self.active_step_mols:
+                             for mol in SOMOsToCreate}
+        for molID in self.allSOMO:
+            self._find_active_atoms(molID)  # get active coords
             BBS = self.all_settings['bounding_box_scale']
             translation, active_size = geom.min_bounding_box(self.active_coords,
                                                              BBS)
             # Create SOMO for each mol
-            self.allSOMO[molID] += self.__create_SOMO(molID, translation)
+            self.allSOMO[molID] = self.__calc_SOMO(molID, translation)
 
         time_taken = time.time() - start_time
         self.all_settings['times']['Create All SOMOs'][self.step] += time_taken
 
-    def __create_SOMO(self, molID, translation):
+    def __calc_SOMO(self, molID, translation):
         """
         Will create the SOMO for 1 molecule. This involves looping over all
         active atoms in one molecule and creating a p orbtial on each one. This

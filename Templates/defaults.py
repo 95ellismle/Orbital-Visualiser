@@ -95,7 +95,7 @@ defaults = {
 'graph_to_vis_ratio' : 1, # The ratio of sizes (x dimension) for the graph and the visualisation (e.g. 2 would mean the graph would be 2 times as big as the visualisation) | ['integer'] | 'not-tested'
 'max_data_in_graph' : 450, # Maximum amount of data points in the graph before refreshing them | ['integer'] | 'not-tested'
 ## Miscellaneous
-'vmd_timeout'       : 250 , # How long to wait before assuming there is an error with the VMD script | ['integer', 'float'] | 'not-tested'
+'vmd_timeout'       : 400, # How long to wait before assuming there is an error with the VMD script | ['integer', 'float'] | 'not-tested'
 'type_of_wavefunction' : "phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
 'num_cores'         : 'half', # DEPRECATED | 'not-tested'
 'time_step'         : False , # DEPRECATED | 'not-tested'
