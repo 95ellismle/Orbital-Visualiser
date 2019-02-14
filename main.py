@@ -86,8 +86,8 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        # self._create_BB_size()  # Determine the bounding box size (cube file)
-        # self._calc_all_SOMO()  # Pre-calculate all the SOMOS
+        self._create_BB_size()  # Determine the bounding box size (cube file)
+        self._calc_all_SOMO()  # Pre-calculate all the SOMOS
         for mol_i, mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
             self._create_wf_data(mol_id, step)
@@ -347,8 +347,9 @@ class MainLoop(object):
         for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
             u_l = self.all_settings['mol'][self.step][molNum]
             tmpData = self.__calc_SOMO(molNum, translation)
-            print(np.mean(self.allSOMO[molNum] - tmpData), molNum, molID)
             self.data += tmpData * u_l
+            print(molID, molNum)
+
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
