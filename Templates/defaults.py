@@ -75,6 +75,7 @@ defaults = {
 'show_box'          : False, # Show the bounding box around the molecules | ['yes','no'] | 'not-tested'
 ## Optimisation
 'min_abs_mol_coeff' : 0.05, # A threshold for the minimum absolute molecular expansion coefficient, will ignore any value less than this. A value too low will make the code inefficient a value too high may miss wavefunctions | ['float'] | 'not-tested'
+'nn_cutoff'         : 15, # The cutoff for constructing the nearest neighbour list. This decides how many neighbouring mols contribute to the wavefunction | ['integer [bohr]'] | 'not-tested'
 'resolution'        : 0.4, # Changes the resolution of the cube file data | ['float'] | 'not-tested'
 'bounding_box_scale' : 7, # What to add to the dimension of the bounding box surrounding the atoms | ['integer', 'list [x,y,z]'] | 'not-tested'
 'dynamic_bounding_box' : True, #Will dynamically change the size of the bounding box depending on the size of the wavefunction | ['yes','no'] | 'not-tested'

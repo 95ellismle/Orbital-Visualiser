@@ -43,7 +43,9 @@ class MainLoop(object):
 
     """ This will carry out all the main functions and actually run the code.
          It will create the data, save it as a cube file, and make vmd render
-         it      """
+         it. I put all this in a class as I thought I might try and incorporate
+         PyQt or Django with it.
+    """
 
     def __init__(self, all_settings, all_steps, errors):
         self.tcl_dict_ind = 0
@@ -83,6 +85,7 @@ class MainLoop(object):
         self._vmd_filename_handling()
         if self.all_settings['background_mols']:
             self._write_background_mols()
+        self._nearestNeighbourKeys()
 
         for mol_i, mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
@@ -278,8 +281,8 @@ class MainLoop(object):
     # Will find the active atoms to loop over
     def _find_active_atoms(self, mol_id):
         """
-        Find which atoms are active (on a molecule?) according to the
-        AOM_COEFF.include file.
+        Find which atoms are active according to the AOM_COEFF.include file.
+        These are atoms on a molecule.
 
         Inputs:
             * mol_id  =>  The molecule to find active atoms for
@@ -349,25 +352,12 @@ class MainLoop(object):
 
         self.origin = scale_factors/-2 + translation
 
-        nextMols = self.__get_nearest_mols(molID)
-        for molNum in self.all_settings['reversed_mol_info']:  # loop all mol
+        for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
             u_l = self.all_settings['mol'][self.step][molNum]
             self.data += self.__createSOMO(molNum, translation) * u_l
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
-
-    def __get_nearest_mols(self, molID):
-        """
-        Will get the 2 neighbouring mol numbers for a given mol (including
-        itself). E.g. if molID = 0, create a list containing [-1, 0, 1] and
-        check which ones are actually mols -in this example -1 is defo not a mol
-        """
-        nextMols = [molID-1, molID, molID+1]
-        for mol in nextMols:
-            if mol not in self.all_settings['reversed_mol_info']:
-                nextMols.remove(mol)
-        return nextMols
 
     def __createSOMO(self, molID, translation):
         """
@@ -582,6 +572,32 @@ class MainLoop(object):
 
         end_time = time.time() - start_data_write_time
         self.all_settings['times']['Write Cube File'][step] += end_time
+
+    def _nearestNeighbourKeys(self):
+        """
+        Will return a dictionary with the molecular indices of the molecules
+        that are within the cutoff. The cutoff is given in the settings file.
+        """
+        self.nearestNeighbours = {}
+  
+        # Get the atom indices corresponding to the ones on the mol
+        revMolVals = self.all_settings['reversed_mol_info'].values()
+        atIndsPerMol = [atNums for atNums in revMolVals]
+  
+        molCoords = self.all_settings['coords'][0,atIndsPerMol]
+        avgPosMols = np.array([np.mean(i, axis=0) for i in molCoords])
+        allDist = [geom.Euclid_dist(vec, avgPosMols[0]) for vec in avgPosMols]
+  
+        molKeys = list(self.all_settings['reversed_mol_info'].keys())
+        molList = np.arange(len(molKeys))
+        for distI, dist in enumerate(allDist):
+            distBetween = abs(allDist - dist)
+            distMask = distBetween < self.all_settings['nn_cutoff']
+            molInds = molList[distMask]
+            tmp = self.nearestNeighbours.get(molKeys[distI], [])
+            for molInd in molInds:
+                tmp.append(molInd)
+                self.nearestNeighbours[molKeys[distI]] = tmp
 
     # Handles the plotting of the side graph.
     def _plot(self, step):

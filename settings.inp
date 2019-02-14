@@ -1,13 +1,13 @@
 # The path to the folder containing the data.
 #path = '/temp/mellis/Christmas_Data/christmas_tree_SH' 
-path = '/scratch/mellis/OrbData/run-fssh-1/' 
+path = '/home/oem/Data/OrbMovMak/run-fssh-1/' 
 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 1 
-load_in_vmd = 'y' 
-show_img_after_vmd = '' 
+load_in_vmd = '' 
+show_img_after_vmd = 'y' 
 
 title = 'test2' 
 keep_cube_files = True 
@@ -25,8 +25,5 @@ isosurface_to_plot = 1e-05
 bounding_box_scale = 20 
 show_box = True 
 
-#type_of_wavefunction = 'density' 
-
-
-zoom_value = 31.909677670133096 # How much to zoom by
-translate_by = [-2.9,23,0] # How much to translate in xyz directions
+zoom_value = 18.488425889503635 # How much to zoom by
+translate_by = [-1.2,13,0] # How much to translate in xyz directions
