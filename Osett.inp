@@ -1,16 +1,26 @@
 # The path to the folder containing the data.
-#path = '/temp/mellis/Christmas_Data/christmas_tree_SH' 
-path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23' 
+path = '../run-fssh-23' 
 
 
 # Calibration Settings
-calibrate = 'y' # Carries out a single 'calibration' step
+calibrate = '' # Carries out a single 'calibration' step
 calibration_step = 1 
 load_in_vmd = '' 
-show_img_after_vmd = 'y' 
+show_img_after_vmd = '' 
 
-title = 'test2' 
-keep_cube_files = True 
+title = 'Pentacene_plane_run23_all_frames' 
+#keep_cube_files = True 
+
+carbon_color = 'silver' 
+hydrogen_color = 'white' 
+neg_real_iso_col = (1, 0, 0) # rgb
+pos_real_iso_col = (0, 0, 1) # rgb
+neg_imag_iso_col = (1, 0, 0) 
+pos_imag_iso_col = (0, 0, 1) 
+background_color = (1, 1, 1) 
+
+mol_material = 'AOChalky' 
+iso_material = 'BrushedMetal' 
 
 start_step = 0 
 end_step = 'all' 
@@ -18,14 +28,13 @@ stride = 1
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
+#background_mols = 'yes' 
 
 isosurface_to_plot = 0.0002 
-min_abs_mol_coeff = 0.0001 
 
-bounding_box_scale = 20 
+bounding_box_scale = 12 
 
-nn_cutoff = 40 
+vmd_timeout = 400 
+
 zoom_value = 1.98165020297 
 translate_by = [0.01,-0.04,0] 
-#zoom_value = 55.206143891243606 # How much to zoom by
-#translate_by = [6.1,39,0] # How much to translate in xyz directions

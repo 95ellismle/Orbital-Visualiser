@@ -344,11 +344,13 @@ class MainLoop(object):
         self.data = np.zeros(self.sizes, dtype=complex)
 
         # Create wf data
+        print("Molecule %i:  %i neighbours" % (molID, len(
+                                                   self.nearestNeighbours[molID]
+                                                         )))
         for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
             u_l = self.all_settings['mol'][self.step][molNum]
             tmpData = self.__calc_SOMO(molNum, translation)
             self.data += tmpData * u_l
-            print(molID, molNum)
 
 
         end_time = time.time() - start_data_create_time

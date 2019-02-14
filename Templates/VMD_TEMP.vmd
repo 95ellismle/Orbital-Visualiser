@@ -67,6 +67,7 @@ proc render_pic { mol_id } {
     draw text {$time_lab_x $time_lab_y $time_lab_z } $time_step
 
     color change rgb gray $backgrnd_R $backgrnd_G $backgrnd_B
+    #color change rgb silver 0.7 0.7 0.7
     color Display Background gray
     display projection Orthographic
 }
