@@ -85,8 +85,9 @@ class MainLoop(object):
         self._vmd_filename_handling()
         if self.all_settings['background_mols']:
             self._write_background_mols()
-        self._nearestNeighbourKeys()
-
+        self._nearestNeighbourKeys()  # Find nearest neighbour list
+        self._create_BB_size()  # Determine the bounding box size (cube file)
+        self._calc_all_SOMO()  # Pre-calculate all the SOMOS
         for mol_i, mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
             self._create_wf_data(mol_id, step)
@@ -96,8 +97,8 @@ class MainLoop(object):
             self._create_cube_file_txt(step)
             self._write_cube_file(step, mol_id)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
-        if self.all_settings['side_by_side_graph']:  # (Not supported)
-            self._plot(step)  # Will plot a graph to one side (Not supported)
+        # if self.all_settings['side_by_side_graph']:  # (Not supported)
+        #     self._plot(step)  # Will plot a graph to one side (Not supported)
 
     def __post_wf_processing(self):
         """
@@ -290,6 +291,7 @@ class MainLoop(object):
         # Find active coordinates (from active atom index)
         atMask = [i for i in self.all_settings['active_atoms_index'][mol_id]]
         self.active_coords = self.all_settings['coords'][self.step][atMask]
+        self.active_coords = [self.active_coords[:, k] for k in range(3)]
         self.active_coords = np.array(self.active_coords)
 
         if len(self.active_coords) <= 0:
@@ -328,38 +330,65 @@ class MainLoop(object):
         """
         start_data_create_time = time.time()
 
-        # Drawing a bounding box around the active atoms to prevent creating
-        #  unecessary data
-        if self.all_settings['dyn_bound_box']:
-            BBS_dyn = [self._dynamic_bounding_box_scale(molID, i)
-                       for i in self.all_settings['bounding_box_scale']]
-        else:
-            BBS_dyn = self.all_settings['bounding_box']
-
-        act_crds = [self.active_coords[:, k] for k in range(3)]
-        translation, active_size = geom.min_bounding_box(act_crds, BBS_dyn)
-        self.sizes = typ.int_res_marry(active_size,  # How many grid points
-                                       self.all_settings['resolution'],
-                                       [1, 1, 1])
-
-        # Create wf data
+        # First create some metadata for the cube file
+        BBS = self.all_settings['bounding_box_scale']
+        translation, active_size = geom.min_bounding_box(self.active_coords,
+                                                         BBS)
         scale_factors = [size*self.all_settings['resolution']
                          for size in self.sizes]
         scale_factors = np.array(scale_factors)
-
-        # Actually create the data
-        self.data = np.zeros(self.sizes, dtype=complex)
-
         self.origin = scale_factors/-2 + translation
 
+        # Allocate an array
+        self.data = np.zeros(self.sizes, dtype=complex)
+
+        # Create wf data
         for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
             u_l = self.all_settings['mol'][self.step][molNum]
-            self.data += self.__createSOMO(molNum, translation) * u_l
+            self.data += self.allSOMO[molNum] * u_l
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 
-    def __createSOMO(self, molID, translation):
+    def _create_BB_size(self):
+        """
+        Will create the (single) bounding box size for all the molecules. This
+        will take the maximum bounding box that is put around any molecule and
+        apply it to them all. The key thing here is that all boxes are the same
+        size. It doesn't matter (much) in terms of performance that they are
+        slightly larger than they need to be on each molecule.
+        """
+        allSizes = np.zeros((len(self.active_step_mols), 3), dtype=int)
+        for molCount, molID in enumerate(self.active_step_mols):
+            self._find_active_atoms(molID)
+            BBS = self.all_settings['bounding_box_scale']
+            translation, active_size = geom.min_bounding_box(self.active_coords,
+                                                             BBS)
+            sizes = typ.int_res_marry(active_size,  # How many grid points
+                                      self.all_settings['resolution'],
+                                      [1, 1, 1])
+            allSizes[molCount] = sizes
+        self.sizes = np.max(allSizes, axis=0)
+
+    def _calc_all_SOMO(self):
+        """
+        Will create all the SOMOs at the beginning of the step to prevent the
+        code having to write them N times at each step.
+        """
+        start_time = time.time()
+        shapeData = [len(self.active_step_mols)] + list(self.sizes)
+        self.allSOMO = np.zeros(shapeData, dtype=complex)
+        for molCount, molID in enumerate(self.active_step_mols):
+            BBS = self.all_settings['bounding_box_scale']
+            translation, active_size = geom.min_bounding_box(self.active_coords,
+                                                             BBS)
+            # Create SOMO for each mol
+            self.allSOMO[molCount] += self.__create_SOMO(molID, translation)
+
+        time_taken = time.time() - start_time
+        self.all_settings['times']['Create All SOMOs'][self.step] += time_taken
+
+    def __create_SOMO(self, molID, translation):
         """
         Will create the SOMO for 1 molecule. This involves looping over all
         active atoms in one molecule and creating a p orbtial on each one. This
@@ -579,25 +608,30 @@ class MainLoop(object):
         that are within the cutoff. The cutoff is given in the settings file.
         """
         self.nearestNeighbours = {}
-  
+
         # Get the atom indices corresponding to the ones on the mol
         revMolVals = self.all_settings['reversed_mol_info'].values()
         atIndsPerMol = [atNums for atNums in revMolVals]
-  
+
         molCoords = self.all_settings['coords'][0,atIndsPerMol]
         avgPosMols = np.array([np.mean(i, axis=0) for i in molCoords])
         allDist = [geom.Euclid_dist(vec, avgPosMols[0]) for vec in avgPosMols]
-  
+
         molKeys = list(self.all_settings['reversed_mol_info'].keys())
         molList = np.arange(len(molKeys))
-        for distI, dist in enumerate(allDist):
+        for distCount, dist in enumerate(allDist):
+            molNum = molKeys[distCount]
+            if molNum not in self.active_step_mols:
+                continue
+
             distBetween = abs(allDist - dist)
             distMask = distBetween < self.all_settings['nn_cutoff']
             molInds = molList[distMask]
-            tmp = self.nearestNeighbours.get(molKeys[distI], [])
+            tmp = self.nearestNeighbours.get(molNum, [])
             for molInd in molInds:
-                tmp.append(molInd)
-                self.nearestNeighbours[molKeys[distI]] = tmp
+                if molInd in self.active_step_mols:
+                    tmp.append(molInd)
+                    self.nearestNeighbours[molNum] = tmp
 
     # Handles the plotting of the side graph.
     def _plot(self, step):

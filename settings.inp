@@ -25,5 +25,6 @@ isosurface_to_plot = 1e-05
 bounding_box_scale = 20 
 show_box = True 
 
-zoom_value = 18.488425889503635 # How much to zoom by
-translate_by = [-1.2,13,0] # How much to translate in xyz directions
+nn_cutoff = 20 
+zoom_value = 55.206143891243606 # How much to zoom by
+translate_by = [6.1,39,0] # How much to translate in xyz directions

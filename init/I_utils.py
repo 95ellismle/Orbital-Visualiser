@@ -38,7 +38,7 @@ if sys.version_info[0] > 2:
 
 def reverseDict(Dict):
     """
-    Will create a dictionary that has all unique values as keys with 
+    Will create a dictionary that has all unique values as keys with
     """
     inv = {}
     for key, val in Dict.items():
@@ -293,7 +293,7 @@ def read_cp2k_inp_file(all_settings):
 def init_global_steps_to_ignore(all_settings):
     all_settings['global_steps_to_ignore'] = []
     if all_settings['restart_vis'] and not all_settings['calibrate']:
-        all_settings['global_steps_to_ignore'] = list( find_ignoring_steps(all_settings) ) 
+        all_settings['global_steps_to_ignore'] = list( find_ignoring_steps(all_settings) )
 
 # Will find which atoms should be plotted
 def init_atoms_to_plot(all_settings):
@@ -368,6 +368,7 @@ def init_times_dict(all_settings):
                              'VMD Visualisation':   np.zeros(num_steps),
                              'Plot and Save Img':   np.zeros(num_steps),
                              'WF Post Processing':  np.zeros(num_steps),
+                             'Create All SOMOs':    np.zeros(num_steps),
                              }
     all_settings['times_taken'] = []
 
