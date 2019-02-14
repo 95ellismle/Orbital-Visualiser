@@ -31,7 +31,9 @@ TODO:
 
 + Add feature to use last timestep in calibration and change how the code handles the user inputting a higher number of timesteps than there are. E.g. if # timsteps in file = 200 and user enters 2000 then currently the code crashes. I would like it to just let the user know and use as many steps as it can.
 
-+ Would like to clean up the files, improve code structure. Read the docstrings on top of files and carry out what they say.
++ Add option to visualise general orbitals. E.g. visualise sulphur with it's s orbital and maybe transition metal with their funky d ones... Need to have a general AOM_COEFFICIENT reader.
+
++ Add feature to use last timestep in calibration
 
 + Add testing code!
 
@@ -43,4 +45,4 @@ TODO:
 
 + Try parallelising again! (maybe this means only parallelising the python part and not the VMD part)
 
-+ Add support for other rendering engines e.g. Jmol, pymol etc...
++ Add support for other rendering engines e.g. Jmol, pymol etc... (maybe learn/implement own openGL renderer -might be quite a big task!)
