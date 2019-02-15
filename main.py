@@ -49,7 +49,7 @@ class MainLoop(object):
     """
 
     def __init__(self, all_settings, all_steps, errors):
-        self.tcl_dict_ind = 0
+        self.tcl_color_dict_count = 0
         self.errors = errors
         self.all_settings = all_settings
         self.neg_iso_cols = {}
@@ -87,19 +87,49 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        for mol_i, mol_id in enumerate(self.active_step_mols):
-            self._find_active_atoms(mol_id)
-            self._create_wf_data(mol_id, step)
-            self.__post_wf_processing()
-            self._set_wf_colors()
-            self._save_wf_colors()
-            self._create_cube_file_txt(step)
-            self._write_cube_file(step, mol_id)
+        count = 0
+        # Should order by mol coeff max to min
+        for mol_i, molID in enumerate(self.active_step_mols):
+            molPop = self.all_settings['pops'][self.step][molID]
+            if molPop > self.all_settings['min_abs_mol_coeff']:
+                count += 1
+                self._find_active_atoms(molID)
+                self._create_wf_data(molID, step)
+                self._post_wf_processing()
+                self._findCubesToWrite(molID)
+                self._set_wf_colors()
+                self._save_wf_colors()
+                self._create_cube_file_txt(step)
+                self._write_cube_file(step, molID)
+        print("%i Mols have cubes" % count)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
         #     self._plot(step)  # Will plot a graph to one side (Not supported)
 
-    def __post_wf_processing(self):
+    def _findCubesToWrite(self, molID):
+        """
+        Will find whether the real or imaginary data has enough data (at least
+        1%) above the isosurface that is to be plotted.
+
+        This function will also use the percentage useful data in the real and
+        imaginary data containers to update the minimum absolute coefficient
+        threshold for visualising the molecule.
+        """
+        size = float(self.ImagData.size)
+        isoToPlot = self.all_settings['isosurface_to_plot']
+        relevantReal = np.sum(np.abs(self.RealData) > isoToPlot)
+        relevantReal /= size
+        relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
+        relevantImag /= size
+
+        self.writeImagCube = relevantImag > 0.01  # At least 1% is plottable
+        self.writeRealCube = relevantReal > 0.01  # At least 1% is plottable
+        if not self.writeImagCube and not self.writeRealCube:
+            molPop = self.all_settings['pops'][self.step][molID]
+            if molPop > self.all_settings['min_abs_mol_coeff']:
+                self.all_settings['min_abs_mol_coeff'] = molPop
+
+    def _post_wf_processing(self):
         """
         Will handle the processing of the data after being created. For the
         phase option this involves finding which quadrant the data points lie
@@ -262,12 +292,19 @@ class MainLoop(object):
     # Will find the active molecules which need looping over
     def _find_active_molecules(self):
         """
-        Will find which molecules are active and which can be ignored.
+        Will find which molecules are active and which can be ignored. This will
+        also order the mol inds by the population. This is so we converge to the
+        min_abs_mol_coeff via the fastest route.
         """
         # Find mols with enough population (more than min_abs_mol_coeff)
         mask = (self.all_settings['pops'][self.step] >
                 self.all_settings['min_abs_mol_coeff'])
         self.active_step_mols = np.arange(0, self.all_settings['nmol'])[mask]
+        pops = [self.all_settings['pops'][self.step][i]
+                for i in self.active_step_mols]
+        sortedMols = reversed(sorted(zip(pops, self.active_step_mols)))
+        self.active_step_mols = np.array([i[1] for i in sortedMols])
+
         self.all_settings['mols_plotted'] = len(self.active_step_mols)
         if self.all_settings['mols_plotted'] == 0:
             self.active_step_mols = np.array([0])
@@ -279,16 +316,16 @@ class MainLoop(object):
         return self.active_step_mols
 
     # Will find the active atoms to loop over
-    def _find_active_atoms(self, mol_id):
+    def _find_active_atoms(self, molID):
         """
         Find which atoms are active according to the AOM_COEFF.include file.
         These are atoms on a molecule.
 
         Inputs:
-            * mol_id  =>  The molecule to find active atoms for
+            * molID  =>  The molecule to find active atoms for
         """
         # Find active coordinates (from active atom index)
-        atMask = [i for i in self.all_settings['active_atoms_index'][mol_id]]
+        atMask = [i for i in self.all_settings['active_atoms_index'][molID]]
         self.active_coords = self.all_settings['coords'][self.step][atMask]
         self.active_coords = [self.active_coords[:, k] for k in range(3)]
         self.active_coords = np.array(self.active_coords)
@@ -416,18 +453,20 @@ class MainLoop(object):
                 raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
 
 
-        self.RCubeTxt = txt_lib.cube_file_text(
-                              self.RealData.real,
-                              vdim=self.sizes,
-                              mol_info=self.all_settings['mol_info'],
-                              orig=self.origin,
-                              Ac=self.all_settings['coords'][self.step],
-                              An=self.all_settings['at_num'],
-                              tit=self.all_settings['title'],
-                              atoms_to_plot=self.all_settings['atoms_to_plot'],
-                              basis_vec=xyz_basis_vectors
-                                              )
-        if type(self.ImagData) == type(np.array(1)):
+        if self.writeRealCube:
+            self.RCubeTxt = txt_lib.cube_file_text(
+                                  self.RealData.real,
+                                  vdim=self.sizes,
+                                  mol_info=self.all_settings['mol_info'],
+                                  orig=self.origin,
+                                  Ac=self.all_settings['coords'][self.step],
+                                  An=self.all_settings['at_num'],
+                                  tit=self.all_settings['title'],
+                                  atoms_to_plot=self.all_settings['atoms_to_plot'],
+                                  basis_vec=xyz_basis_vectors
+                                                  )
+
+        if type(self.ImagData) == type(np.array(1)) and self.writeImagCube:
             self.ICubeTxt = txt_lib.cube_file_text(
                                self.ImagData.real,
                                vdim=self.sizes,
@@ -462,20 +501,21 @@ class MainLoop(object):
         # Could optimise (and tidy) this, the code doesn't need to do all
         #  this at every step
         if self.all_settings['color_type'] == 'density':
-            self.neg_iso_cols[self.tcl_dict_ind] = 22
-            self.pos_iso_cols[self.tcl_dict_ind] = 22
+            self.neg_iso_cols[self.tcl_color_dict_count] = 22
+            self.pos_iso_cols[self.tcl_color_dict_count] = 22
+            self.tcl_color_dict_count += 1
 
         elif self.all_settings['color_type'] == 'phase':
             # First real cube file
-            self.pos_iso_cols[self.tcl_dict_ind] = 20
-            self.neg_iso_cols[self.tcl_dict_ind] = 21
-            self.tcl_dict_ind += 1
+            if self.writeRealCube:
+                self.pos_iso_cols[self.tcl_color_dict_count] = 20
+                self.neg_iso_cols[self.tcl_color_dict_count] = 21
+                self.tcl_color_dict_count += 1
             # Then imaginary cube file
-            self.pos_iso_cols[self.tcl_dict_ind] = 18
-            self.neg_iso_cols[self.tcl_dict_ind] = 19
-
-
-        self.tcl_dict_ind += 1
+            if self.writeImagCube:
+                self.pos_iso_cols[self.tcl_color_dict_count] = 18
+                self.neg_iso_cols[self.tcl_color_dict_count] = 19
+                self.tcl_color_dict_count += 1
 
     # Saves the wavefunction coloring in the tcl dictionary
     def _save_wf_colors(self):
@@ -536,17 +576,17 @@ class MainLoop(object):
         self.all_settings['times']['VMD Visualisation'][step] += end_time
 
     # Handles the writing of the necessary files
-    def _write_cube_file(self, step, mol_id, numCube=-1):
+    def _write_cube_file(self, step, molID, numCube=-1):
         """
         Converts each molecular wavefunction to a cube file to be loaded in vmd
         """
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
-            RDataFName = "%s-%i-%i.cube" % ('Real', step, mol_id)
-            IDataFName = "%s-%i-%i.cube" % ('Imag', step, mol_id)
+            RDataFName = "%s-%i-%i.cube" % ('Real', step, molID)
+            IDataFName = "%s-%i-%i.cube" % ('Imag', step, molID)
         else:
-            RDataFName = "tmp%s-%i.cube" % ('Real', mol_id)
-            IDataFName = "tmp%s-%i.cube" % ('Imag', mol_id)
+            RDataFName = "tmp%s-%i.cube" % ('Real', molID)
+            IDataFName = "tmp%s-%i.cube" % ('Imag', molID)
         RDataFPath = self.all_settings['data_fold'] + RDataFName
         IDataFPath = self.all_settings['data_fold'] + IDataFName
 
@@ -554,8 +594,10 @@ class MainLoop(object):
             self.all_settings['delete_these'].append(RDataFPath)
             self.all_settings['delete_these'].append(IDataFPath)
 
-        self.data_files_to_visualise += [RDataFPath]
-        self.data_files_to_visualise += [IDataFPath]
+        if self.writeRealCube:
+            self.data_files_to_visualise += [RDataFPath]
+        if self.writeImagCube:
+            self.data_files_to_visualise += [IDataFPath]
 
         self.all_settings['tcl']['cube_files'] = \
             ' '.join(self.data_files_to_visualise)
@@ -571,8 +613,10 @@ class MainLoop(object):
         self.all_settings['tcl']['cube_files'] = ' '.join(
                                                    self.data_files_to_visualise
                                                          )
-        io.open_write(RDataFPath, self.RCubeTxt)
-        io.open_write(IDataFPath, self.ICubeTxt)
+        if self.writeRealCube:
+            io.open_write(RDataFPath, self.RCubeTxt)
+        if self.writeImagCube:
+            io.open_write(IDataFPath, self.ICubeTxt)
 
         end_time = time.time() - start_data_write_time
         self.all_settings['times']['Write Cube File'][step] += end_time
