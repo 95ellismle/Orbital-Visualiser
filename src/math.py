@@ -17,9 +17,10 @@ if sys.version_info[0] > 2:
 # The P orbital creators, just for x
 def SH_px(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0] ):
     x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(float)
-    sub_x = -(sizeX/2 + Origin[0]/resolution)
-    sub_y = -(sizeY/2 + Origin[1]/resolution)
-    sub_z = -(sizeZ/2 + Origin[2]/resolution)
+    resolution = float(resolution)
+    sub_x = -(sizeX/2. + Origin[0]/resolution)
+    sub_y = -(sizeY/2. + Origin[1]/resolution)
+    sub_z = -(sizeZ/2. + Origin[2]/resolution)
     x += sub_x
     y += sub_y
     z += sub_z
@@ -33,9 +34,10 @@ def IPR(mol_coeffs):
 # Real P spherical harmonic for y
 def SH_py(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]  ):
     x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(float)
-    sub_x = -(sizeX/2 + Origin[0]/resolution)
-    sub_y = -(sizeY/2 + Origin[1]/resolution)
-    sub_z = -(sizeZ/2 + Origin[2]/resolution)
+    resolution = float(resolution)
+    sub_x = -(sizeX/2. + Origin[0]/resolution)
+    sub_y = -(sizeY/2. + Origin[1]/resolution)
+    sub_z = -(sizeZ/2. + Origin[2]/resolution)
     x += sub_x
     y += sub_y
     z += sub_z
@@ -45,9 +47,10 @@ def SH_py(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]  ):
 # Real P spherical harmonic for z
 def SH_pz(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]  ):
     x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(float)
-    sub_x = -(sizeX/2 + Origin[0]/resolution)
-    sub_y = -(sizeY/2 + Origin[1]/resolution)
-    sub_z = -(sizeZ/2 + Origin[2]/resolution)
+    resolution = float(resolution)
+    sub_x = -(sizeX/2. + Origin[0]/resolution)
+    sub_y = -(sizeY/2. + Origin[1]/resolution)
+    sub_z = -(sizeZ/2. + Origin[2]/resolution)
     x += sub_x
     y += sub_y
     z += sub_z
@@ -69,10 +72,13 @@ def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
     """
     # Creates an empty container for the orbital data.
     x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(np.float64)
+    resolution = float(resolution)
 
-    x -= (sizeX/2 + Origin[0]/resolution)
-    y -= (sizeY/2 + Origin[1]/resolution)
-    z -= (sizeZ/2 + Origin[2]/resolution)
+    # Careful with 2. here! Needs to be float for python2 back compatibility!
+    #  I hate python2
+    x -= (sizeX/2. + Origin[0]/resolution)
+    y -= (sizeY/2. + Origin[1]/resolution)
+    z -= (sizeZ/2. + Origin[2]/resolution)
 
     r = np.sqrt(x**2 + y**2 + z**2)
     exp_neg_r = np.exp(-r)
@@ -125,7 +131,7 @@ def find_sys_dims(coords):
     'min':np.array([np.min(coords[:,i]) for i in range(len(coords[0]))]),
             }
     dims['lens'] = dims['max']-dims['min']
-    dims['center'] = dims['min']+dims['lens']/2
+    dims['center'] = dims['min']+dims['lens']/2.
     dims['largest_dims'] = np.argsort(dims['lens'])[::-1]
     return dims
 
