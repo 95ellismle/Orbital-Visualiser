@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import   division
 """
  This is the file that runs everything. The MainLoop class is responsible for
  actually carrying out the visualisation once everything has been initialised.
@@ -86,8 +87,6 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        self._create_BB_size()  # Determine the bounding box size (cube file)
-        self._calc_all_SOMO()  # Pre-calculate all the SOMOS
         for mol_i, mol_id in enumerate(self.active_step_mols):
             self._find_active_atoms(mol_id)
             self._create_wf_data(mol_id, step)
@@ -96,6 +95,7 @@ class MainLoop(object):
             self._save_wf_colors()
             self._create_cube_file_txt(step)
             self._write_cube_file(step, mol_id)
+        raise SystemExit("BREAK")
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
         #     self._plot(step)  # Will plot a graph to one side (Not supported)
@@ -178,7 +178,7 @@ class MainLoop(object):
         w = 0.4  # When do we first start getting there
         c = 4  # minimum bounding box scale
         pop = np.abs(self.all_settings['pops'][self.step][mol_ind])
-        new_bb_scale = np.tanh(pop/w)
+        new_bb_scale = np.tanh(float(pop)/float(w))
         new_bb_scale *= (BBS - c)
         new_bb_scale += c
         new_bb_scale = np.ceil(new_bb_scale)
@@ -331,68 +331,80 @@ class MainLoop(object):
         """
         start_data_create_time = time.time()
 
-        # First create some metadata for the cube file
-        BBS = self.all_settings['bounding_box_scale']
+        # Drawing a bounding box around the active atoms to prevent creating
+        #  unecessary data
+        if self.all_settings['dyn_bound_box']:
+            BBS_dyn = [self._dynamic_bounding_box_scale(molID, i)
+                       for i in self.all_settings['bounding_box_scale']]
+        else:
+            BBS_dyn = self.all_settings['bounding_box_scale']
+
+        # act_crds = [self.active_coords[:, k] for k in range(3)]
         translation, active_size = geom.min_bounding_box(self.active_coords,
-                                                         BBS)
+                                                         BBS_dyn)
+        self.sizes = typ.int_res_marry(active_size,  # How many grid points
+                                       self.all_settings['resolution'],
+                                       [1, 1, 1])
+
+        # Create wf data
         scale_factors = [size*self.all_settings['resolution']
                          for size in self.sizes]
         scale_factors = np.array(scale_factors)
-        self.origin = scale_factors/-2 + translation
+        self.origin = scale_factors/-2. + translation
 
-        # Allocate an array
+        # Actually create the data
         self.data = np.zeros(self.sizes, dtype=complex)
 
-        # Create wf data
+        print("Mol: %i   %i neighbours" % (molID,
+                                           len(self.nearestNeighbours[molID])))
+        print("Sizes = ", self.sizes)
+        print("Origin = ", self.origin)
         for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
             u_l = self.all_settings['mol'][self.step][molNum]
-            tmpData = self.__calc_SOMO(molNum, translation)
-            self.data += tmpData * u_l
-            print(molID, molNum)
-
+            self.data += self.__calc_SOMO(molNum, translation) * u_l
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 
-    def _create_BB_size(self):
-        """
-        Will create the (single) bounding box size for all the molecules. This
-        will take the maximum bounding box that is put around any molecule and
-        apply it to them all. The key thing here is that all boxes are the same
-        size. It doesn't matter (much) in terms of performance that they are
-        slightly larger than they need to be on each molecule.
-        """
-        allSizes = np.zeros((len(self.active_step_mols), 3), dtype=int)
-        for molCount, molID in enumerate(self.active_step_mols):
-            self._find_active_atoms(molID)
-            BBS = self.all_settings['bounding_box_scale']
-            translation, active_size = geom.min_bounding_box(self.active_coords,
-                                                             BBS)
-            sizes = typ.int_res_marry(active_size,  # How many grid points
-                                      self.all_settings['resolution'],
-                                      [1, 1, 1])
-            allSizes[molCount] = sizes
-        self.sizes = np.max(allSizes, axis=0)
+    # def _create_generic_BB_size(self):
+    #     """
+    #     Will create the (single) bounding box size for all the molecules. This
+    #     will take the maximum bounding box that is put around any molecule and
+    #     apply it to them all. The key thing here is that all boxes are the same
+    #     size. It doesn't matter (much) in terms of performance that they are
+    #     slightly larger than they need to be on each molecule.
+    #     """
+    #     allSizes = np.zeros((len(self.active_step_mols), 3), dtype=int)
+    #     for molCount, molID in enumerate(self.active_step_mols):
+    #         self._find_active_atoms(molID)
+    #         BBS = self.all_settings['bounding_box_scale']
+    #         translation, active_size = geom.min_bounding_box(self.active_coords,
+    #                                                          BBS)
+    #         sizes = typ.int_res_marry(active_size,  # How many grid points
+    #                                   self.all_settings['resolution'],
+    #                                   [1, 1, 1])
+    #         allSizes[molCount] = sizes
+    #     self.sizes = np.max(allSizes, axis=0)
 
-    def _calc_all_SOMO(self):
-        """
-        Will create all the SOMOs at the beginning of the step to prevent the
-        code having to write them N times at each step.
-        """
-        start_time = time.time()
-        SOMOsToCreate = set(self.nearestNeighbours.keys())
-        self.allSOMO = {mol: np.zeros(self.sizes, dtype=complex)
-                             for mol in SOMOsToCreate}
-        for molID in self.allSOMO:
-            self._find_active_atoms(molID)  # get active coords
-            BBS = self.all_settings['bounding_box_scale']
-            translation, active_size = geom.min_bounding_box(self.active_coords,
-                                                             BBS)
-            # Create SOMO for each mol
-            self.allSOMO[molID] = self.__calc_SOMO(molID, translation)
-
-        time_taken = time.time() - start_time
-        self.all_settings['times']['Create All SOMOs'][self.step] += time_taken
+    # def _calc_all_SOMO(self):
+    #     """
+    #     Will create all the SOMOs at the beginning of the step to prevent the
+    #     code having to write them N times at each step.
+    #     """
+    #     start_time = time.time()
+    #     SOMOsToCreate = set(self.nearestNeighbours.keys())
+    #     self.allSOMO = {mol: np.zeros(self.sizes, dtype=complex)
+    #                          for mol in SOMOsToCreate}
+    #     for molID in self.allSOMO:
+    #         self._find_active_atoms(molID)  # get active coords
+    #         BBS = self.all_settings['bounding_box_scale']
+    #         translation, active_size = geom.min_bounding_box(self.active_coords,
+    #                                                          BBS)
+    #         # Create SOMO for each mol
+    #         self.allSOMO[molID] = self.__calc_SOMO(molID, translation)
+    #
+    #     time_taken = time.time() - start_time
+    #     self.all_settings['times']['Create All SOMOs'][self.step] += time_taken
 
     def __calc_SOMO(self, molID, translation):
         """
@@ -402,15 +414,14 @@ class MainLoop(object):
         determined by AOM_COEFF.
         """
         # Loop over current molecules atoms
-        tmpData = np.zeros(self.sizes, dtype=complex)
+        tmpData = np.zeros(self.sizes, dtype=np.complex64)
         # Loop over atoms that belong to molecule molID
         for iat in self.all_settings['reversed_mol_info'][molID]:
 
             at_crds = self.all_settings['coords'][self.step][iat] - translation
-            self.atom_I = self.all_settings['AOM_D'][iat][1]
-            pvecs = self.all_settings['pvecs'][self.step][self.atom_I]
+            atom_I = self.all_settings['AOM_D'][iat][1]
+            pvecs = self.all_settings['pvecs'][self.step][atom_I]
             AOM = self.all_settings['AOM_D'][iat][0]
-
             tmpData += MT.dot_3D(
                       MT.SH_p(self.sizes[0],
                               self.sizes[1],

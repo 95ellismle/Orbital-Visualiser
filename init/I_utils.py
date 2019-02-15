@@ -1,3 +1,4 @@
+from  __future__ import division
 """
 Utility functions for the initialisation. These include things like setting all
 the filepaths, initialising the colours, find which steps to ignore etc...
@@ -28,6 +29,7 @@ import difflib
 import os
 import sys
 import subprocess
+from collections import OrderedDict
 
 if sys.version_info[0] > 2:
     xrange = range
@@ -362,14 +364,14 @@ def init_times_dict(all_settings):
     """
     all_settings['init_times'] = {}
     num_steps = len(all_settings['coords'])
-    all_settings['times'] = {'Create Wavefunction': np.zeros(num_steps),
-                             'Create Cube Data':    np.zeros(num_steps),
-                             'Write Cube File':     np.zeros(num_steps),
-                             'VMD Visualisation':   np.zeros(num_steps),
-                             'Plot and Save Img':   np.zeros(num_steps),
-                             'WF Post Processing':  np.zeros(num_steps),
-                             'Create All SOMOs':    np.zeros(num_steps),
-                             }
+    all_settings['times'] = OrderedDict()
+    all_settings['times']['Create Wavefunction'] = np.zeros(num_steps)
+    all_settings['times']['Create Cube Data'] = np.zeros(num_steps)
+    all_settings['times']['Write Cube File'] = np.zeros(num_steps)
+    all_settings['times']['VMD Visualisation'] = np.zeros(num_steps)
+    all_settings['times']['Plot and Save Img'] = np.zeros(num_steps)
+    all_settings['times']['WF Post Processing'] = np.zeros(num_steps)
+    all_settings['times']['Create All SOMOs'] = np.zeros(num_steps)
     all_settings['times_taken'] = []
 
 # Will initialise the start_step, end_step and stride variables

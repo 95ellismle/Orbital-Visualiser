@@ -1,9 +1,10 @@
+from  __future__ import division
+from __future__ import print_function
 '''
 This large module contains many functions that are involved in the input/output
 operations in the code. These are things like reading the xyz file, writing the
 cube file, writing the xyz file, a generic open_read function and open_write.
 '''
-from __future__ import print_function
 
 import os
 import sys
@@ -211,7 +212,7 @@ def check_tachyon(tachyon_path, times=0):
        os.chmod(tachyon_path, 755)
        if times < 1:
            result = check_tachyon(tachyon_path, times+1)
-           return result 
+           return result
     return False
 
 # Reads and writes the updated permanent settings file

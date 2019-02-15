@@ -68,7 +68,7 @@ def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
         * Origin       =>   center of the p orbital
     """
     # Creates an empty container for the orbital data.
-    x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(float)
+    x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(np.float64)
 
     x -= (sizeX/2 + Origin[0]/resolution)
     y -= (sizeY/2 + Origin[1]/resolution)
