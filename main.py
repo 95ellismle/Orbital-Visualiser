@@ -91,16 +91,17 @@ class MainLoop(object):
         # Should order by mol coeff max to min
         for mol_i, molID in enumerate(self.active_step_mols):
             molPop = self.all_settings['pops'][self.step][molID]
-            if molPop > self.all_settings['min_abs_mol_coeff']:
-                count += 1
-                self._find_active_atoms(molID)
-                self._create_wf_data(molID, step)
-                self._post_wf_processing()
-                self._findCubesToWrite(molID)
-                self._set_wf_colors()
-                self._save_wf_colors()
-                self._create_cube_file_txt(step)
-                self._write_cube_file(step, molID)
+            if molPop < self.all_settings['min_abs_mol_coeff']:
+                break
+            count += 1
+            self._find_active_atoms(molID)
+            self._create_wf_data(molID, step)
+            self._post_wf_processing()
+            self._findCubesToWrite(molID)
+            self._set_wf_colors()
+            self._save_wf_colors()
+            self._create_cube_file_txt(step)
+            self._write_cube_file(step, molID)
         print("%i Mols have cubes" % count)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
@@ -109,7 +110,7 @@ class MainLoop(object):
     def _findCubesToWrite(self, molID):
         """
         Will find whether the real or imaginary data has enough data (at least
-        1%) above the isosurface that is to be plotted.
+        0.3%) above the isosurface that is to be plotted.
 
         This function will also use the percentage useful data in the real and
         imaginary data containers to update the minimum absolute coefficient
@@ -122,8 +123,8 @@ class MainLoop(object):
         relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
         relevantImag /= size
 
-        self.writeImagCube = relevantImag > 0.01  # At least 1% is plottable
-        self.writeRealCube = relevantReal > 0.01  # At least 1% is plottable
+        self.writeImagCube = relevantImag > 0.003  # At least 0.3% is visible
+        self.writeRealCube = relevantReal > 0.003  # At least 0.3% is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
@@ -391,11 +392,14 @@ class MainLoop(object):
         # Actually create the data
         self.data = np.zeros(self.sizes, dtype=np.complex64)
 
-        print("Mol: %i   %i neighbours" % (molID,
-                                           len(self.nearestNeighbours[molID])))
-        for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
-            u_l = self.all_settings['mol'][self.step][molNum]
-            self.data += self.__calc_SOMO(molNum, translation) * u_l
+        # Only use nearest neighbours if there's a large population
+        if self.all_settings['pops'][self.step][molID] > 0.07:
+            for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
+                u_l = self.all_settings['mol'][self.step][molNum]
+                self.data += (self.__calc_SOMO(molNum, translation) * u_l)
+        else:
+            u_l = self.all_settings['mol'][self.step][molID]
+            self.data += (self.__calc_SOMO(molID, translation) * u_l)
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
@@ -634,25 +638,23 @@ class MainLoop(object):
 
         molCoords = self.all_settings['coords'][0,atIndsPerMol]
         avgPosMols = np.array([np.mean(i, axis=0) for i in molCoords])
-        allDist = [geom.Euclid_dist(vec, avgPosMols[0]) for vec in avgPosMols]
 
         molKeys = list(self.all_settings['reversed_mol_info'].keys())
         molList = np.arange(len(molKeys))
-        for distCount, dist in enumerate(allDist):
-            molNum = molKeys[distCount]
+        for pos, molNum in zip(avgPosMols, molKeys):
             if molNum not in self.active_step_mols:
                 continue
 
-            distBetween = abs(allDist - dist)
-            distMask = distBetween < self.all_settings['nn_cutoff']
+            distBetween = np.linalg.norm(avgPosMols - pos, axis=1)
+            distMask = np.abs(distBetween) < self.all_settings['nn_cutoff']
+            distances = distBetween[distMask]
+
             molInds = molList[distMask]
             tmp = self.nearestNeighbours.get(molNum, [])
-            for molInd in molInds:
+            for dist, molInd in sorted(zip(distances, molInds)):
                 if molInd in self.active_step_mols:
                     tmp.append(molInd)
                     self.nearestNeighbours[molNum] = tmp
-
-    raise SystemExit("Break")
 
     # Handles the plotting of the side graph.
     def _plot(self, step):

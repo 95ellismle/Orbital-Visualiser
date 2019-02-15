@@ -374,9 +374,48 @@ def init_times_dict(all_settings):
     all_settings['times']['Create All SOMOs'] = np.zeros(num_steps)
     all_settings['times_taken'] = []
 
+
+def __translateEndStep(val, numSteps):
+    """
+    Will translate the val from a float or a string to a step. For example if
+    `half' is given as the value then this function will return the half (pos)
+    timestep.
+
+    Inputs:
+        * val => Step to translate
+        * numSteps => max number of steps allowed
+    """
+    if type(val) == str:
+        if val == 'last':
+            return numSteps
+        elif val == 'half':
+            return int(numSteps * 0.5)
+        else:
+            msg = "I don't know what %s means for calibration_step" % val
+            raise SystemExit(msg)
+
+    elif type(val) == float:
+        if val > 1:
+            return int(val)
+        else:
+            return int(numSteps * val)
+
+    elif type(val) == int:
+        return val
+    else:
+        msg = "Don't have any rules to process %s in the input" % (str(val))
+        raise SystemExit(msg)
+
+
 # Will initialise the start_step, end_step and stride variables
 def find_step_numbers(all_settings):
+    """
+    This function will set the start and end step for the simulation.
+    """
+    numPosSteps = all_settings['pos_metadata']['nsteps']
     if not all_settings['calibrate']:
+        all_settings['end_step'] = __translateEndStep(all_settings['end_step'],
+                                                      numPosSteps) + 1
         all_steps = txt_lib.fuzzy_variable_translate(all_settings['end_step'],
                                                                 ["all","An Integer end step"],
                                                                 all_settings['verbose_output'],
@@ -384,9 +423,15 @@ def find_step_numbers(all_settings):
         if all_steps:
             all_settings['end_step'] = all_settings['pos_metadata']['nsteps']
     else:
-        all_settings['start_step'] = all_settings['calibration_step']
-        all_settings['end_step']   = all_settings['calibration_step'] + 1
-        all_settings['stride']     = 1
+        calStep = all_settings['calibration_step']
+        all_settings['start_step'] = __translateEndStep(calStep,
+                                                        numPosSteps)
+        print("Calibrating for step %i" % (all_settings['start_step']))
+        # Error Catching
+        if all_settings['start_step'] >= numPosSteps:
+            all_settings['start_step'] = numPosSteps - 1
+        all_settings['end_step'] = all_settings['start_step'] + 1
+        all_settings['stride'] = 1
     all_settings['max_step'] = np.max([all_settings['pos_metadata']['nsteps'],
                                        all_settings['coeff_metadata']['nsteps'],
                                        all_settings['pvecs_metadata']['nsteps']])
@@ -403,19 +448,15 @@ def init_local_steps_to_ignore(all_settings):
     We do this by finding which steps aren't common to all 3 lists as that is
     the way the xyz reader works.
     """
-    if all_settings['end_step'] >= all_settings['pos_metadata']['nsteps']:
-        if all_settings['calibrate']:
-            print("Step %i is too large. Using the last step instead" %
-                  all_settings['end_step'])
-            all_settings['start_step'] = all_settings['pos_metadata']['nsteps'] - 1
-            all_nucl_steps = [-1]
-        else:
-            msg = "End step too large reduce it to <= %i" % (maxPosStep - 1)
-            raise SystemExit(msg)
-    all_nucl_steps = np.arange(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
+    Oall_nucl_steps = np.arange(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
     maxPosStep = all_settings['pos_metadata']['nsteps']
-    all_nucl_steps = all_nucl_steps[all_nucl_steps < maxPosStep]
-
+    all_nucl_steps = Oall_nucl_steps[Oall_nucl_steps < maxPosStep]
+    if len(all_nucl_steps) < 1:
+        print("Start Step = %i\tEnd Step = %i" % (all_settings['start_step'],
+                                                  all_settings['end_step']))
+        print("Maximum possible step = %i" % maxPosStep)
+        print("All pos steps = %s" % str(Oall_nucl_steps))
+        raise SystemExit("Error: Can't find any nuclear steps to carry out")
 
     # Read in which timesteps are available
     n_avail_dt = all_settings['pos_metadata']['tsteps'][all_nucl_steps]

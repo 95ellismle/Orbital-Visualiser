@@ -20,7 +20,7 @@
 defaults = {
 ## Calibration
 'calibrate'         : True , # Performs a single `calibration' step and save the image in the folder ./img/Calibration/ | ['yes','no'] | 'not-tested'
-'calibration_step'  : 10 , # Chooses which (nuclear) timestep to perform the calibration on | ['integer'] | 'not-tested'
+'calibration_step'  : 10 , # Chooses which (nuclear) timestep to perform the calibration on. Floats (less than 1) will be converted to a percentage of total time (e.g. 0.1 will give 10% time) | ['integer', 'float', '"half"', '"last"'] | 'not-tested'
 'show_img_after_vmd' : False, # Loads the calibration img after the code has ran | ['yes','no'] | 'not-tested'
 'load_in_vmd'       : False, # Loads the calibration img in VMD. This is useful for setting the position of the image as the code will save any rotations, scalings and translations performed within VMD | ['yes', 'no'] | 'not-tested'
 'isosurface_to_plot' : 0.003, # Which isosurface to plot during the simulation, a smaller number will show a larger isosurface | ['float'] | 'not-tested'
@@ -74,11 +74,11 @@ defaults = {
 'ignore_inactive_mols' : True, # Will ignore all inactive whole molecules | ['yes', 'no'] | 'not-tested'
 'show_box'          : False, # Show the bounding box around the molecules | ['yes','no'] | 'not-tested'
 ## Optimisation
-'min_abs_mol_coeff' : 5e-4, # A threshold for the minimum absolute molecular expansion coefficient, will ignore any value less than this. This probably shouldn't be changed if you don't fully understand how it works. The code will 'learn' the optimum value as it runs. | ['float'] | 'not-tested'
-'nn_cutoff'         : 15, # The cutoff for constructing the nearest neighbour list. This decides how many neighbouring mols contribute to the wavefunction | ['integer [bohr]'] | 'not-tested'
+'min_abs_mol_coeff' : 5e-4, # A threshold for the minimum molecular population, will ignore any molecule with a population less than this. This probably shouldn't be changed if you don't fully understand how it works. The code will 'learn' the optimum value as it runs so a lower value here won't result in a loss of performance. | ['float'] | 'not-tested'
+'nn_cutoff'         : 12, # The cutoff for constructing the nearest neighbour list. This decides how many neighbouring mols contribute to the wavefunction | ['integer [bohr?]'] | 'not-tested'
 'resolution'        : 0.4, # Changes the resolution of the cube file data | ['float'] | 'not-tested'
 'bounding_box_scale' : 7, # What to add to the dimension of the bounding box surrounding the atoms | ['integer', 'list [x,y,z]'] | 'not-tested'
-'dynamic_bounding_box' : True, #Will dynamically change the size of the bounding box depending on the size of the wavefunction | ['yes','no'] | 'not-tested'
+'dynamic_bounding_box' : True, # Will dynamically change the size of the bounding box depending on the size of the wavefunction | ['yes','no'] | 'not-tested'
 ## Text on the image
 'draw_time'         : False, # Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
 'pos_time_label'    : 'auto', # The position of the time-stamp | ['auto', 'list [x,y,z]'] | 'not-tested'

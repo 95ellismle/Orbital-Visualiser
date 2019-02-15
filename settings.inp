@@ -1,11 +1,12 @@
 # The path to the folder containing the data.
 #path = '/temp/mellis/Christmas_Data/christmas_tree_SH'
 path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23' 
+#path = '/home/oem/Data/OrbMovMak/run-fssh-1' 
 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 1000000 
+calibration_step = 1 
 load_in_vmd = '' 
 show_img_after_vmd = 'y' 
 
@@ -29,8 +30,6 @@ atoms_to_plot = 'all'
 
 isosurface_to_plot = 0.0002 
 
-bounding_box_scale = 4 
+bounding_box_scale = 9 
 
-nn_cutoff = 6 
-zoom_value = 4.93097983305 
-translate_by = [-0.01,-0.04,0] 
+zoom_value = 1.98 # How much to zoom by
