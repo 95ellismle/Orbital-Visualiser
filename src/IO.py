@@ -140,8 +140,15 @@ def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1,
         common_timesteps = np.intersect1d(all_steps, do_timesteps)
         #Find the indices of these and remove steps to ignore.
         all_steps = np.searchsorted(metadata['tsteps'], common_timesteps)
-    else: all_steps = range(len(all_steps)) # All steps needs to be indices here
+    else:
+        all_steps = range(len(all_steps)) # all_steps needs to be indices here
     all_steps = [i for i in all_steps if i not in ignore_steps]
+
+    if not all_steps:
+        print("Min Step: %i\t Max step: %i\t Stride: %i" % (min_step, max_step,
+                                                               stride))
+        print("All steps = ", all_steps)
+        raise SystemExit("All steps empty (no steps to carry out)")
     timesteps = metadata['tsteps'][np.array(all_steps)]
 
     step_data = [i for i in all_steps]

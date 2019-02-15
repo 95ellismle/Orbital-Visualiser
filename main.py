@@ -652,6 +652,8 @@ class MainLoop(object):
                     tmp.append(molInd)
                     self.nearestNeighbours[molNum] = tmp
 
+    raise SystemExit("Break")
+
     # Handles the plotting of the side graph.
     def _plot(self, step):
         """

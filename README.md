@@ -35,7 +35,9 @@ TODO:
 
 + Add feature to use last timestep in calibration
 
-+ Add testing code!
++ Optimise the nearest neighbour list by comparing data with the nearest neighbour to data with fewer neighbours. If the data with fewer neighbours is very similar then set the nearest neighbour list to that. (similar to the min_abs_coeff optimisation)
+
++ Add more tests in code!
 
 + I've added a TACHYON_LINUXAND64 binary. Would like to just use this instead of finding the binary on the computer. Also could compile a better version which supports rendering straight to png.
 

@@ -403,7 +403,19 @@ def init_local_steps_to_ignore(all_settings):
     We do this by finding which steps aren't common to all 3 lists as that is
     the way the xyz reader works.
     """
+    if all_settings['end_step'] >= all_settings['pos_metadata']['nsteps']:
+        if all_settings['calibrate']:
+            print("Step %i is too large. Using the last step instead" %
+                  all_settings['end_step'])
+            all_settings['start_step'] = all_settings['pos_metadata']['nsteps'] - 1
+            all_nucl_steps = [-1]
+        else:
+            msg = "End step too large reduce it to <= %i" % (maxPosStep - 1)
+            raise SystemExit(msg)
     all_nucl_steps = np.arange(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
+    maxPosStep = all_settings['pos_metadata']['nsteps']
+    all_nucl_steps = all_nucl_steps[all_nucl_steps < maxPosStep]
+
 
     # Read in which timesteps are available
     n_avail_dt = all_settings['pos_metadata']['tsteps'][all_nucl_steps]
@@ -413,6 +425,7 @@ def init_local_steps_to_ignore(all_settings):
     # Find timesteps that are in all sets
     common_timesteps = np.intersect1d(np.intersect1d(n_avail_dt, c_avail_dt), p_avail_dt)
     all_settings['common_timesteps'] = common_timesteps
+
 
 # Will check the last lines of the file TemplatesVMD_TEMP.vmd are known
 def check_VMD_TEMP(all_settings):
