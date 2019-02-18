@@ -1,7 +1,7 @@
 # This is the vmd template file.
 #   This file contains the template of the TCL script that tells VMD how to render the code
 #   The settings that are changeable start with a dollar sign -'$' e.g. $variable
-#   
+#
 #   The python code simply reads this file, replaces any variables with values from the code
 #   and saves it as the vmd source file (./src/TCL/MainProcess.tcl)
 #

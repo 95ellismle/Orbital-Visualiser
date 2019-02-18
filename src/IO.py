@@ -216,7 +216,7 @@ def check_tachyon(tachyon_path, times=0):
     if tachyon_spiel_ind != -1:
         return True
     else:
-       os.chmod(tachyon_path, 755)
+       os.chmod(tachyon_path, 777)
        if times < 1:
            result = check_tachyon(tachyon_path, times+1)
            return result

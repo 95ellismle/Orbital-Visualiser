@@ -1,34 +1,34 @@
 # The path to the folder containing the data.
-#path = '/scratch/mellis/SamDataPaper/run-fssh-23' 
-#path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23' 
-path = '/home/oem/Data/OrbMovMak/run-fssh-1' 
+#path = '/scratch/mellis/SamDataPaper/run-fssh-23'
+#path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23'
+path = '/home/oem/Data/OrbMovMak/run-fssh-1'
 
 
 # Calibration Settings
-calibrate = '' # Carries out a single 'calibration' step
-calibration_step = 1 
-load_in_vmd = '' 
-show_img_after_vmd = 'y' 
+calibrate = 'y' # Carries out a single 'calibration' step
+calibration_step = 1
+load_in_vmd = ''
+show_img_after_vmd = 'y'
 
-title = 'Pentacene_plane_run23_all_frames2' 
+title = 'Pentacene_plane_run23_all_frames2'
 
 mol_material = 'AOChalky' 
-iso_material = 'BrushedMetal' 
-carbon_color = 'silver' 
-hydrogen_color = 'white' 
-neg_imag_iso_col = (0, 1, 0) 
-pos_imag_iso_col = (1, 1, 0) 
+iso_material = 'BrushedMetal'
+carbon_color = 'silver'
+hydrogen_color = 'white'
+neg_imag_iso_col = (0, 1, 0)
+pos_imag_iso_col = (1, 1, 0)
 
-start_step = 0 
-end_step = 5 
-stride = 1 
-verbose_output = 'y' 
+start_step = 1
+end_step = 'all'
+stride = 2
+verbose_output = 'y'
 
-atoms_to_plot = 'all' 
+atoms_to_plot = 'all'
 
-isosurface_to_plot = 0.001 
+isosurface_to_plot = 0.001
 
-bounding_box_scale = 9 
-vmd_timeout = 10000 
+bounding_box_scale = 9
+vmd_timeout = 10000
 
 zoom_value = 1.98 # How much to zoom by
