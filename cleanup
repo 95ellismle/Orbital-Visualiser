@@ -2,6 +2,7 @@ rm Documentation.html
 rm -rf  Docs/Static/ Docs/Tables/
 rm -rf __pycache__ */*.pyc
 rm -rf src/__pycache__/
+rm src/TCL/*
 rm -rf Templates/__pycache__/
 rm -rf */__pycache__/
 rm -rf tmp/
