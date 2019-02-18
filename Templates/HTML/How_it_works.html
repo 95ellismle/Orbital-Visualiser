@@ -8,7 +8,7 @@
 
   <div class="container">
     <br />
-    <h2>How it works</h2>
+    <h2>The Electronic Wavefunction</h2>
     <div class="row">
       <div class="col-sm-12">
         <p>
@@ -20,7 +20,7 @@
       </div>
 
       <div class="col-sm-6">
-      <h5>Spherical Harmonics</h5>
+      <h5 style="color: rgb(108, 141, 255);">Spherical Harmonics</h5>
       <p>
         The first expansion has the <a href='https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics' target="_blank">real spherical harmonics</a>
         as its basis function. Each p-orbital is centered on an atom and its
@@ -33,20 +33,56 @@
       </div>
 
       <div class="col-sm-6">
-      <h5>AOM Coefficient</h5>
+      <h5 style="color: rgb(78, 215, 111);">AOM Coefficient</h5>
       <p>
           The next basis expansion is the AOM one. The expansion coefficient
           here determines how big the p orbital is on each atom. E.g. a larger
+          AOM coefficient results in a larger orbital as shown below:
+          These orbitals are then added together to form the SOMO -the singly
+          <img src="*doc_img_folder*/AOM_Demonstration.png" width=100%/>
+          occupied molecular orbital. As the blue lobe is negative and the red
+          is positive if 2 like-colored lobes overlap you get constructive
+          interference -a bonding orbital. If 2 unlike-colors overlap you get
+          destructive interference -a non-bonding orbital. This interference
+          gives the SOMO its distinctive appearance e.g.
+          <img src="*doc_img_folder*/Zak_Vis.png" width=10%/>
       </p>
       </div>
 
+      <div class="col-sm-12">
+        <h5 style="color: rgb(215, 78, 111);">Molecular Coefficient</h5>
+        <p>
+          The molecular coefficient is in general complex. This makes creating
+          the visualisation slightly more tricky as we now have to think about
+          incorporating the complex phase. I have discussed exactly how this is
+          done later.
+        </p>
+        <p>
+          The molecular coefficient is the electronic quantity we propagate in
+          the code. The magnitude squared of this gives the population on a
+          particular diabatic state (in our case this is basically a molecule).
+          That is, if the magnitude of the molecular coefficient is large then
+          there will be a large amount of wavefunction on that molecule.
+        </p>
+        <p>
+          Once again just like in the AOM coefficients we have an overlap
+          (inteference) between the fragments located on each molecule. This
+          is accounted for by summing over all molecules on each molecule (or at
+          least the nearest neighbours within a cutoff).
+        </p>
+      </div>
     </div>
+
     <br />
     <div class="row">
-      <div class="col-sm-8">
+      <h3>How the Data is Created</h3>
+      <p>
+        There are 2 elements 
+      </p>
+      <div class="col-sm-6">
 
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-6">
 
       </div>
      </div>
