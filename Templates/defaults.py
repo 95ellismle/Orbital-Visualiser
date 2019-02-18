@@ -32,7 +32,7 @@ defaults = {
 'verbose_output'    : False, # Shows lots of info about what is happening | ['yes','no'] | 'not-tested'
 'movie_length' : 6, # The length of the finished movie (will adjust the framerate to match the time) | ['integter'] | 'not-tested'
 'movie_format'      : "mp4", # The format of the created movie | ['mp4'] | 'not-tested'
-'restart_vis'       : True, # Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end | ['yes', 'no'] | 'not-tested'
+'restart_vis'       : False, # Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end | ['yes', 'no'] | 'not-tested'
 ## File Handling
 'CP2K_output_files' : {'AOM':'AOM_COEFF.include', 'inp':'run.inp', 'mol_coeff':'run-coeff-1.xyz', 'pvecs':'run-pvecs-1.xyz', 'xyz':'run-pos-1.xyz'} , # The output files required for the simulation | ['dictionary (see default value)'] | 'not-tested'
 'keep_cube_files'   : False, # Keeps the data files after the simulation | ['yes','no'] | 'not-tested'
