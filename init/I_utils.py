@@ -386,7 +386,8 @@ def __translateEndStep(val, numSteps):
         * numSteps => max number of steps allowed
     """
     if type(val) == str:
-        if val == 'last':
+        val = val.lower()
+        if val == 'last' or 'all' in val:
             return numSteps
         elif val == 'half':
             return int(numSteps * 0.5)
@@ -416,12 +417,12 @@ def find_step_numbers(all_settings):
     if not all_settings['calibrate']:
         all_settings['end_step'] = __translateEndStep(all_settings['end_step'],
                                                       numPosSteps) + 1
-        all_steps = txt_lib.fuzzy_variable_translate(all_settings['end_step'],
-                                                                ["all","An Integer end step"],
-                                                                all_settings['verbose_output'],
-                                                                False)
-        if all_steps:
-            all_settings['end_step'] = all_settings['pos_metadata']['nsteps']
+        #all_steps = txt_lib.fuzzy_variable_translate(all_settings['end_step'],
+        #                                                        ["all","An Integer end step"],
+        #                                                        all_settings['verbose_output'],
+        #                                                        False)
+        #if all_steps:
+        #    all_settings['end_step'] = all_settings['pos_metadata']['nsteps']
     else:
         calStep = all_settings['calibration_step']
         all_settings['start_step'] = __translateEndStep(calStep,

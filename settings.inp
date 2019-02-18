@@ -1,6 +1,6 @@
 # The path to the folder containing the data.
-#path = '/temp/mellis/Christmas_Data/christmas_tree_SH'
-path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23' 
+path = '/scratch/mellis/SamDataPaper/run-fssh-23' 
+#path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23' 
 #path = '/home/oem/Data/OrbMovMak/run-fssh-1' 
 
 
@@ -10,7 +10,7 @@ calibration_step = 1
 load_in_vmd = '' 
 show_img_after_vmd = 'y' 
 
-title = 'Pentacene_plane_run23_all_frames' 
+title = 'Pentacene_plane_run23_all_frames2' 
 
 mol_material = 'AOChalky' 
 iso_material = 'BrushedMetal' 
@@ -20,13 +20,13 @@ neg_imag_iso_col = (0, 1, 0)
 pos_imag_iso_col = (1, 1, 0) 
 
 start_step = 1 
-end_step = 100 
-stride = 1 
+end_step = 'all' 
+stride = 2 
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.0002 
+isosurface_to_plot = 0.001 
 
 bounding_box_scale = 9 
 vmd_timeout = 10000 

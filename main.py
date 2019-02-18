@@ -93,7 +93,6 @@ class MainLoop(object):
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop < self.all_settings['min_abs_mol_coeff']:
                 break
-            count += 1
             self._find_active_atoms(molID)
             self._create_wf_data(molID, step)
             self._post_wf_processing()
@@ -102,6 +101,7 @@ class MainLoop(object):
             self._save_wf_colors()
             self._create_cube_file_txt(step)
             self._write_cube_file(step, molID)
+            count += self.writeImagCube + self.writeRealCube
         print("%i Mols have cubes" % count)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
@@ -749,7 +749,7 @@ class MainLoop(object):
         files = "*.tga"
         # Creating the ffmpeg and convert commands for stitching
         if self.all_settings['movie_format'] == 'mp4':
-            os.chmod(self.all_settings['ffmpeg_bin'], 755)
+            os.chmod(self.all_settings['ffmpeg_bin'], 777)
             title_path = self.tga_folderpath + self.all_settings['title']
             Stitch_cmd, tmp, _ = io.stitch_mp4(
                                              files,
