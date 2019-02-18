@@ -190,7 +190,7 @@ def init_tcl_dict(all_settings):
     if type(imgSize) == str:
         if imgSize.lower() == 'auto':
             if all_settings['calibrate']:
-                imgSize = [900, 900]
+                imgSize = [1000, 1000]
             else:
                 imgSize = [650, 650]
         else:

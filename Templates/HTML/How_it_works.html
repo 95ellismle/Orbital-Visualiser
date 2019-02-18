@@ -12,29 +12,42 @@
     <div class="row">
       <div class="col-sm-12">
         <p>
-            <a href='https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics' target="_blank">real spherical harmonics</a> 
+            The code works by plotting the magnitude of the electronic
+            wavefunction. This is expressed below as a chain of basis function
+            expansions.
         </p>
         <img src="*doc_img_folder*/MolecularWavefunction.png" alt="Equation for the movie maker (tell Matt that the image isn't showing!)" style="width: 100%; z-index: 0;">
-        <p>
-          <p>
-          </p>
-          <p>
-            The other terms are just scalar quantities: the pvecs, aom coefficients and molecular coefficients. The molecular coefficients are complex numbers so the magnitude is used. Depending on the *type_of_wavefunction* chosen the isosurfaces will be coloured based on the position of the product of the molecular and AOM coefficients in the complex plane.
-          </p>
-        </p>
       </div>
+
+      <div class="col-sm-6">
+      <h5>Spherical Harmonics</h5>
+      <p>
+        The first expansion has the <a href='https://en.wikipedia.org/wiki/Table_of_spherical_harmonics#Real_spherical_harmonics' target="_blank">real spherical harmonics</a>
+        as its basis function. Each p-orbital is centered on an atom and its
+        orientation is determined by the expansion coefficient (in this case
+        the pvecs) as shown below:
+        <img src="*doc_img_folder*/POrb.png" width=100%/>
+        The code currently only works with p-orbitals. However, other orbitals
+        should be simple to add later.
+      </p>
+      </div>
+
+      <div class="col-sm-6">
+      <h5>AOM Coefficient</h5>
+      <p>
+          The next basis expansion is the AOM one. The expansion coefficient
+          here determines how big the p orbital is on each atom. E.g. a larger
+      </p>
+      </div>
+
     </div>
     <br />
     <div class="row">
       <div class="col-sm-8">
-        <h5>Reading Files</h5>
-        <p>
-
-        </p>
 
       </div>
       <div class="col-sm-4">
-        <img src="*doc_img_folder*flow_chart.png" width=110% />
+
       </div>
      </div>
   </div>
