@@ -185,6 +185,19 @@ def init_tcl_dict(all_settings):
     all_settings['tcl']['minY'] = all_settings['ydims'][0]
     all_settings['tcl']['maxZ'] = all_settings['zdims'][1]
     all_settings['tcl']['minZ'] = all_settings['zdims'][0]
+
+    imgSize = all_settings['img_size']
+    if type(imgSize) == str:
+        if imgSize.lower() == 'auto':
+            if all_settings['calibrate']:
+                imgSize = [900, 900]
+            else:
+                imgSize = [650, 650]
+        else:
+            raise SystemExit("Unknown setting %s for the `img_size'" % imgSize)
+    all_settings['tcl']['pic_sizex'] = imgSize[0]
+    all_settings['tcl']['pic_sizey'] = imgSize[1]
+
     all_settings['tcl']['backgrnd_mols'] = ""
     if all_settings['background_mols']:
         all_settings['tcl']['bckg_mols_on_off'] = ''
@@ -192,10 +205,22 @@ def init_tcl_dict(all_settings):
         all_settings['tcl']['bckg_mols_on_off'] = '#'
     if all_settings['show_box']:
        all_settings['tcl']['iso_type']  = 2
-    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['background_color'], ['R','G','B'], all_settings['tcl'], "backgrnd_")
-    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['translate_by'], ['x','y','z'], all_settings['tcl'], "trans_")
-    all_settings['tcl'] = txt_lib.tcl_3D_input([0,0,0], ['x','y','z'], all_settings['tcl'], "time_lab_")
-    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['rotation'], ['x','y','z'], all_settings['tcl'], "rot")
+    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['background_color'],
+                                               ['R','G','B'],
+                                               all_settings['tcl'],
+                                               "backgrnd_")
+    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['translate_by'],
+                                               ['x','y','z'],
+                                               all_settings['tcl'],
+                                               "trans_")
+    all_settings['tcl'] = txt_lib.tcl_3D_input([0,0,0],
+                                               ['x','y','z'],
+                                               all_settings['tcl'],
+                                               "time_lab_")
+    all_settings['tcl'] = txt_lib.tcl_3D_input(all_settings['rotation'],
+                                               ['x','y','z'],
+                                               all_settings['tcl'],
+                                               "rot")
     all_settings['tcl']['pic_filename'] = {}
     # set this in settings
     all_settings['tcl']['vmd_log_file'] = all_settings['vmd_log_file']
@@ -375,7 +400,7 @@ def init_times_dict(all_settings):
     all_settings['times_taken'] = []
 
 
-def __translateEndStep(val, numSteps):
+def __translateEndStep(all_settings, numSteps, setting):
     """
     Will translate the val from a float or a string to a step. For example if
     `half' is given as the value then this function will return the half (pos)
@@ -385,14 +410,24 @@ def __translateEndStep(val, numSteps):
         * val => Step to translate
         * numSteps => max number of steps allowed
     """
+    val = all_settings[setting]
     if type(val) == str:
-        if val == 'last':
-            return numSteps
-        elif val == 'half':
-            return int(numSteps * 0.5)
-        else:
-            msg = "I don't know what %s means for calibration_step" % val
-            raise SystemExit(msg)
+        allowedOptions = np.array(['all', 'half', 'last',
+                                   "An integer or float (see docs)"])
+        choices = {'all': numSteps,
+                   'half': int(numSteps * 0.5),
+                   'last': numSteps}
+
+        settMask = txt_lib.fuzzy_variable_translate(
+                                            all_settings['end_step'],
+                                            list(allowedOptions),
+                                            all_settings['verbose_output'],
+                                            False)
+        choice = allowedOptions[settMask]
+        if len(choice) > 1:
+            raise SystemExit("Error in numpy mask")
+        return choices[choice[0]]
+
 
     elif type(val) == float:
         if val > 1:
@@ -404,6 +439,7 @@ def __translateEndStep(val, numSteps):
         return val
     else:
         msg = "Don't have any rules to process %s in the input" % (str(val))
+        msg += ". Bad setting = %s" % setting
         raise SystemExit(msg)
 
 
@@ -414,18 +450,15 @@ def find_step_numbers(all_settings):
     """
     numPosSteps = all_settings['pos_metadata']['nsteps']
     if not all_settings['calibrate']:
-        all_settings['end_step'] = __translateEndStep(all_settings['end_step'],
-                                                      numPosSteps) + 1
-        all_steps = txt_lib.fuzzy_variable_translate(all_settings['end_step'],
-                                                                ["all","An Integer end step"],
-                                                                all_settings['verbose_output'],
-                                                                False)
-        if all_steps:
-            all_settings['end_step'] = all_settings['pos_metadata']['nsteps']
+        all_settings['end_step'] = __translateEndStep(all_settings,
+                                                      numPosSteps, 'end_step')
+        all_settings['end_step'] += 1
+
     else:
         calStep = all_settings['calibration_step']
-        all_settings['start_step'] = __translateEndStep(calStep,
-                                                        numPosSteps)
+        all_settings['start_step'] = __translateEndStep(all_settings,
+                                                        numPosSteps,
+                                                        'calibration_step')
         print("Calibrating for step %i" % (all_settings['start_step']))
         # Error Catching
         if all_settings['start_step'] >= numPosSteps:

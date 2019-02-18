@@ -26,6 +26,8 @@ Templates/permanent_settings.py
 Templates/include.vmd
 settings.inp
 src/TCL/MainProcess.tcl
+src/TCL/
+src/TCL/*
 
 !Docs/Perm_img/*
 *.sw*
