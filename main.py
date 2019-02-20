@@ -49,11 +49,8 @@ class MainLoop(object):
     """
 
     def __init__(self, all_settings, all_steps, errors):
-        self.tcl_color_dict_count = 0
         self.errors = errors
         self.all_settings = all_settings
-        self.neg_iso_cols = {}
-        self.pos_iso_cols = {}
         self.PID = "MainProcess"
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
@@ -81,8 +78,12 @@ class MainLoop(object):
         Inputs:
             * step  =>  Which step to visualise.
         """
-        self._find_active_molecules()
         self.data_files_to_visualise = []
+        self.tcl_color_dict_count = 0
+        self.neg_iso_cols = {}
+        self.pos_iso_cols = {}
+
+        self._find_active_molecules()
         self._vmd_filename_handling()
         if self.all_settings['background_mols']:
             self._write_background_mols()

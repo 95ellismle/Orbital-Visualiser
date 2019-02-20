@@ -18,7 +18,6 @@
         </p>
         <img src="*doc_img_folder*/MolecularWavefunction.png" alt="Equation for the movie maker (tell Matt that the image isn't showing!)" style="width: 100%; z-index: 0;">
       </div>
-
       <div class="col-sm-6">
       <h5 style="color: rgb(108, 141, 255);">Spherical Harmonics</h5>
       <p>
@@ -26,7 +25,7 @@
         as its basis function. Each p-orbital is centered on an atom and its
         orientation is determined by the expansion coefficient (in this case
         the pvecs) as shown below:
-        <img src="*doc_img_folder*/POrb.png" width=100%/>
+        <img src="*doc_img_folder*/POrb.png" width=100% alt="demonstration of using a linear combinaton of x, y, z spherical harmonics"/>
         The code currently only works with p-orbitals. However, other orbitals
         should be simple to add later.
       </p>
@@ -39,16 +38,15 @@
           here determines how big the p orbital is on each atom. E.g. a larger
           AOM coefficient results in a larger orbital as shown below:
           These orbitals are then added together to form the SOMO -the singly
-          <img src="*doc_img_folder*/AOM_Demonstration.png" width=100%/>
+          <img src="*doc_img_folder*/AOM_Demonstration.png" width=100% alt="demonstration of AOM coefficients making the p-orbital smaller and reversing polarity when negative"/>
           occupied molecular orbital. As the blue lobe is negative and the red
           is positive if 2 like-colored lobes overlap you get constructive
           interference -a bonding orbital. If 2 unlike-colors overlap you get
           destructive interference -a non-bonding orbital. This interference
           gives the SOMO its distinctive appearance e.g.
-          <img src="*doc_img_folder*/Zak_Vis.png" width=10%/>
+          <img src="*doc_img_folder*/Zak_Vis.png" width=10% alt="demonstration of a SOMO with p orbitals overlapping"/>
       </p>
       </div>
-
       <div class="col-sm-12">
         <h5 style="color: rgb(215, 78, 111);">Molecular Coefficient</h5>
         <p>
@@ -71,21 +69,121 @@
           least the nearest neighbours within a cutoff).
         </p>
       </div>
+      <br>
     </div>
-
-    <br />
+    <br>
     <div class="row">
-      <h3>How the Data is Created</h3>
-      <p>
-        There are 2 elements 
-      </p>
+      <div class="col-sm-12">
+        <h3>How the Data is Created</h3>
+        <p>
+          <img src="*doc_img_folder*/voxelDemo.png" width=50%% alt="voxel demonstration" align="right"/>
+          The wavefunction has a value at each point in 3D space. In
+          order to represent this we can discretise 3D space into a large number
+          of smaller cubes. These are called
+          <a href="https://en.wikipedia.org/wiki/Voxel">voxels</a> (the 3D
+          equivalent of pixels). The smaller these voxels the more precisely we
+          can represent the wavefunction (the size of the voxels are set by the
+          setting *resolution*).
+          <br>
+          <br>
+          The value at each one of these voxels is in
+          general complex. This means we need 2 parameters to fully represent
+          them. In order to deal with this we can write the wavefunction in polar
+          form,
+          <img src="*doc_img_folder*/PolarFormWF.png" alt="Polar form of the wavefunction" width=85px>
+          , and then represent the phase,
+          <img src="*doc_img_folder*/theta.png" alt="The symbol theta" width=7>
+          , via a different color and the magnitude,
+          <img src="*doc_img_folder*/magWF.png" alt="The symbol |Psi|" width=17>
+          , by the shape of the isosurface. So at each point on the 3D lattice a
+          complex value is determined for the wavefunction. The phase at
+          that point determines the color and the magnitude determines the
+          value.
+          <br>
+          <br>
+          Before finding the phase and the magnitude of the wavefunction we
+          must first calculate the wavefunction at each grid point. This is
+          done by calculating the equation on the top of this page for each
+          grid point (it would be extremely inefficient to do this in native
+          python code so numpy is used for the calculations). This gives us
+          a 3D array (cube) with a complex value at each grid point. We then
+          have to work on this data slightly to get it into a format that
+          VMD can read and work with. How I've done this is explained for
+          the phase and magnitude below.
+        </p>
+      </div>
+    </div>
+    <br>
+    <div class="row">
       <div class="col-sm-6">
 
+      <h4>Magnitude (shape)</h4>
+        <p>
+          The magnitude of the wavefunction is determined by taking the
+          square root of the wavefunction multiplied by its complex
+          conjugate as shown below.
+        </p>
+        <img src="*doc_img_folder*/magWFsqrt.png" width=80% alt="Magnitude of psi = square root( psi * psi conjugate)"/>
+        <p>
+          This gives us a value on each point on the grid. However, all the
+          values are positive-real, so all phase information is lost. To
+          put this information back into the data some tricks are used with
+          numpy masks.
+        </p>
+        <p>
+          This data is then written into the
+          <a href="http://paulbourke.net/dataformats/cube/">cube file format</a>.
+          When VMD loads this cube file, the user must specify an isosurface
+          value. VMD will then find any voxels that match this value
+          (probably within some tolerance) and show those. This gives a
+          surface of constant magnitude.
+        </p>
       </div>
       <div class="col-sm-6">
 
+      <h4>Phase (color)</h4>
+        <p>
+          To determine the phase at each grid point the numpy function
+          <a href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.angle.html">numpy.angle</a>
+          . This determines the (counter-clockwise) angle the complex
+          number makes with the real axis, as shown below:
+        </p>
+        <img src="*doc_img_folder*/angle.png" width=70% alt="Magnitude of psi = square root( psi * psi conjugate)" align="centre"/>
+        <p>
+          <img src="*doc_img_folder*/PhaseColorMap.png" align="right" width=50% alt="Color map showing the 4 quadrants dividing the complex plane"/>
+          However, when calculating the magnitude of the wavefunction the
+          phase information is lost. So just before we calculate the
+          magnitude we store the phase at every grid point in a different
+          array of the same size. We then use this information to
+          determine which quadrant each voxel falls within (see color map
+          above)
+        </p>
       </div>
-     </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="col-sm-12">
+        <h5>Adding the phase back into the magnitude</h5>
+        <p>
+          <img src="*doc_img_folder*/phaseArrays.png" width=50% alt="An image depicting a p-orbital being broken up into imaginary and real components" align="right"/>
+          After the steps above we will end up with 2 (3D) arrays. 1 with the
+          magnitude of the wavefunction at each point in space and 1 with the
+          phase. Using the phase array we can multiply those values in the
+          magnitude array that fall within the 2 'negative' quadrants by -1
+          returning the real phase of the wavefunction.
+        <br>
+        <br>
+          In order to color the wavefunctions via mostly imaginary and real
+          components we can create 2 new arrays. 1 array holds the data where
+          the phase lies in the 2 real quadrants (red/blue) and 1 array
+          holds the data where the phase lies in the 2 imaginary quadrants
+          (green/yellow). In order to create these arrays we copy the magnitude
+          array from above. In the Real array we set the imaginary parts to
+          zero and in the imaginary array we set the real parts to zero. These
+          2 arrays are then stored as separate cube files and read into VMD.
+        </p>
+      </div>
+    </div>
   </div>
 
 

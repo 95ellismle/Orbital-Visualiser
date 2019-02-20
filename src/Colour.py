@@ -6,7 +6,7 @@ Contains functions that create a colour map for the wf.
 import numpy as np
 
 
-def tanhCol(num, col1, col2, squareness=3):
+def tanhCol(num, col1, col2, squareness=300):
     """
     Will create the tanh interpolation between 2 colors
 
