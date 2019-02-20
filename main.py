@@ -767,14 +767,13 @@ class MainLoop(object):
         files = "*.tga"
         # Creating the ffmpeg and convert commands for stitching
         if self.all_settings['movie_format'] == 'mp4':
-            os.chmod(self.all_settings['ffmpeg_bin'], 777)
             title_path = self.tga_folderpath + self.all_settings['title']
             Stitch_cmd, tmp, _ = io.stitch_mp4(
                                              files,
                                              self.tga_folderpath,
                                              title_path,
                                              self.all_settings['movie_length'],
-                                             self.all_settings['ffmpeg_bin']
+                                             self.all_settings['ffmpeg_binary']
                                               )
             self.all_settings['delete_these'].append(tmp)
             self.all_settings['delete_these'].append(_)

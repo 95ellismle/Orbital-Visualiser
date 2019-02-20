@@ -62,7 +62,9 @@ def init_output_files_and_folders(all_settings):
     all_settings['vmd_temp'] = io.folder_correct(all_settings['tmplte_fold']+"VMD_TEMP.vmd")
 
     all_settings['bin_fold'] = io.folder_correct('./bin/')
-    all_settings['ffmpeg_bin'] = io.folder_correct(all_settings['bin_fold']+'ffmpeg')
+    all_settings['ffmpeg_binary'] = io.folder_correct(all_settings['bin_fold']+'ffmpeg')
+    all_settings['vmd_binary'] = io.folder_correct(all_settings['bin_fold']+"vmd")
+    all_settings['tachyon_binary'] = io.folder_correct(all_settings['bin_fold']+"tachyon")
     all_settings['delete_these'] = []
     all_settings['vmd_log_file'] = io.folder_correct("./visualisation.log")
     all_settings['tcl'] = {}
@@ -81,6 +83,17 @@ def init_output_files_and_folders(all_settings):
 
 # I should definitely break up the bits that aren't actually used within the step here!
 #output folders
+
+def init_binaries(all_settings):
+   """
+   Will check the binaries are there and they have executable permissions 
+   """
+   for binName in ['ffmpeg', 'vmd', 'tachyon']:
+      binFilePath = all_settings[binName+"_binary"]
+      if not os.path.isfile(binFilePath):
+         raise SystemExit("Sorry can't find the %s binary within the ./bin folder!" % binName)
+      os.chmod(binFilePath, 0o777)
+     
 
 # Will initialise settings that aren't file/folder paths
 def init_all_settings_other(all_settings):

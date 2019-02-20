@@ -110,6 +110,7 @@ if type(all_settings['end_step']) != int:
 # Sorting out filenames
 IU.init_output_files_and_folders(all_settings) # Will declare all the paths that are required in the code
 IU.init_all_settings_other(all_settings) # Will initialise settings that aren't file/folder paths
+IU.init_binaries(all_settings)  # Will check the binaries are there and they have executable permissions
 io.create_data_img_folders(all_settings)
 keep_tga_files = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 IU.init_permanent_settings(all_settings)

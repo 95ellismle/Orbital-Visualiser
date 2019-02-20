@@ -29,7 +29,7 @@ isosurface_to_plot = 0.0001
 show_box = True 
 
 bounding_box_scale = 16 
-vmd_timeout = 10000 
+vmd_timeout = 20 
 img_size = [7.2e+02,7.2e+02] 
 
 zoom_value = 12.8391846455 # How much to zoom by

@@ -216,7 +216,6 @@ def check_tachyon(tachyon_path, times=0):
     if tachyon_spiel_ind != -1:
         return True
     else:
-       os.chmod(tachyon_path, 777)
        if times < 1:
            result = check_tachyon(tachyon_path, times+1)
            return result
@@ -400,7 +399,7 @@ def VMD_visualise(step_info, PID):
     os.system("touch %s"%step_info['vmd_junk'][PID])
     os.system("touch %s"%step_info['vmd_err'][PID])
     # 2> %s &
-    vmd_commnd = "vmd -nt -dispdev none -e %s > %s 2> %s &"%(step_info['vmd_script'][PID], step_info['vmd_junk'][PID], step_info['vmd_err'][PID])
+    vmd_commnd = "%s -nt -dispdev none -e %s > %s 2> %s &"%(step_info['vmd_binary'], step_info['vmd_script'][PID], step_info['vmd_junk'][PID], step_info['vmd_err'][PID])
     #print(vmd_commnd)
     os.system(vmd_commnd)  #Maybe subprocess.call would be better as this would open VMD in a new thread?
     made_file = False
