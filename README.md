@@ -25,6 +25,11 @@ This file should lead you through your first steps in visualising the output of 
 ![Anthracene Dimer](./Docs/Perm_img/Zak_Vis.png)
 
 
+References
+===
+
+This code makes use of [ffmpeg](https://ffmpeg.org/), visual molecular dynamics [VMD] (http://www.ks.uiuc.edu/Research/vmd/)  and the [tachyon ray tracer] (http://jedi.ks.uiuc.edu/~johns/raytracer/files/0.98.9/) and all their dependencies. The binaries can be found in the bin folder.
+
 
 TODO:
 ====

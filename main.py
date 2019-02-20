@@ -615,7 +615,7 @@ class MainLoop(object):
 
         self.tga_folderpath, _, self.tga_filepath = io.file_handler(
                                                self.all_settings['img_prefix'],
-                                               'tga',
+                                               'jpg',
                                                self.all_settings)
         # if all_settings['draw_time']:
         #     replace = str(self.all_settings['Mtime-steps'][self.step])
@@ -694,7 +694,7 @@ class MainLoop(object):
         else:
             self._display_img()
         self._copy_settings_file()
-        self._store_imgs()
+        #self._store_imgs()
         self._garbage_collector()
 
     # Copy settings.inp to img folder
@@ -706,7 +706,7 @@ class MainLoop(object):
       settFilePath = self.all_settings['settings_file']
       incFilePath = self.all_settings['tcl']['vmd_source_file']
       imgFilePath = self.all_settings['tcl']['pic_filename'][self.PID]
-      newSettingsFolder = imgFilePath.rstrip("_img.tga")
+      newSettingsFolder = imgFilePath.rstrip("_img.jpg")
       startBit = newSettingsFolder[:newSettingsFolder.rfind('/')+1]
       if self.all_settings['calibrate']:
           endBit = newSettingsFolder[newSettingsFolder.rfind('/')+1:]
@@ -716,7 +716,8 @@ class MainLoop(object):
       newSettingsFilePath = newSettingsFolder + "settings.inp"
       newIncludeFilePath = newSettingsFolder + "include.vmd"
 
-      os.makedirs(newSettingsFolder)
+      if not os.path.isdir(newSettingsFolder):
+         os.makedirs(newSettingsFolder)
       shutil.copyfile(src=settFilePath, dst=newSettingsFilePath)
       shutil.copyfile(src=settFilePath, dst=newIncludeFilePath)
 
@@ -754,20 +755,6 @@ class MainLoop(object):
         for f in self.all_settings['delete_these']:
             if io.path_leads_somewhere(f):
                 os.remove(f)
-
-    # Handles converting the image to another img format for storing
-    def _store_imgs(self):
-        """
-        Will convert images from tga to jpg (for storage). jpg is smaller than
-        tga.
-        """
-        # Convert all .tga to .img
-        if 'img' in self.all_settings['files_to_keep']:
-            cnvt_command = "mogrify -format %s %s*.tga" % (
-                                               self.all_settings['img_format'],
-                                               self.tga_folderpath
-                                                          )
-            subprocess.call(cnvt_command, shell=True)
 
     # Need to change all the filenames of the tga files to add leading zeros
     # Stitches the movie together from other files

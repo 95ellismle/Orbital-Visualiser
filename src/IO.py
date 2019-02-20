@@ -244,8 +244,8 @@ def check_dir_for_tachyon(directory):
 def find_tachyon(current_tachyon_path=''):
     if check_tachyon(current_tachyon_path):
         return current_tachyon_path
-    if check_tachyon("./bin/tachyon_LINUXAMD64"):
-        return "./bin/tachyon_LINUXAMD64"
+    if check_tachyon("./bin/tachyon"):
+        return "./bin/tachyon"
     print("""The tachyon binary in the bin folder doesn't seem to be working!""")
     print("Trying to find Tachyon Ray-Tracer elsewhere on computer")
     try:

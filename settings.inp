@@ -1,15 +1,15 @@
 # The path to the folder containing the data.
 #path = '/scratch/mellis/SamDataPaper/run-fssh-23' 
-path = '/temp/mellis/SamDataPaper2/' 
+#path = '/temp/mellis/SamDataPaper2/' 
 #path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23'
-#path = '/home/oem/Data/OrbMovMak/run-fssh-1' 
+path = '/home/oem/Data/OrbMovMak/run-fssh-1' 
 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 5 
-load_in_vmd = 'y' 
-show_img_after_vmd = '' 
+load_in_vmd = '' 
+show_img_after_vmd = 'y' 
 
 title = 'pMSB_Test' 
 
@@ -25,11 +25,12 @@ verbose_output = 'y'
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.002 
+isosurface_to_plot = 0.0001 
 show_box = True 
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
 img_size = [7.2e+02,7.2e+02] 
 
-zoom_value = 3.26047122511 # How much to zoom by
+zoom_value = 12.8391846455 # How much to zoom by
+translate_by = [0.03,9,0] # How much to translate in xyz directions
