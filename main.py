@@ -22,6 +22,7 @@ import time
 import os
 import subprocess
 import sys
+import shutil
 
 from src import EXCEPT as EXC
 from src import geometry as geom
@@ -702,7 +703,22 @@ class MainLoop(object):
       Will copy the settings file to wherever the image is stored. Will
       also name it something sensible (to match the image or movie)
       """
-      
+      settFilePath = self.all_settings['settings_file']
+      incFilePath = self.all_settings['tcl']['vmd_source_file']
+      imgFilePath = self.all_settings['tcl']['pic_filename'][self.PID]
+      newSettingsFolder = imgFilePath.rstrip("_img.tga")
+      startBit = newSettingsFolder[:newSettingsFolder.rfind('/')+1]
+      if self.all_settings['calibrate']:
+          endBit = newSettingsFolder[newSettingsFolder.rfind('/')+1:]
+      else:
+          endBit = self.all_settings['title']
+      newSettingsFolder = startBit + "Settings_for_" + endBit + '/'
+      newSettingsFilePath = newSettingsFolder + "settings.inp"
+      newIncludeFilePath = newSettingsFolder + "include.vmd"
+
+      os.makedirs(newSettingsFolder)
+      shutil.copyfile(src=settFilePath, dst=newSettingsFilePath)
+      shutil.copyfile(src=settFilePath, dst=newIncludeFilePath)
 
     # Show the image in VMD or load the image in a default image viewer
     def _display_img(self):
