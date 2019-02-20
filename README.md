@@ -4,7 +4,7 @@
 
 This project has been created to visualise the output of the Surface Hopping, Ehrenfest and CTMQC modules of CP2K. Full instructions can be found by initialising the HTML documentation.
 
-To do this run the Create_docs.py file with python3 i.e:
+To do this run the Create_docs.py file with python3 or python2 i.e:
 
 ` python3 Create_docs.py`
 
@@ -29,13 +29,7 @@ This file should lead you through your first steps in visualising the output of 
 TODO:
 ====
 
-+ Add feature to use last timestep in calibration and change how the code handles the user inputting a higher number of timesteps than there are. E.g. if # timsteps in file = 200 and user enters 2000 then currently the code crashes. I would like it to just let the user know and use as many steps as it can.
-
 + Add option to visualise general orbitals. E.g. visualise sulphur with it's s orbital and maybe transition metal with their funky d ones... Need to have a general AOM_COEFFICIENT reader.
-
-+ Add feature to use last timestep in calibration
-
-+ Optimise the nearest neighbour list by comparing data with the nearest neighbour to data with fewer neighbours. If the data with fewer neighbours is very similar then set the nearest neighbour list to that. (similar to the min_abs_coeff optimisation)
 
 + Add more tests in code!
 
