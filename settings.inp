@@ -6,32 +6,32 @@ path = '/temp/mellis/SamDataPaper2/'
 
 
 # Calibration Settings
-calibrate = '' # Carries out a single 'calibration' step
-calibration_step = 7 
+calibrate = 'y' # Carries out a single 'calibration' step
+calibration_step = 99 
 load_in_vmd = 'y' 
-show_img_after_vmd = 'y' 
+show_img_after_vmd = '' 
 
-title = 'pMSB-GreenYellow' 
+title = 'pMSB_Test' 
+
+keep_cube_files = True 
 
 mol_material = 'AOChalky' 
 iso_material = 'BrushedMetal' 
 carbon_color = 'silver' 
 hydrogen_color = 'white' 
-neg_imag_iso_col = (0, 1, 0) 
-pos_imag_iso_col = (1, 1, 0) 
 
-start_step = 0 
-end_step = 150 
+start_step = 1 
+end_step = 100 
 stride = 1 
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.004 
+isosurface_to_plot = 0.002 
+show_box = True 
 
-bounding_box_scale = 9 
+bounding_box_scale = 16 
 vmd_timeout = 10000 
-nn_cutoff = 0.1 
 img_size = [7.2e+02,7.2e+02] 
 
-zoom_value = 1.98 # How much to zoom by
+zoom_value = 3.2604712251095367 # How much to zoom by

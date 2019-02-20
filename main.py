@@ -81,20 +81,19 @@ class MainLoop(object):
         Inputs:
             * step  =>  Which step to visualise.
         """
-        self.data_files_to_visualise = []
-        self.tcl_color_dict_count = 0
+        # Reset variables
         self.neg_iso_cols = {}
         self.pos_iso_cols = {}
+        self.tcl_color_dict_count = 0
+        count = 0
+        self.data_files_to_visualise = []
 
+        # Carry out meat of step
         self._find_active_molecules()
         self._vmd_filename_handling()
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        self.neg_iso_cols = {}
-        self.pos_iso_cols = {}
-        self.tcl_color_dict_count = 0
-        count = 0
         # Should order by mol coeff max to min
         for mol_i, molID in enumerate(self.active_step_mols):
             molPop = self.all_settings['pops'][self.step][molID]
@@ -527,7 +526,6 @@ class MainLoop(object):
                 self.pos_iso_cols[self.tcl_color_dict_count] = 18
                 self.neg_iso_cols[self.tcl_color_dict_count] = 19
                 self.tcl_color_dict_count += 1
-        print(self.neg_iso_cols)
 
     # Saves the wavefunction coloring in the tcl dictionary
     def _save_wf_colors(self):
@@ -694,8 +692,17 @@ class MainLoop(object):
             self._stitch_movie()
         else:
             self._display_img()
+        self._copy_settings_file()
         self._store_imgs()
         self._garbage_collector()
+
+    # Copy settings.inp to img folder
+    def _copy_settings_file(self):
+      """
+      Will copy the settings file to wherever the image is stored. Will
+      also name it something sensible (to match the image or movie)
+      """
+      
 
     # Show the image in VMD or load the image in a default image viewer
     def _display_img(self):
