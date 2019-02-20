@@ -49,16 +49,16 @@ class MainLoop(object):
     """
 
     def __init__(self, all_settings, all_steps, errors):
-        self.tcl_color_dict_count = 0
         self.errors = errors
         self.all_settings = all_settings
         self.neg_iso_cols = {}
         self.pos_iso_cols = {}
+        self.tcl_color_dict_count = 0
         self.PID = "MainProcess"
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
             # Find the phase of the first mol as a reference.
-            # Phase = angle in complex plane
+            # phase = angle in complex plane
             self.thetaRef = np.angle(self.all_settings['mol'][self.step][0])
             tmp = consts.Orig_img_prefix.replace(
                     "$fs",
@@ -87,6 +87,9 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
+        self.neg_iso_cols = {}
+        self.pos_iso_cols = {}
+        self.tcl_color_dict_count = 0
         count = 0
         # Should order by mol coeff max to min
         for mol_i, molID in enumerate(self.active_step_mols):
@@ -154,30 +157,30 @@ class MainLoop(object):
             self.RealData = np.sqrt(self.RealData)
             self.ImagData = False  # We don't have imaginary data here
         else:
-            # Get Phase info
-            phase = np.angle(self.data)
+            # Get phase info
+            self.phase = np.angle(self.data)
             # Get the density
             self.RealData = self.data * np.conjugate(self.data)
             self.RealData = np.sqrt(self.RealData)
 
             # Find which quadrants the phase fits into
             #  Positive Real Quadrant
-            self.PRmask = phase < consts.phaseMasks['PosReal'][1]
-            self.PRmask *= phase > consts.phaseMasks['PosReal'][0]
+            self.PRmask = self.phase < consts.phaseMasks['PosReal'][1]
+            self.PRmask *= self.phase > consts.phaseMasks['PosReal'][0]
             #  Negative Real Quadrant
             # The negative real quadrant falls in the -pi section that is split
             # between 2 octants (see consts.phaseMasks)
-            NRmask1 = phase < consts.phaseMasks['NegReal'][0][1]
-            NRmask1 *= phase > consts.phaseMasks['NegReal'][0][0]
-            NRmask2 = phase < consts.phaseMasks['NegReal'][1][1]
-            NRmask2 *= phase > consts.phaseMasks['NegReal'][1][0]
+            NRmask1 = self.phase < consts.phaseMasks['NegReal'][0][1]
+            NRmask1 *= self.phase > consts.phaseMasks['NegReal'][0][0]
+            NRmask2 = self.phase < consts.phaseMasks['NegReal'][1][1]
+            NRmask2 *= self.phase > consts.phaseMasks['NegReal'][1][0]
             self.NRmask = NRmask1 + NRmask2
             #  Positive Imaginary Quadrant
-            self.PImask = phase < consts.phaseMasks['PosImag'][1]
-            self.PImask *= phase > consts.phaseMasks['PosImag'][0]
+            self.PImask = self.phase < consts.phaseMasks['PosImag'][1]
+            self.PImask *= self.phase > consts.phaseMasks['PosImag'][0]
             #  Negative Imaginary Quadrant
-            self.NImask = phase < consts.phaseMasks['NegImag'][1]
-            self.NImask *= phase > consts.phaseMasks['NegImag'][0]
+            self.NImask = self.phase < consts.phaseMasks['NegImag'][1]
+            self.NImask *= self.phase > consts.phaseMasks['NegImag'][0]
 
             # Create the imaginary data storage
             self.ImagData = np.copy(self.RealData)
@@ -497,7 +500,7 @@ class MainLoop(object):
         plane the coefficient appears in.
 
         22 = density color
-        Phase Colors:
+        phase Colors:
                            Imag | Real
                       Neg | 19  |  21
                       Pos | 18  |  20
@@ -520,6 +523,7 @@ class MainLoop(object):
                 self.pos_iso_cols[self.tcl_color_dict_count] = 18
                 self.neg_iso_cols[self.tcl_color_dict_count] = 19
                 self.tcl_color_dict_count += 1
+        print(self.neg_iso_cols)
 
     # Saves the wavefunction coloring in the tcl dictionary
     def _save_wf_colors(self):
