@@ -1,35 +1,33 @@
 # The path to the folder containing the data.
-#path = '/scratch/mellis/SamDataPaper/run-fssh-23' 
-path = '/temp/mellis/SamDataPaper2/' 
-#path = '/home/oem/Data/OrbMovMak/SamDataPaper/run-fssh-23'
-#path = '/home/oem/Data/OrbMovMak/run-fssh-1' 
-
+path = '/home/matt/Data/Work/FROM_Sam/MOVIES_AND_SNAP/RUBRENE_30x18x1/run-fssh-100' 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 5 
 load_in_vmd = 'y' 
-show_img_after_vmd = '' 
+show_img_after_vmd = 'y' 
 
-title = 'pMSB_Test' 
+title = 'Rubrene_Test' 
 
 mol_material = 'AOChalky' 
 iso_material = 'BrushedMetal' 
 carbon_color = 'silver' 
 hydrogen_color = 'white' 
+neg_real_iso_col = (1, 0, 0) # rgb
+pos_real_iso_col = (0, 0, 1) # rgb
+neg_imag_iso_col = (1, 0, 0) 
+pos_imag_iso_col = (0, 0, 1) 
 
-start_step = 1 
-end_step = 10 
-stride = 1 
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.002 
-show_box = True 
+isosurface_to_plot = 0.0005 
+
+rotation = [0,90,0] 
+translate_by = [-0.5,0,0] 
+zoom_value = 5.3 
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
-img_size = [7.2e+02,7.2e+02] 
-
-zoom_value = 3.26047122511 # How much to zoom by
+img_size = [5e+02,5e+02] # [1.5e+03,1.5e+03] 

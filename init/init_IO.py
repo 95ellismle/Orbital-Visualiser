@@ -5,6 +5,7 @@ N.B. Maybe the AOM_COEFF file reader should be here...
 """
 
 from src import IO as io
+from src import load_xyz as XYZ
 from src import type as typ
 from src import consts
 
@@ -12,15 +13,17 @@ import numpy as np
 
 # Will read the coordinates and combine them in the specified way
 def read_coords(all_settings):
-    all_coord_data = [io.read_xyz_file(filename,
-                                       num_data_cols=3,
-                                       min_step=all_settings['start_step'],
-                                       max_step=all_settings['max_step'],
-                                       stride=all_settings['stride'],
-                                       do_timesteps=all_settings['common_timesteps'],
-                                       ignore_steps=all_settings['global_steps_to_ignore'],
-                                       metadata=all_settings['pos_metadata']) for filename in all_settings['CP2K_output_files']['pos']]
-# Mean the reps
+
+    all_coord_data = [XYZ.read_xyz_file(filename,
+                                        num_data_cols=3,
+                                        min_step=all_settings['start_step'],
+                                        max_step=all_settings['max_step'],
+                                        stride=all_settings['stride'],
+                                        do_timesteps=all_settings['common_timesteps'],
+                                        ignore_steps=all_settings['global_steps_to_ignore'],
+                                        metadata=all_settings['pos_metadata']) for filename in all_settings['CP2K_output_files']['pos']]
+
+    # Mean the reps
     if all_settings['mean_rep']:
         # Reading the nuclear positions
         all_settings['coords']      = np.mean([i[0] for i in all_coord_data], axis=0)
@@ -40,14 +43,14 @@ def read_coords(all_settings):
 # Will read the coefficient files
 def read_coeffs(all_settings):
     # Reading the mol coeffs
-    all_mol_data = [io.read_xyz_file(f,
-                                     num_data_cols=2,
-                                     min_step=all_settings['start_step'],
-                                     max_step=all_settings['max_step'],
-                                     stride=all_settings['stride'],
-                                     do_timesteps=all_settings['common_timesteps'],
-                                     ignore_steps=all_settings['global_steps_to_ignore'],
-                                     metadata=all_settings['coeff_metadata']) for f in all_settings['CP2K_output_files']['coeff']]
+    all_mol_data = [XYZ.read_xyz_file(f,
+                                      num_data_cols=2,
+                                      min_step=all_settings['start_step'],
+                                      max_step=all_settings['max_step'],
+                                      stride=all_settings['stride'],
+                                      do_timesteps=all_settings['common_timesteps'],
+                                      ignore_steps=all_settings['global_steps_to_ignore'],
+                                      metadata=all_settings['coeff_metadata']) for f in all_settings['CP2K_output_files']['coeff']]
     if all_settings['mean_rep']:
         all_settings['mol'] = np.mean([i[0] for i in all_mol_data], axis=0)
         all_settings['Mtime-steps'] = np.mean([i[2] for i in all_mol_data], axis=0)
@@ -57,14 +60,14 @@ def read_coeffs(all_settings):
 # Will read the pvecs file
 def read_pvecs(all_settings):
     # Read all pvecs
-    all_pvecs = [io.read_xyz_file(f,
-                              num_data_cols=3,
-                              min_step=all_settings['start_step'],
-                              max_step=all_settings['max_step'],
-                              stride=all_settings['stride'],
-                              do_timesteps=all_settings['common_timesteps'],
-                              ignore_steps=all_settings['global_steps_to_ignore'],
-                              metadata=all_settings['pvecs_metadata'])[0]
+    all_pvecs = [XYZ.read_xyz_file(f,
+                                   num_data_cols=3,
+                                   min_step=all_settings['start_step'],
+                                   max_step=all_settings['max_step'],
+                                   stride=all_settings['stride'],
+                                   do_timesteps=all_settings['common_timesteps'],
+                                   ignore_steps=all_settings['global_steps_to_ignore'],
+                                   metadata=all_settings['pvecs_metadata'])[0]
              for f in all_settings['CP2K_output_files']['pvecs']]
 
     # Check the pvecs (sometimes the initial step in the pvecs file gives all zeros)

@@ -41,9 +41,9 @@ defaults = {
 'keep_tga_files'    : False, # Keeps the tga files after the simulation | ['yes','no'] | 'not-tested'
 'img_format'        : "jpg", # The format to store the img files in | [str (e.g. "png" or "jpg") ] | 'not-tested'
 'find_fuzzy_files'  : True, # Uses a fuzzy file finder to find files within a folder | [ 'yes', 'no' ] | 'not-tested'
-## Replicas
-'num_reps'          : 1, # The number of replicas in the system | [int] | 'not-tested'
-'rep_comb_type'     : 'mean', # What type of replica set-up. 'mean' will mean the data from each replica. | ['mean'] | 'not-tested'
+## Replicas -deprecated
+'num_reps'          : 1, # The number of replicas in the system DEPRECATED | [int] | 'not-tested'
+'rep_comb_type'     : 'mean', # What type of replica set-up. 'mean' will mean the data from each replica. DEPRECATED. | ['mean'] | 'not-tested'
 
 ## Positioning
 'zoom_value'        : 1, # How much to scale the image by | [float, int] | 'not-tested'

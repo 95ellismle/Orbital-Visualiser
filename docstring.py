@@ -120,6 +120,7 @@ class Docstr_Parsing(object):
         if folder != '.':
             if 'README' not in self.docstr_dict[folder]:
                 keys = self.docstr_dict[folder].keys()
+                print("ERROR: README file required in the following folder.")
                 print("Can't find the README file in the folder:\n\t")
                 print("%s" % folder)
                 print("Files Found: [%s]" % ', '.join(keys))
@@ -134,4 +135,4 @@ class Docstr_Parsing(object):
             self.docstrTxt += "<li>Settings.inp</li>"
             self.docstrTxt += "<li>Create_docs.py</li></ul>"
 
-        
+

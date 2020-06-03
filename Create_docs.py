@@ -473,6 +473,7 @@ SideBar(defaults, replacers, tables_folder)
 
 # Handle the docstrings on top of the python files
 dstr = docstr.Docstr_Parsing('.')
+
 replacers['*Mov_Mak_Edit*'] = dstr.docstrTxt
 
 # Complete the files in order (do the TopNav first)
@@ -486,8 +487,9 @@ for i in lastItems:
     templateFilePathsOrder.remove(i)
 templateFilePathsOrder += lastItems
 
-FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation', 
+FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation',
                    'QuickStart']
+
 
 # First create all the correct paths to the files
 for key in templateFilePathsOrder:
@@ -528,6 +530,7 @@ for key in templateFilePathsOrder:
 
 
 for key in filesToWrite:
+    print(key)
     tmp = filesToWrite[key]
     fileName = tmp.savePath
     with open(fileName, 'w') as f:

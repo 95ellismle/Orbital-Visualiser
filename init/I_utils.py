@@ -152,13 +152,20 @@ def find_ignoring_steps(all_settings):
 
 # Determines the correct all_settings['rotation'] vector to use
 def init_rotation(all_settings):
-    if type(all_settings['rotation']) != list and all(type(i) != int or type(i) != float for i in all_settings['rotation']):
-        auto_rot, _, _ = txt_lib.fuzzy_variable_translate(all_settings['rotation'], ['auto','A list containing [Rotx, Roty, Rotz]', 'no'], all_settings['verbose_output'], False)
+    rot = all_settings['rotation']
+    if type(rot) == str:
+        auto_rot, _, _ = txt_lib.fuzzy_variable_translate(all_settings['rotation'],
+                                                         ['auto', 'A list containing [Rotx, Roty, Rotz]', 'no'],
+                                                         all_settings['verbose_output'], False)
         if auto_rot:
             #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
             all_settings['rotation'] = MT.find_auto_rotation(all_settings=all_settings)
-        if type(all_settings['rotation']) == str and ('n' in all_settings['rotation'].lower() or bool(all_settings['rotation']) == False):
+        if 'n' in all_settings['rotation'].lower() or bool(all_settings['rotation']) == False:
             all_settings['rotation'] = [0,0,0]
+
+    elif all([isinstance(i, (float, int)) for i in rot]):
+        all_settings = [i % 360 for i in rot]
+
 
 # Sets the default tcl values
 def init_tcl_dict(all_settings):

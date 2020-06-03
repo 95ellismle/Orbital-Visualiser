@@ -80,8 +80,9 @@ def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
     y -= (sizeY/2. + Origin[1]/resolution)
     z -= (sizeZ/2. + Origin[2]/resolution)
 
-    r = np.sqrt(x**2 + y**2 + z**2)
-    exp_neg_r = np.exp(-r)
+    exp_neg_r = np.exp(
+                       -np.sqrt(x**2 + y**2 + z**2) # r = sqrt(x^2 + y^2 + z^2)
+                      )
 
     x *= exp_neg_r
     y *= exp_neg_r

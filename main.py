@@ -56,6 +56,7 @@ class MainLoop(object):
         self.pos_iso_cols = {}
         self.tcl_color_dict_count = 0
         self.PID = "MainProcess"
+        print("Init complete. Entering mainloop.")
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
             # Find the phase of the first mol as a reference.
@@ -66,9 +67,12 @@ class MainLoop(object):
                     "%.2f" % self.all_settings['Ntime-steps'][self.step])
             self.all_settings['img_prefix'] = tmp.replace(".", ",")
             start_time = time.time()
+
             self._do_step(step)  # Do a visualisation step
+            
             # Pretty print timings
             self.__print_timings(step, len(all_steps), start_time)
+
         self._finalise(len(all_steps))
 
     # Completes 1 step
@@ -100,21 +104,18 @@ class MainLoop(object):
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop < self.all_settings['min_abs_mol_coeff']:
                 break
-            self._find_active_atoms(molID)
-            self._create_wf_data(molID, step)
-            self._post_wf_processing()
-            self._findCubesToWrite(molID)
-            self._set_wf_colors()
-            self._save_wf_colors()
-            self._create_cube_file_txt(step)
-            self._write_cube_file(step, molID)
+            self._findActiveAtoms(molID)
+            self._createWfData(molID, step)
+            self._reapplyPhase(molID)
+            self._setWfCol()
+            self._writeCubeFile(step, molID)
             count += self.writeImagCube + self.writeRealCube
         print("%i Mols have cubes" % count)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
         #     self._plot(step)  # Will plot a graph to one side (Not supported)
 
-    def _findCubesToWrite(self, molID):
+    def __findCubesToWrite(self, molID):
         """
         Will find whether the real or imaginary data has enough data (at least
         0.3%) above the isosurface that is to be plotted.
@@ -137,7 +138,7 @@ class MainLoop(object):
             if molPop > self.all_settings['min_abs_mol_coeff']:
                 self.all_settings['min_abs_mol_coeff'] = molPop
 
-    def _post_wf_processing(self):
+    def _reapplyPhase(self, molID):
         """
         Will handle the processing of the data after being created. For the
         phase option this involves finding which quadrant the data points lie
@@ -195,6 +196,7 @@ class MainLoop(object):
             self.ImagData[self.NImask] = -self.ImagData[self.NImask]  # make neg
             self.ImagData[self.NRmask + self.PRmask] = 0  # Set real part to 0
 
+        self.__findCubesToWrite(molID)
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['WF Post Processing'][self.step] += end_time
 
@@ -324,7 +326,7 @@ class MainLoop(object):
         return self.active_step_mols
 
     # Will find the active atoms to loop over
-    def _find_active_atoms(self, molID):
+    def _findActiveAtoms(self, molID):
         """
         Find which atoms are active according to the AOM_COEFF.include file.
         These are atoms on a molecule.
@@ -358,7 +360,7 @@ class MainLoop(object):
                 return False
 
     # Will create the wavefunction data
-    def _create_wf_data(self, molID, step):
+    def _createWfData(self, molID, step):
         """
         Will create the wavefunction data. This involves creating a bounding
         box big enough to encapsulate the wf and creating the SOMO (p orbital
@@ -439,7 +441,7 @@ class MainLoop(object):
         #''' will fix atom syntax highlighting (don't know why)'''
 
     # Creates the cube file to save
-    def _create_cube_file_txt(self, step):
+    def __createCubeFileTxt(self, step):
         """
         Creates the cube file as a string. This is created as a string first
         then written to a file as this is much more efficient than writing each
@@ -494,7 +496,7 @@ class MainLoop(object):
         self.all_settings['times']['Create Cube Data'][step] += end_time
 
     # Handles the saving the wf colors in a dictionary of the wavefunction.
-    def _set_wf_colors(self, numCube=-1):
+    def _setWfCol(self, numCube=-1):
         """
         Will determine the colour of the wavefunction depending on the setting
         chosen. If density is chosen then the wavefunction will all be one
@@ -527,9 +529,10 @@ class MainLoop(object):
                 self.pos_iso_cols[self.tcl_color_dict_count] = 18
                 self.neg_iso_cols[self.tcl_color_dict_count] = 19
                 self.tcl_color_dict_count += 1
+        self._saveWfCol()
 
     # Saves the wavefunction coloring in the tcl dictionary
-    def _save_wf_colors(self):
+    def _saveWfCol(self):
         """
         Saves the wf colours in the tcl dictionary to be visualised by vmd
         """
@@ -587,10 +590,11 @@ class MainLoop(object):
         self.all_settings['times']['VMD Visualisation'][step] += end_time
 
     # Handles the writing of the necessary files
-    def _write_cube_file(self, step, molID, numCube=-1):
+    def _writeCubeFile(self, step, molID, numCube=-1):
         """
         Converts each molecular wavefunction to a cube file to be loaded in vmd
         """
+        self.__createCubeFileTxt(step)
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
             RDataFName = "%s-%i-%i.cube" % ('Real', step, molID)
@@ -849,7 +853,7 @@ step_data = MainLoop(INIT.all_settings, INIT.all_steps, errors)
     #     """
     #     allSizes = np.zeros((len(self.active_step_mols), 3), dtype=int)
     #     for molCount, molID in enumerate(self.active_step_mols):
-    #         self._find_active_atoms(molID)
+    #         self._findActiveAtoms(molID)
     #         BBS = self.all_settings['bounding_box_scale']
     #         translation, active_size = geom.min_bounding_box(self.active_coords,
     #                                                          BBS)
@@ -869,7 +873,7 @@ step_data = MainLoop(INIT.all_settings, INIT.all_steps, errors)
     #     self.allSOMO = {mol: np.zeros(self.sizes, dtype=complex)
     #                          for mol in SOMOsToCreate}
     #     for molID in self.allSOMO:
-    #         self._find_active_atoms(molID)  # get active coords
+    #         self._findActiveAtoms(molID)  # get active coords
     #         BBS = self.all_settings['bounding_box_scale']
     #         translation, active_size = geom.min_bounding_box(self.active_coords,
     #                                                          BBS)

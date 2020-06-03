@@ -14,6 +14,7 @@ import time
 import subprocess as sb
 import difflib as dfl
 from collections import OrderedDict
+import psutil
 #import multiprocessing as mp
 
 from src import text as txt_lib
@@ -74,7 +75,8 @@ def find_time_delimeter(step, filename):
 # This will also create the step_data dictionary with the data of each step in
 def get_xyz_step_metadata(filename, ltxt=False):
     if ltxt == False:
-        ltxt = open_read(filename).split('\n')
+        ltxt = open_read(filename, max_size=0.3).split("\n")
+
     most_stable = False
     if any('*' in i for i in ltxt[:300]):
         most_stable = True
@@ -126,13 +128,27 @@ def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1,
     do_timesteps (unless it is empty) in the list created by the min, max and
     stride.
     """
+    intTypes = (int, np.integer)
+    if not (isinstance(min_step, intTypes) and isinstance(max_step, intTypes) and isinstance(stride, intTypes)):
+        if type(max_step) != str:
+            print("min_step = ", min_step, " type = ", type(min_step))
+            print("max_step = ", max_step, " type = ", type(max_step))
+            print("stride = ", stride, " type = ", type(stride))
+            raise SystemExit("Input parameters are the wrong type!")
+
     num_data_cols = -num_data_cols
     ltxt = open_read(filename).split('\n')
     if not metadata:
         metadata = get_xyz_step_metadata(filename, ltxt)
+    lines_in_step = metadata['lines_in_step']
+    num_title_lines = metadata['num_title_lines']
+    time_ind = metadata['time_ind']
+    time_delim = metadata['time_delim']
 
-    if max_step == 'all':              max_step = metadata['nsteps']
-    if max_step > metadata['nsteps']:  max_step = metadata['nsteps']
+    abs_max_step = int(len(ltxt)/lines_in_step)
+    if max_step == 'all' or max_step > abs_max_step:
+        max_step = abs_max_step
+
     #First find the min, max, stride set of timesteps
     all_steps = metadata['tsteps'][np.arange(min_step, max_step, stride)]
     if len(do_timesteps) > 0:
@@ -151,18 +167,27 @@ def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1,
         raise SystemExit("All steps empty (no steps to carry out)")
     timesteps = metadata['tsteps'][np.array(all_steps)]
 
-    step_data = [i for i in all_steps]
+    step_data = OrderedDict()  # Faster than list implementation -space tradeoff
+    # Get the actual data
+    for i in all_steps:
+        step_data[i] = ltxt[i*lines_in_step:(i+1)*lines_in_step]
+        step_data[i] = (step_data[i][:num_title_lines],
+                        step_data[i][num_title_lines:])
 
-    for i, step_num in enumerate(all_steps):
-        step_data[i] = ltxt[step_num*metadata['lines_in_step']+metadata['time_ind']+1:(step_num+1)*metadata['lines_in_step']] # Get string data
+    for i in all_steps:
+        step_data[i] = [j.split() for j in step_data[i][1]]
+        step_data[i] = np.array(step_data[i])
 
-    for i, step in enumerate(step_data):
-        step_data[i] = [[k for k in j.split(' ') if k] for j in step] # Split and get seperate cols
-    step_data = np.array(step_data)
-    data = np.array([step[:,num_data_cols:] for step in step_data])
-    data = data.astype(float)
-    spare_info = [step[:,:num_data_cols] for step in step_data]
-    return data, spare_info, timesteps
+    step_data = np.array(list(step_data.values()))
+    data = step_data[:, :, num_data_cols:].astype(float)
+
+    # If there is only one column in the cols then don't create another list!
+    if (len(step_data[0, 0]) + num_data_cols) == 1:
+        cols = step_data[:, :, 0]
+    else:
+        cols = step_data[:, :, :num_data_cols]
+    return data, cols, timesteps
+
 
 # Plots the data, saves the graph and then appends the 2 images side by side.
 def plot(step_info, mind, files, plt, optX=[], optY=[]):
@@ -464,12 +489,17 @@ def open_write(filename, message, mkdir=False, TyPe="w+"):
     f.close()
 
 # Reads a file and closes it
-def open_read(filename, throw_error=True):
+def open_read(filename, throw_error=True, max_size=1):
     filename = folder_correct(filename)
     if path_leads_somewhere(filename):
-        f = open(filename, 'r')
-        txt = f.read()
-        f.close()
+        if os.path.getsize(filename) >= psutil.virtual_memory().available * max_size:
+            raise IOError("\n\nFilesize too big.\n\t* "
+                          +f"Filepath: '{filename}'" + "\n\t* "
+                          +f"Avail Mem: {psutil.virtual_memory().available}" + "\n\t* "
+                          +f"Filesize:  {os.path.getsize(filename)}" + "\n\n\n")
+
+        with open(filename, 'r') as f:
+            txt = f.read()
         return txt
     else:
         if throw_error:
@@ -719,64 +749,3 @@ def write_cleaned_orig_settings(orig_settings_dict, settings_file):
     with open(settings_file, 'w') as f:
         f.write(s.strip('\n'))
 
-# Old Code
-# # Wrapper for the full xyz_reader step for parellisation
-# def perform_full_step_xyz(xyz_step_info):
-#     istep = xyz_step_info[1]
-#     xyz_step_info = xyz_step_info[0]
-#     good_stuff, time_step = read_xyz_step(xyz_step_info['steps'], istep, xyz_step_info['time_step_delim'], xyz_step_info['atoms_to_ignore'])
-#     if good_stuff:
-#         xyz_step_info['atomic_numbers'].append([x[0:-xyz_step_info['num_data_cols']][0] if len(x[0:-xyz_step_info['num_data_cols']]) == 1 else x[0:-xyz_step_info['num_data_cols']] for x in good_stuff])
-#         xyz_step_info['atomic_coords'].append([[x[tmp] for tmp in range(len(x)-xyz_step_info['num_data_cols'],len(x))] for x in good_stuff])
-#         xyz_step_info['timesteps'].append(time_step)
-#
-# # Reads a single xyz step from a iterable of all steps
-# def read_xyz_step(steps, istep, time_step_delim, atoms_to_ignore):
-#     bad_step = False
-#     time_step = txt_lib.text_search(steps[istep][0], "time", time_step_delim, error_on=False)[0].replace(' ','')
-#     time_step = float(time_step.split('=')[-1])
-#     current_time_step = steps[istep][1] #list of all the items in the current time-current_time_step
-#     if atoms_to_ignore:
-#         if type(atoms_to_ignore) == str:
-#            atoms_to_ignore = list(atoms_to_ignore)
-#         if type(atoms_to_ignore) != list:
-#             EXC.ERROR("The variable 'atoms_to_ignore' is not a list! This should have been declared as either a list of strings or a single string")
-#         good_stuff = [x for x in current_time_step if not any(atom.lower() in x.lower() for atom in atoms_to_ignore)]
-#     else:
-#         good_stuff = [x for x in current_time_step]
-#     for item in good_stuff:
-#         if "**" in item:
-#             bad_step = True
-#     if bad_step:
-#         return False, time_step
-#     return [[typ.atomic_num_convert(j, False) for j in tmp.split(' ') if j] for tmp in good_stuff],time_step
-#
-# #Reads the xyz_files, If the time isn't there but the iteration is then still work...
-# def xyz_reader(filename, num_data_cols, atoms_to_ignore = [], time_step_delim=',', num_atomsO=False, start_step=0, end_step='all', stride=1, time_steps=False):
-#     ltxt = open_read(filename).split('\n')
-#     # Find necessary info about the file, how many title lines, how many atoms, and how many time-steps
-#     start_atoms, num_atoms = txt_lib.num_atoms_find(ltxt)
-#     if type(num_atomsO) == int:
-#         num_atoms = num_atomsO
-#     num_title_lines = start_atoms
-#     lines_in_step = num_title_lines+num_atoms
-#     max_steps = int(''.join(ltxt).lower().count("time"))
-#     if type(end_step) == str:
-#       if 'al' in end_step.lower():
-#          end_step = max_steps
-#     if end_step > max_steps:
-#         end_step = max_steps
-#     xyz_step_info = {'atomic_numbers':[], 'atomic_coords':[], 'timesteps':[]}
-#     # Steps is a list (of tuples) containing data from all the Steps
-#     #   the first item in the tuple is the title of the step, the second item is the data from that step.
-#     xyz_step_info['steps'] = [(''.join(ltxt[i*lines_in_step:(i*lines_in_step)+num_title_lines]),ltxt[i*lines_in_step+num_title_lines:(i+1)*lines_in_step]) for i in range(start_step,end_step,stride)]
-#     xyz_step_info['time_step_delim'] = time_step_delim
-#     xyz_step_info['atoms_to_ignore'] = atoms_to_ignore
-#     xyz_step_info['num_data_cols'] = num_data_cols
-#     if type(time_steps) != bool:
-#         xyz_step_info['steps'] = [xyz_step_info['steps'][i] for i in xyz_step_info['steps'] if float(txt_lib.text_search(xyz_step_info['steps'][i][0], "time", time_step_delim, error_on=False)[0].replace(' ','').split('=')[-1]) in time_steps]
-#     for istep in range(len(xyz_step_info['steps'])): #loop over all the steps
-#         perform_full_step_xyz((xyz_step_info,istep))
-#     atomic_coords = np.array([np.array(i) for i in xyz_step_info['atomic_coords']])
-#     atomic_numbers = np.array([np.array(i) for i in xyz_step_info['atomic_numbers']])
-#     return np.array(atomic_coords), np.array(atomic_numbers), np.array(xyz_step_info['timesteps'])
