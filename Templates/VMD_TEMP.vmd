@@ -142,7 +142,6 @@ foreach i {$cube_files} {  # Loop over all cube files
 
    set mol_id [expr $mol_id + 1] # increment counter
 }
-mol showrep 0 0 1
 $bckg_mols_on_off load_xyz $mol_id
 
 # Set the colors and rotate and scale
