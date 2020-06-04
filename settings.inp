@@ -1,16 +1,18 @@
 # The path to the folder containing the data.
 path = '/home/matt/Data/Work/FROM_Sam/MOVIES_AND_SNAP/RUBRENE_30x18x1/run-fssh-100' 
+#path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 5 
 load_in_vmd = 'y' 
-show_img_after_vmd = 'y' 
+show_img_after_vmd = 'n' 
 
 title = 'Rubrene_Test' 
 
 mol_material = 'AOChalky' 
-iso_material = 'BrushedMetal' 
+mol_style = 'DynamicBonds' 
+iso_material = 'Translucent' 
 carbon_color = 'silver' 
 hydrogen_color = 'white' 
 neg_real_iso_col = (1, 0, 0) # rgb
@@ -22,12 +24,12 @@ verbose_output = 'y'
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.0005 
+isosurface_to_plot = 0.001 
 
-rotation = [0,90,0] 
-translate_by = [-0.5,0,0] 
-zoom_value = 5.3 
+rotation = [0,0,0] 
+translate_by = [-0.52,0,0] # How much to translate in xyz directions
+zoom_value = 5.9 
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
-img_size = [5e+02,5e+02] # [1.5e+03,1.5e+03] 
+img_size = [3e+03,1.5e+03] # [1.5e+03,1.5e+03] 

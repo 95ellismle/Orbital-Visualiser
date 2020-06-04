@@ -69,7 +69,7 @@ class MainLoop(object):
             start_time = time.time()
 
             self._do_step(step)  # Do a visualisation step
-            
+
             # Pretty print timings
             self.__print_timings(step, len(all_steps), start_time)
 
@@ -720,7 +720,8 @@ class MainLoop(object):
       newSettingsFilePath = newSettingsFolder + "settings.inp"
       newIncludeFilePath = newSettingsFolder + "include.vmd"
 
-      os.makedirs(newSettingsFolder)
+      if not os.path.isdir(newSettingsFolder):
+          os.makedirs(newSettingsFolder)
       shutil.copyfile(src=settFilePath, dst=newSettingsFilePath)
       shutil.copyfile(src=settFilePath, dst=newIncludeFilePath)
 

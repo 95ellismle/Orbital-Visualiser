@@ -84,7 +84,7 @@ defaults = {
 'draw_time'         : False, # Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
 'pos_time_label'    : 'auto', # The position of the time-stamp | ['auto', list [x,y,z]] | 'not-tested'
 'time_label_text'   : "Time = * fs", # The time-label text, the code will replace any * symbols with the current time-step | [str] | 'not-tested'
-## Graph
+## Graph -Deprecated
 'side_by_side_graph' : False, # Plots a graph of the molecular coefficients beside the visualisation | ['yes','no'] | 'not-tested'
 'mols_to_highlight' : 0, # Which molecules to highlight in the graph (shows as a opaque line instead a transparent one) | ['max', 'min', 'all', int (mol index)] | 'not-tested'
 'ylabel'            : r'|u$_i$|$^2$', # What to put on the y axis (graph) | [str] | 'not-tested'
