@@ -14,16 +14,14 @@ you can then open the newly created **Documentation.html** with your favourite b
 
 This file should lead you through your first steps in visualising the output of your simulations as well as providing some examples.
 
-
 #### A video of charge transport along a Rubrene Chain at 100K.
 [![Rubrene Chain](./Docs/Perm_img/img003.jpg)](https://www.youtube.com/watch?v=RzQyxYfE4hM "Rubrene 100K")
 
 #### A video of charge transport on a 2D Rubrene Plane.
 [![Rubrene Plane](./Docs/Perm_img/Rubrene_plane.png)](https://www.youtube.com/watch?v=I48nQ6tknBU)
 
-#### A still of an Anthracene dimer
-![Anthracene Dimer](./Docs/Perm_img/Zak_Vis.png)
-
+#### The front cover of the journal: Advanced Theory and Simulations
+![Rubrene Plane](./Docs/Perm_img/journalCoverPic.png )
 
 
 TODO:
@@ -41,4 +39,4 @@ TODO:
 
 + Try parallelising again! (maybe this means only parallelising the python part and not the VMD part)
 
-+ Add support for other rendering engines e.g. Jmol, pymol etc... (maybe learn/implement own openGL renderer -might be quite a big task!)
++ Add support for other rendering engines e.g. Jmol, pymol etc... (maybe learn how to implement own openGL renderer -might be quite a big task!)
