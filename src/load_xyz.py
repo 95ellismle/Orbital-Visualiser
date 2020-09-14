@@ -15,7 +15,6 @@ import difflib as dfl
 from collections import OrderedDict
 import numpy as np
 
-
 # Checks if a line of text is an atom line in a xyz file
 def is_atom_line(line):
     line = [i for i in line.split(' ') if i]
@@ -60,7 +59,7 @@ def atom_find_more_rigorous(ltxt):
     unique_vals = set(first_100_line_counts)
     modal_val = max(unique_vals, key=first_100_line_counts.count)
 
-    # This means either we have 1 title line, 2 title lines but 1 has the same num words as the atom lines 
+    # This means either we have 1 title line, 2 title lines but 1 has the same num words as the atom lines
     #    or 2 title lines and they both have the same length.
     # If this function needs to be more rigorous this can be modified.
     if len(unique_vals) == 2:
@@ -160,6 +159,7 @@ def find_time_delimeter(step, filename):
             break
     if char.isdigit(): return '\n', linenum
     else: return char, linenum
+
     raise SystemError("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
 
 # Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...

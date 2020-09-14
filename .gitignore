@@ -4,6 +4,8 @@ Docs/Tables/
 Docs/Static/
 Docs/Static/*
 
+f.txt
+
 */*.pyc
 *.pyc
 *.py[a-d]
