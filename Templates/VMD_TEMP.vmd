@@ -154,7 +154,7 @@ material change opacity Translucent 0.460000
 material change transmode Translucent 1.000000
 material change ambient Translucent 0.100000
 
-render Tachyon vmdscene.dat $tachyon_path -aasamples 12 vmdscene.dat -format TARGA -o $pic_filename -trans_max_surfaces 1 -res $pic_sizex $pic_sizey
+render Tachyon vmdscene.dat $tachyon_path -aasamples 12 vmdscene.dat -format TARGA -o $pic_filename -trans_max_surfaces 5 -res $pic_sizex $pic_sizey
 
 rotate x by 360.000000
 rotate x by -360.000000

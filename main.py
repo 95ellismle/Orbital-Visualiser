@@ -23,6 +23,7 @@ import os
 import subprocess
 import sys
 import shutil
+import multiprocessing as mp
 
 from src import EXCEPT as EXC
 from src import geometry as geom
@@ -90,7 +91,7 @@ class MainLoop(object):
         self.neg_iso_cols = {}
         self.pos_iso_cols = {}
         self.tcl_color_dict_count = 0
-        count = 0
+        self.__count__ = 0
         self.data_files_to_visualise = []
 
         # Carry out meat of step
@@ -100,20 +101,27 @@ class MainLoop(object):
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
         # Should order by mol coeff max to min
-        for mol_i, molID in enumerate(self.active_step_mols):
-            molPop = self.all_settings['pops'][self.step][molID]
-            if molPop < self.all_settings['min_abs_mol_coeff']:
-                break
-            self._findActiveAtoms(molID)
-            self._createWfData(molID, step)
-            self._reapplyPhase(molID)
-            self._setWfCol()
-            self._writeCubeFile(step, molID)
-            count += self.writeImagCube + self.writeRealCube
-        print("%i Mols have cubes" % count)
+        #p = mp.Pool(4)
+        #p.map(self._create1Mol_, self.active_step_mols)
+        for molID in self.active_step_mols:
+            self._create1Mol_(molID)
+
+        print("%i Mols have cubes" % self.__count__)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
         #     self._plot(step)  # Will plot a graph to one side (Not supported)
+
+    def _create1Mol_(self, molID):
+        molPop = self.all_settings['pops'][self.step][molID]
+        if molPop < self.all_settings['min_abs_mol_coeff']:
+            return None
+
+        self._findActiveAtoms(molID)
+        self._createWfData(molID, self.step)
+        self._reapplyPhase(molID)
+        self._setWfCol()
+        self._writeCubeFile(self.step, molID)
+        self.__count__ += self.writeImagCube + self.writeRealCube
 
     def __findCubesToWrite(self, molID):
         """

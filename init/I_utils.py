@@ -13,6 +13,7 @@ from src import IO as io
 from src import math as MT
 from src import consts
 from src import EXCEPT as EXC
+from src import load_xyz as xyz
 
 from Templates import defaults as dft
 try:
@@ -279,9 +280,9 @@ def init_mols_to_plot(all_settings):
 # Will retrieve the metadata for the coefficient, position and pvecs file.
 # The metadata is needed to decide which steps to complete when running the simulation
 def get_all_files_metadata(all_settings):
-    all_settings['pos_metadata']   = io.get_xyz_step_metadata(all_settings['CP2K_output_files']['pos'][0])
-    all_settings['pvecs_metadata'] = io.get_xyz_step_metadata(all_settings['CP2K_output_files']['pvecs'][0])
-    all_settings['coeff_metadata'] = io.get_xyz_step_metadata(all_settings['CP2K_output_files']['coeff'][0])
+    all_settings['pos_metadata']   = xyz.get_xyz_metadata(all_settings['CP2K_output_files']['pos'][0])
+    all_settings['pvecs_metadata'] = xyz.get_xyz_metadata(all_settings['CP2K_output_files']['pvecs'][0])
+    all_settings['coeff_metadata'] = xyz.get_xyz_metadata(all_settings['CP2K_output_files']['coeff'][0])
 
 # Finds what format the animation file should take
 def init_animation_type(all_settings):

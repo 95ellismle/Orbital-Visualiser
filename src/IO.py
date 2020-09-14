@@ -34,206 +34,24 @@ if sys.version_info[0] > 2:
     xrange = range
     raw_input = input
 
-# Finds the number of lines in one step of the xyz file data
-def find_num_lines_in_xyz_file_step(ltxt, filename):
-    first_line = ltxt[0]
-    num_lines_in_step = 1
-    for i in ltxt[2:]: # Loops over all the line of text
-        num_lines_in_step += 1
-        #If any lines are very similar to the first line then assume the step is repeating
-        if dfl.SequenceMatcher(None, first_line, i).ratio() > 0.8:
-            return num_lines_in_step
-    EXC.ERROR("Unable to determine number of steps in:\n\n%s"%filename)
-
-# Finds the number of title lines and number of atoms with a step
-def find_num_title_lines(step): # should be the text in a step split by line
-    num_title_lines = 0
-    for line in step:
-        if typ.is_atom_line(line):
-            break
-        num_title_lines += 1
-    return num_title_lines
-
-# Finds the delimeter for the time-step in the xyz_file title
-def find_time_delimeter(step, filename):
-    for linenum,txt in enumerate(step):
-        txt = txt.lower()
-        if 'time' in txt:
-            break
-    txt = txt[txt.lower().find('time')+4:]
-    cond1 = False
-    cond2 = True
-    for char in txt:
-        cond1 = (typ.is_num(char) or char == '.')
-        if cond1 == True:
-            cond2 = False
-        if not any([cond1, cond2]) and char != " ":
-            return char,linenum
-    EXC.ERROR("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
-
-# Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
-# This will also create the step_data dictionary with the data of each step in
-def get_xyz_step_metadata(filename, ltxt=False):
-    if ltxt == False:
-        ltxt = open_read(filename, max_size=0.3).split("\n")
-
-    most_stable = False
-    if any('*' in i for i in ltxt[:300]):
-        most_stable = True
-    if not most_stable:
-        num_title_lines, num_atoms = txt_lib.num_atoms_find(ltxt)
-        lines_in_step = num_title_lines + num_atoms
-        if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
-           step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        else: #If there is no second step take lines from the first
-           step_data = {1:ltxt[:lines_in_step]}
-    else:
-        lines_in_step = find_num_title_lines(ltxt, filename)
-        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        num_title_lines = find_num_title_lines(step_data[1])
-
-    nsteps = int(len(ltxt)/lines_in_step)
-    time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines], filename)
-    timelines = [ltxt[time_ind+(i*lines_in_step)] for i in range(nsteps)]
-    timesteps = np.array([txt_lib.string_between(line, "time = ", time_delim) for line in  timelines]).astype(np.float64)
-    return {'time_delim':time_delim,
-            'time_ind':time_ind,
-            'lines_in_step':lines_in_step,
-            'num_title_lines':num_title_lines,
-            'nsteps':nsteps,
-            'tsteps':timesteps}
-
-# Reads an xyz_file
-# Would like to create a mask here to avoid reading the atoms to ignore.
-# This function is quite obscure and terse as this is a bottle neck in the code and has been optimised.
-# It relies heavily on numpy arrays and list\dictionary comphrensions to give speed things up.
-def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1, ignore_steps=[], do_timesteps=[], metadata=False):
-    """
-    Reads an xyz file.
-
-    Inputs:
-        * filename       =>  filename [str] -required
-        * num_data_cols  =>  how many columns (on the right) are data [int] -required
-        * min_step       => The minimum step to iterate over [int] -optional (default 0)
-        * max_step       => The maximum step to iterate over [int, or 'all'] -optional (default 'all')
-        * stride         => The stride to take when iterating over steps [int] -optional (default 1)
-        * ignore_steps   => Step indices to ignore [list <int>] -optional (default [])
-        * do_timesteps   => Timesteps to complete [list <float>] -optional (default [])
-        * metadata       => The metadata of the xyz file [dict] -optional (default False)
-
-    Outputs:
-        tuple with data, data from the columns and the timesteps
-
-    N.B. Will do timesteps that aren't in ignore timesteps, and are in
-    do_timesteps (unless it is empty) in the list created by the min, max and
-    stride.
-    """
-    intTypes = (int, np.integer)
-    if not (isinstance(min_step, intTypes) and isinstance(max_step, intTypes) and isinstance(stride, intTypes)):
-        if type(max_step) != str:
-            print("min_step = ", min_step, " type = ", type(min_step))
-            print("max_step = ", max_step, " type = ", type(max_step))
-            print("stride = ", stride, " type = ", type(stride))
-            raise SystemExit("Input parameters are the wrong type!")
-
-    num_data_cols = -num_data_cols
-    ltxt = open_read(filename).split('\n')
-    if not metadata:
-        metadata = get_xyz_step_metadata(filename, ltxt)
-    lines_in_step = metadata['lines_in_step']
-    num_title_lines = metadata['num_title_lines']
-    time_ind = metadata['time_ind']
-    time_delim = metadata['time_delim']
-
-    abs_max_step = int(len(ltxt)/lines_in_step)
-    if max_step == 'all' or max_step > abs_max_step:
-        max_step = abs_max_step
-
-    #First find the min, max, stride set of timesteps
-    all_steps = metadata['tsteps'][np.arange(min_step, max_step, stride)]
-    if len(do_timesteps) > 0:
-        #Find the timesteps which are in do_timesteps and range
-        common_timesteps = np.intersect1d(all_steps, do_timesteps)
-        #Find the indices of these and remove steps to ignore.
-        all_steps = np.searchsorted(metadata['tsteps'], common_timesteps)
-    else:
-        all_steps = range(len(all_steps)) # all_steps needs to be indices here
-    all_steps = [i for i in all_steps if i not in ignore_steps]
-
-    if not all_steps:
-        print("Min Step: %i\t Max step: %i\t Stride: %i" % (min_step, max_step,
-                                                               stride))
-        print("All steps = ", all_steps)
-        raise SystemExit("All steps empty (no steps to carry out)")
-    timesteps = metadata['tsteps'][np.array(all_steps)]
-
-    step_data = OrderedDict()  # Faster than list implementation -space tradeoff
-    # Get the actual data
-    for i in all_steps:
-        step_data[i] = ltxt[i*lines_in_step:(i+1)*lines_in_step]
-        step_data[i] = (step_data[i][:num_title_lines],
-                        step_data[i][num_title_lines:])
-
-    for i in all_steps:
-        step_data[i] = [j.split() for j in step_data[i][1]]
-        step_data[i] = np.array(step_data[i])
-
-    step_data = np.array(list(step_data.values()))
-    data = step_data[:, :, num_data_cols:].astype(float)
-
-    # If there is only one column in the cols then don't create another list!
-    if (len(step_data[0, 0]) + num_data_cols) == 1:
-        cols = step_data[:, :, 0]
-    else:
-        cols = step_data[:, :, :num_data_cols]
-    return data, cols, timesteps
-
-
-# Plots the data, saves the graph and then appends the 2 images side by side.
-def plot(step_info, mind, files, plt, optX=[], optY=[]):
-    start_plot = mind-step_info['max_graph_data']
-    if start_plot < 0:
-       start_plot = 0
-    fig, A = plt.subplots(1,1,facecolor=(1,1,1),figsize=(8.4*step_info['graph_img_ratio'],8.4))
-    A.spines['top'].set_visible(False)
-    A.spines['right'].set_visible(False)
-    A.grid(color=[0.8]*3,ls='-')
-    A.set_ylabel(step_info['ylab'],fontsize=step_info['yfont'])
-    A.set_xlabel(step_info['xlab'],fontsize=step_info['xfont'])
-    highlighted_mols = step_info['highlighted_mols']
-    if type(step_info['highlighted_mols']) == str:
-       if 'max' in step_info['highlighted_mols']:
-          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.max(step_info['mol'][mind,:])]
-       if 'min' in step_info['highlighted_mols']:
-          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.min(step_info['mol'][mind,:])]
-       elif 'al' in step_info['highlighted_mols']:
-          highlighted_mols = range(len(step_info['mol'][mind,:]))
-    replace_str = ','.join([str(i+1) for i in highlighted_mols])
-    G_title = step_info['graph_title'].replace("*", replace_str)
-    A.set_title(G_title, fontsize=step_info['tfont'])
-    mols_plotted = []
-    for moli in step_info['AOM_D']:
-       mol_ind = step_info['mol_info'][moli]
-       if mol_ind not in mols_plotted:
-          if mol_ind in highlighted_mols:
-             A.plot(step_info['Mtime-steps'][start_plot:mind], step_info['mol'][start_plot:mind,mol_ind],label="mol %i"%(mol_ind+1))
-          else:
-             A.plot(step_info['Mtime-steps'][start_plot:mind],step_info['mol'][start_plot:mind,step_info['mol_info'][moli]], alpha=0.2)
-          _,_,graph_filepath = file_handler(files['name'], "png", step_info)
-          mols_plotted.append(mol_ind)
-    A.plot(optX,optY)
-    A.legend(loc='best')
-
-    #plt.tight_layout()
-    fig.savefig(graph_filepath, format='png')
-    add_imgs_cmd = "convert %s %s +append %s"%(graph_filepath, files['tga_fold'], files['tga_fold'])
-    os.system(add_imgs_cmd)
-
-    plt.close()
-    return graph_filepath
-
 # Checks whether the tachyon path specified is the correct one.
 def check_tachyon(tachyon_path, times=0):
+    """
+    Check the tachyon path in the permanent settings file. 
+
+    This will attempt to run tachyon and check the output. If 
+    it doesn't work then the permissions will be changed and 
+    Tachyon will be checked again. If this still doesn't work
+    return False
+
+    Inputs:
+        tachyon_path <str> => the path to the Tachyon binary
+        times <int> => DON'T CHANGE. How many times the function
+                       has been called (only for recursion).
+
+
+    return bool
+    """
     if not tachyon_path:
         return False
     tachyon_out =os.popen(tachyon_path, 'r').read()
@@ -241,7 +59,7 @@ def check_tachyon(tachyon_path, times=0):
     if tachyon_spiel_ind != -1:
         return True
     else:
-       os.chmod(tachyon_path, 777)
+       os.chmod(tachyon_path, int('755', base=8))
        if times < 1:
            result = check_tachyon(tachyon_path, times+1)
            return result
@@ -749,3 +567,208 @@ def write_cleaned_orig_settings(orig_settings_dict, settings_file):
     with open(settings_file, 'w') as f:
         f.write(s.strip('\n'))
 
+
+# Plots the data, saves the graph and then appends the 2 images side by side.
+def plot(step_info, mind, files, plt, optX=[], optY=[]):
+    start_plot = mind-step_info['max_graph_data']
+    if start_plot < 0:
+       start_plot = 0
+    fig, A = plt.subplots(1,1,facecolor=(1,1,1),figsize=(8.4*step_info['graph_img_ratio'],8.4))
+    A.spines['top'].set_visible(False)
+    A.spines['right'].set_visible(False)
+    A.grid(color=[0.8]*3,ls='-')
+    A.set_ylabel(step_info['ylab'],fontsize=step_info['yfont'])
+    A.set_xlabel(step_info['xlab'],fontsize=step_info['xfont'])
+    highlighted_mols = step_info['highlighted_mols']
+    if type(step_info['highlighted_mols']) == str:
+       if 'max' in step_info['highlighted_mols']:
+          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.max(step_info['mol'][mind,:])]
+       if 'min' in step_info['highlighted_mols']:
+          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.min(step_info['mol'][mind,:])]
+       elif 'al' in step_info['highlighted_mols']:
+          highlighted_mols = range(len(step_info['mol'][mind,:]))
+    replace_str = ','.join([str(i+1) for i in highlighted_mols])
+    G_title = step_info['graph_title'].replace("*", replace_str)
+    A.set_title(G_title, fontsize=step_info['tfont'])
+    mols_plotted = []
+    for moli in step_info['AOM_D']:
+       mol_ind = step_info['mol_info'][moli]
+       if mol_ind not in mols_plotted:
+          if mol_ind in highlighted_mols:
+             A.plot(step_info['Mtime-steps'][start_plot:mind], step_info['mol'][start_plot:mind,mol_ind],label="mol %i"%(mol_ind+1))
+          else:
+             A.plot(step_info['Mtime-steps'][start_plot:mind],step_info['mol'][start_plot:mind,step_info['mol_info'][moli]], alpha=0.2)
+          _,_,graph_filepath = file_handler(files['name'], "png", step_info)
+          mols_plotted.append(mol_ind)
+    A.plot(optX,optY)
+    A.legend(loc='best')
+
+    #plt.tight_layout()
+    fig.savefig(graph_filepath, format='png')
+    add_imgs_cmd = "convert %s %s +append %s"%(graph_filepath, files['tga_fold'], files['tga_fold'])
+    os.system(add_imgs_cmd)
+
+    plt.close()
+    return graph_filepath
+
+
+
+
+
+# # Finds the number of lines in one step of the xyz file data
+# def find_num_lines_in_xyz_file_step(ltxt, filename):
+#     first_line = ltxt[0]
+#     num_lines_in_step = 1
+#     for i in ltxt[2:]: # Loops over all the line of text
+#         num_lines_in_step += 1
+#         #If any lines are very similar to the first line then assume the step is repeating
+#         if dfl.SequenceMatcher(None, first_line, i).ratio() > 0.8:
+#             return num_lines_in_step
+#     EXC.ERROR("Unable to determine number of steps in:\n\n%s"%filename)
+
+# # Finds the number of title lines and number of atoms with a step
+# def find_num_title_lines(step): # should be the text in a step split by line
+#     num_title_lines = 0
+#     for line in step:
+#         if typ.is_atom_line(line):
+#             break
+#         num_title_lines += 1
+#     return num_title_lines
+
+# # Finds the delimeter for the time-step in the xyz_file title
+# def find_time_delimeter(step, filename):
+#     for linenum,txt in enumerate(step):
+#         txt = txt.lower()
+#         if 'time' in txt:
+#             break
+#     else:
+#         raise SystemExit ("Can't find the word 'time' in this data:\n\n%s\n\n\tFilename:%s"%(str(step), filename) )
+#     prev_char, count = False, 0
+#     txt = txt[txt.find("time"):]
+#     for char in txt.replace(" ",""):
+#         isnum = (char.isdigit() or char == '.')
+#         if isnum != prev_char:
+#             count += 1
+#         prev_char = isnum
+#         if count == 2:
+#             break
+#     if char.isdigit(): return '\n', linenum
+#     else: return char, linenum
+#     raise SystemError("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
+
+# # Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
+# # This will also create the step_data dictionary with the data of each step in
+# def get_xyz_step_metadata(filename, ltxt=False):
+#     if ltxt == False:
+#         ltxt = open_read(filename, max_size=0.3).split("\n")
+
+#     most_stable = False
+#     if any('*' in i for i in ltxt[:300]):
+#         most_stable = True
+#     if not most_stable:
+#         num_title_lines, num_atoms = txt_lib.num_atoms_find(ltxt)
+#         lines_in_step = num_title_lines + num_atoms
+#         if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
+#            step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
+#         else: #If there is no second step take lines from the first
+#            step_data = {1:ltxt[:lines_in_step]}
+#     else:
+#         lines_in_step = find_num_title_lines(ltxt, filename)
+#         step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
+#         num_title_lines = find_num_title_lines(step_data[1])
+
+#     nsteps = int(len(ltxt)/lines_in_step)
+#     time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines], filename)
+#     timelines = [ltxt[time_ind+(i*lines_in_step)] for i in range(nsteps)]
+#     timesteps = np.array([txt_lib.string_between(line, "time = ", time_delim) for line in  timelines]).astype(np.float64)
+#     return {'time_delim':time_delim,
+#             'time_ind':time_ind,
+#             'lines_in_step':lines_in_step,
+#             'num_title_lines':num_title_lines,
+#             'nsteps':nsteps,
+#             'tsteps':timesteps}
+
+# # Reads an xyz_file
+# # Would like to create a mask here to avoid reading the atoms to ignore.
+# # This function is quite obscure and terse as this is a bottle neck in the code and has been optimised.
+# # It relies heavily on numpy arrays and list\dictionary comphrensions to give speed things up.
+# def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1, ignore_steps=[], do_timesteps=[], metadata=False):
+#     """
+#     Reads an xyz file.
+
+#     Inputs:
+#         * filename       =>  filename [str] -required
+#         * num_data_cols  =>  how many columns (on the right) are data [int] -required
+#         * min_step       => The minimum step to iterate over [int] -optional (default 0)
+#         * max_step       => The maximum step to iterate over [int, or 'all'] -optional (default 'all')
+#         * stride         => The stride to take when iterating over steps [int] -optional (default 1)
+#         * ignore_steps   => Step indices to ignore [list <int>] -optional (default [])
+#         * do_timesteps   => Timesteps to complete [list <float>] -optional (default [])
+#         * metadata       => The metadata of the xyz file [dict] -optional (default False)
+
+#     Outputs:
+#         tuple with data, data from the columns and the timesteps
+
+#     N.B. Will do timesteps that aren't in ignore timesteps, and are in
+#     do_timesteps (unless it is empty) in the list created by the min, max and
+#     stride.
+#     """
+#     intTypes = (int, np.integer)
+#     if not (isinstance(min_step, intTypes) and isinstance(max_step, intTypes) and isinstance(stride, intTypes)):
+#         if type(max_step) != str:
+#             print("min_step = ", min_step, " type = ", type(min_step))
+#             print("max_step = ", max_step, " type = ", type(max_step))
+#             print("stride = ", stride, " type = ", type(stride))
+#             raise SystemExit("Input parameters are the wrong type!")
+
+#     num_data_cols = -num_data_cols
+#     ltxt = open_read(filename).split('\n')
+#     if not metadata:
+#         metadata = get_xyz_step_metadata(filename, ltxt)
+#     lines_in_step = metadata['lines_in_step']
+#     num_title_lines = metadata['num_title_lines']
+#     time_ind = metadata['time_ind']
+#     time_delim = metadata['time_delim']
+
+#     abs_max_step = int(len(ltxt)/lines_in_step)
+#     if max_step == 'all' or max_step > abs_max_step:
+#         max_step = abs_max_step
+
+#     #First find the min, max, stride set of timesteps
+#     all_steps = metadata['tsteps'][np.arange(min_step, max_step, stride)]
+#     if len(do_timesteps) > 0:
+#         #Find the timesteps which are in do_timesteps and range
+#         common_timesteps = np.intersect1d(all_steps, do_timesteps)
+#         #Find the indices of these and remove steps to ignore.
+#         all_steps = np.searchsorted(metadata['tsteps'], common_timesteps)
+#     else:
+#         all_steps = range(len(all_steps)) # all_steps needs to be indices here
+#     all_steps = [i for i in all_steps if i not in ignore_steps]
+
+#     if not all_steps:
+#         print("Min Step: %i\t Max step: %i\t Stride: %i" % (min_step, max_step,
+#                                                                stride))
+#         print("All steps = ", all_steps)
+#         raise SystemExit("All steps empty (no steps to carry out)")
+#     timesteps = metadata['tsteps'][np.array(all_steps)]
+
+#     step_data = OrderedDict()  # Faster than list implementation -space tradeoff
+#     # Get the actual data
+#     for i in all_steps:
+#         step_data[i] = ltxt[i*lines_in_step:(i+1)*lines_in_step]
+#         step_data[i] = (step_data[i][:num_title_lines],
+#                         step_data[i][num_title_lines:])
+
+#     for i in all_steps:
+#         step_data[i] = [j.split() for j in step_data[i][1]]
+#         step_data[i] = np.array(step_data[i])
+
+#     step_data = np.array(list(step_data.values()))
+#     data = step_data[:, :, num_data_cols:].astype(float)
+
+#     # If there is only one column in the cols then don't create another list!
+#     if (len(step_data[0, 0]) + num_data_cols) == 1:
+#         cols = step_data[:, :, 0]
+#     else:
+#         cols = step_data[:, :, :num_data_cols]
+#     return data, cols, timesteps

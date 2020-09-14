@@ -7,7 +7,8 @@ Created on Wed Mar 27 11:32:22 2019
 """
 
 from src import text as txt_lib
-
+from src import IO as gen_io
+from src import type as type_check
 
 import os
 import difflib as dfl
@@ -26,13 +27,6 @@ def is_atom_line(line):
     else:
         return True
 
-# Checks whether a string can be a number
-def is_num(Str):
-    try:
-        float(Str)
-        return True
-    except:
-        return False
 
 # Will determine the number of atoms in an xyz file
 def num_atoms_find(ltxt):
@@ -46,6 +40,86 @@ def num_atoms_find(ltxt):
             finish_atoms=i
             break
     return start_atoms, finish_atoms-start_atoms
+
+
+def atom_find_more_rigorous(ltxt):
+    """
+    Will try to find where the atom section starts and ends using some patterns in the file.
+
+    The idea behind this function is we split the first 100 lines into words and find their
+    length. The most common length is then assumed to be the length of the atom line and any
+    line with this num of words is assumed to be an atom line.
+
+    Inputs:
+      * ltxt <list<str>> => The file_txt split by lines
+    Outputs:
+      * <int>, <int> Where the atom section starts and ends
+    """
+    # Get the most common length of line -this will be the length of atom line.
+    first_100_line_counts = [len(line.split()) for line in ltxt[:100]]
+    unique_vals = set(first_100_line_counts)
+    modal_val = max(unique_vals, key=first_100_line_counts.count)
+
+    # This means either we have 1 title line, 2 title lines but 1 has the same num words as the atom lines 
+    #    or 2 title lines and they both have the same length.
+    # If this function needs to be more rigorous this can be modified.
+    if len(unique_vals) == 2:
+      pass
+
+    # This means we haven't found any difference in any lines.
+    if len(unique_vals) == 1:
+       raise SystemError("Can't find the atom section in this file!")
+
+    start = False
+    for line_num, line in enumerate(ltxt):
+        len_words = len(line.split())
+
+        # Have started and len words changed so will end
+        if len_words != modal_val and start is True:
+            atom_end = line_num
+            break
+
+        # Haven't started and len words changed so will start
+        if len_words == modal_val and start is False:
+            start = True
+            prev_line = False
+            atom_start = line_num
+    else:
+      atom_end = len(ltxt)
+
+    return atom_start, atom_end - atom_start
+
+
+def get_num_data_cols(ltxt, filename, num_title_lines, lines_in_step):
+    """
+    Will get the number of columns in the xyz file that contain data. This isn't a foolproof method
+    so if there are odd results maybe this is to blame.
+
+    Inputs:
+        * ltxt <list<str>> => A list with every line of the input file as a different element.
+        * filename <str> => The path to the file that needs opening
+        * num_title_lines <int> => The number of non-data lines
+        * lines_in_step <int> => How many lines in 1 step of the xyz file
+    Outputs:
+        <int> The number of columns in the data section.
+    """
+    dataTxt = [ltxt[num_title_lines + (i*lines_in_step) : (i+1)*lines_in_step]
+               for i in range(len(ltxt) // lines_in_step)]
+
+    num_data_cols_all = []
+    for step in dataTxt[:20]:
+       for line in step:
+          splitter = line.split()
+          count = 0
+          for item in splitter[-1::-1]:
+             if not type_check.is_float(item):
+                num_data_cols_all.append(count)
+                break
+             count += 1
+
+    num_data_cols = max(set(num_data_cols_all), key=num_data_cols_all.count)
+    return num_data_cols
+
 
 # Finds the number of lines in one step of the xyz file data
 def find_num_lines_in_xyz_file_step(ltxt, filename):
@@ -86,39 +160,33 @@ def find_time_delimeter(step, filename):
             break
     if char.isdigit(): return '\n', linenum
     else: return char, linenum
-    raise SystemExit("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
+    raise SystemError("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
 
 # Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
 # This will also create the step_data dictionary with the data of each step in
-def get_xyz_step_metadata(ltxt, filename):
-    most_stable = False
-    if any('*' in i for i in ltxt[:300]):
-        most_stable = True
-    if not most_stable:
-        num_title_lines, num_atoms = num_atoms_find(ltxt)
-        lines_in_step = num_title_lines + num_atoms
-        if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
-           step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        else: #If there is no second step take lines from the first
-           step_data = {1:ltxt[:lines_in_step]}
-    else:
-        lines_in_step = find_num_title_lines(ltxt)
-        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        num_title_lines = find_num_title_lines(step_data[1])
-    time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines], filename)
-    return time_delim, time_ind, lines_in_step, num_title_lines
+def get_xyz_metadata(filename, ltxt=False):
+    """
+    Get metadata from an xyz file.
 
+    This function is used in the reading of xyz files and will retrieve data necessary for reading
+    xyz files.
 
-# Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
-# This will also create the step_data dictionary with the data of each step in
-def get_xyz_step_metadata2(filename, ltxt=False):
+    Inputs:
+       * filename <str> => the path to the file that needs parsing
+       * ltxt <list<str>> OPTIONAL => the parsed txt of the file with each line in a separate element.
+
+    Outputs:
+       <dict> A dictionary containing useful parameters such as how many atom lines, how to get the timestep, num of frames.
+    """
     if ltxt == False:
-        ltxt = open_read(filename).split('\n')
+        ltxt = gen_io.open_read(filename, max_size=0.3).split('\n')
+    # Check whether to use the very stable but slow parser or quick slightly unstable one
     most_stable = False
-    if any('*' in i for i in ltxt[:300]):
+    if any('**' in i for i in ltxt[:300]):
         most_stable = True
+
     if not most_stable:
-        num_title_lines, num_atoms = num_atoms_find(ltxt)
+        num_title_lines, num_atoms = atom_find_more_rigorous(ltxt)
         lines_in_step = num_title_lines + num_atoms
         if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
            step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
@@ -132,10 +200,15 @@ def get_xyz_step_metadata2(filename, ltxt=False):
     nsteps = int(len(ltxt)/lines_in_step)
     time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines],
                                                filename)
+    timelines = [ltxt[time_ind+(i*lines_in_step)] for i in range(nsteps)]
+    timesteps = np.array([txt_lib.string_between(line, "time = ", time_delim) for line in  timelines]).astype(np.float64)
+    num_data_cols = get_num_data_cols(ltxt, filename, num_title_lines, lines_in_step)
     return {'time_delim': time_delim,
             'time_ind': time_ind,
+            'tsteps': timesteps,
             'lines_in_step': lines_in_step,
             'num_title_lines': num_title_lines,
+            'num_data_cols': num_data_cols,
             'nsteps': nsteps}
 
 def _get_timesteps_(ltxt, all_steps, metadata, do_timesteps=[]):
@@ -203,7 +276,7 @@ def read_xyz_file(filename, num_data_cols,
     num_data_cols = -num_data_cols
     ltxt = open_read(filename).split('\n')
     if metadata is False:
-        metadata = get_xyz_step_metadata2(filename, ltxt)
+        metadata = get_xyz_step_metadata(filename, ltxt)
     lines_in_step = metadata['lines_in_step']
     num_title_lines = metadata['num_title_lines']
 

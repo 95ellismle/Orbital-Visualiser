@@ -11,7 +11,7 @@ show_img_after_vmd = 'n'
 title = 'Rubrene_Test' 
 
 mol_material = 'AOChalky' 
-mol_style = 'DynamicBonds' 
+mol_style = 'Liquorice' 
 iso_material = 'Translucent' 
 carbon_color = 'silver' 
 hydrogen_color = 'white' 
@@ -24,11 +24,11 @@ verbose_output = 'y'
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.001 
+isosurface_to_plot = 5e-05 
 
-rotation = [70,0,0] 
-translate_by = [-0.71,0.12,0] # How much to translate in xyz directions
-zoom_value = 5.6 
+rotation = [0,0,0] 
+translate_by = [-0.83,-1.3,0] # How much to translate in xyz directions
+zoom_value = 74860.12259819591 
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
