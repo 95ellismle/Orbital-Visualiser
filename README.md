@@ -27,6 +27,8 @@ This file should lead you through your first steps in visualising the output of 
 TODO:
 ====
 
++ Update the videos in this README to something better -the current ones aren't particularly greate adverts!
+
 + Add option to visualise general orbitals. E.g. visualise sulphur with it's s orbital and maybe transition metal with their funky d ones... Need to have a general AOM_COEFFICIENT reader.
 
 + Add more tests in code!
