@@ -2,7 +2,7 @@
 
 **This code has only been tested on linux (Ubuntu, Fedora and RedHat)**
 
-This project has been created to visualise the output of the Surface Hopping, Ehrenfest and CTMQC modules of CP2K. Full instructions can be found by initialising the HTML documentation.
+This project has been created to visualise the output of the Surface Hopping module of CP2K. Full instructions can be found by initialising the HTML documentation.
 
 To do this run the Create_docs.py file with python3 or python2 i.e:
 
