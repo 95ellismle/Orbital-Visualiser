@@ -1,10 +1,17 @@
+** If plotting real phase (no imag but still phase) then don't create the imag cube file!
+** Fix pvecs calculator -compare to Orestis' C code.
+
+
+
+
+
 Call phaseMasks -> phaseBoundaries
 
 #testing.py
 Need to impose a limit on the number of phase sectors. I think 12 should be max. This is because the
-   number of VMD colors is very limited. 
+   number of VMD colors is very limited.
 
-Need to create a dict that maps the sectors that are opposites to pos and neg 
+Need to create a dict that maps the sectors that are opposites to pos and neg
    (keys must correspond to the keys in the phaseBoundaries)
 
 

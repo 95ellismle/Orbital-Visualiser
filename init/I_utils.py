@@ -77,6 +77,7 @@ def init_output_files_and_folders(all_settings):
     if use_fuzzy_files:
         all_settings['CP2K_output_files'] = io.fuzzy_file_find(all_settings['path'])
 
+
     # Create the output files
     cat_path = lambda path, f: io.folder_correct(path + f) if f != 'CREATE' else f
     if all_settings['all_reps'] == True:
@@ -424,9 +425,9 @@ def find_value_dict(D, value):
 def check_charge_spread(all_settings):
     all_settings['num_mols_active'] = len([i for i in  all_settings['active_atoms_index'] if i])
     if all_settings['max_act_mol'] > all_settings['num_mols_active']:
-        cont = raw_input("The charge will eventually leave the number of plotted molecules in this simulation.\n\nMax molecule the charge reaches = %i.\n\nAre you sure you want to continue [y/n]:\t"%all_settings['max_act_mol'])
+        cont = raw_input("The charge will eventually leave the number of plotted molecules in this simulation.\n\nCharge reaches mol %i (this is out of bounds for the mols plotted).\n\nAre you sure you want to continue [y/n]:\t"%all_settings['max_act_mol'])
         if not typ.translate_to_bool(cont, 'cont'):
-            raise SystemExit("\n\nOk, exiting so you can change the settings file.\nI suggest using the keyword:\n\nall_settings['atoms_to_plot'] = 'auto'")
+            raise SystemExit("\n\nOk, exiting so you can change the settings file.\nI suggest using the keyword:\n`atoms_to_plot = 'auto'` in the settings file.")
         else:
             print("Okie doke, you will get empty molecules though!")
     all_active_coords = all_settings['coords'][:,[i[0] for i in all_settings['active_mols']]]

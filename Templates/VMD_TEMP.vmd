@@ -26,7 +26,8 @@ proc load_file { filename mol_id neg_col_id pos_col_id } {
 
 	# Add 1 more representation for the negative isosurface
 	mol addrep $mol_id
-   #Visualising the isosurfaces
+    
+    #Visualising the isosurfaces
 	mol modstyle 0 $mol_id Isosurface -$isoval 0 $iso_type 0 1 1
 	mol modcolor 0 $mol_id ColorID $neg_col_id
 
@@ -47,7 +48,7 @@ proc load_file { filename mol_id neg_col_id pos_col_id } {
 proc load_xyz { mol_id } {
 
 	$backgrnd_mols
-	mol modstyle 0 $mol_id CPK 0.500000 0.100000 20.000000 20.000000
+	mol modstyle 0 $mol_id $mol_style 0.500000 0.100000 20.000000 20.000000
 	mol modmaterial 0 $mol_id Transparent
     mol modcolor 0 $mol_id ColorID 6
 

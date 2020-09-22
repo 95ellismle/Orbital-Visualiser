@@ -35,7 +35,7 @@ defaults = {
 'restart_vis'       : False, # Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end | ['yes', 'no'] | 'not-tested'
 'img_size' : 'auto', # The size of the image rendered if 'auto' is chosen the image will be 1000x1000 for calibration and 650x650 for a movie | ['auto', [int, int]] | 'not-tested'
 ## File Handling
-'CP2K_output_files' : {'AOM':'AOM_COEFF.include', 'inp':'run.inp', 'mol_coeff':'run-coeff-1.xyz', 'pvecs':'run-pvecs-1.xyz', 'xyz':'run-pos-1.xyz'} , # The output files required for the simulation | ['dictionary (see default value)'] | 'not-tested'
+'CP2K_output_files' : {'AOM':'AOM_COEFF.include', 'inp':'run.inp', 'mol_coeff':'run-coeff-1.xyz', 'pvecs':'run-pvecs-1.xyz', 'xyz':('run-pos-1.xyz', 'pos-init.xyz')} , # The output files required for the simulation | ['dictionary (see default value)'] | 'not-tested'
 'keep_cube_files'   : False, # Keeps the data files after the simulation | ['yes','no'] | 'not-tested'
 'keep_img_files'    : True, # Converts the outputted tga files to the default *img_format* and saves them | ['yes','no'] | 'not-tested'
 'keep_tga_files'    : False, # Keeps the tga files after the simulation | ['yes','no'] | 'not-tested'

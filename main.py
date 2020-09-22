@@ -103,6 +103,8 @@ class MainLoop(object):
         # Should order by mol coeff max to min
         #p = mp.Pool(4)
         #p.map(self._create1Mol_, self.active_step_mols)
+        if type(self.all_settings['pvecs']) == dict or self.all_settings['pvecs'] == False:
+            self.all_settings['pvecs'] = {step: geom.calc_pvecs(all_settings, self.step)}
         for molID in self.active_step_mols:
             self._create1Mol_(molID)
 
@@ -430,10 +432,7 @@ class MainLoop(object):
         """
         # Loop over current molecules atoms
         tmpData = np.zeros(self.sizes, dtype=np.complex64)
-        if self.all_settings['pvecs'] == False:
-            pvecs_all = geom.calc_pvecs(all_settings, self.step)
-        else:
-            pvecs_all = self.all_settings['pvecs'][self.step]
+        pvecs_all = self.all_settings['pvecs'][self.step]
 
         # Loop over atoms that belong to molecule molID
         for iat in self.all_settings['reversed_mol_info'][molID]:
