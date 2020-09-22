@@ -137,6 +137,7 @@ To find the tachyon ray tracer engine try:
 If this doesn't work you may not have the tachyon ray-tracer with your
 VMD package. Try re-installing VMD.""")
 
+
 # Will stitch together an mp4 video
 def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='aac', Vcodec='libx264', extra_flags="-pix_fmt yuv420p -preset slow -qscale 14", log_file="a.log", err_file="a.err"):
     if all(i in files for i in ['%','d','.']):
@@ -172,6 +173,7 @@ def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='
     print(Stitch_cmd)
     return Stitch_cmd, log_file, err_file
 
+
 # Decides whether to use the previous rotations and scaling from the calibration step
 def use_prev_scaling(path):
     if ps.previous_calibrate:
@@ -184,6 +186,7 @@ def use_prev_scaling(path):
             return False
     else:
         return False
+
 
 # Reads the VMD log file and parses the information then updates the settings file
 def settings_update(all_settings):
@@ -225,6 +228,7 @@ def settings_update(all_settings):
         EXC.WARN("VMD hasn't created a logfile!", all_settings['verbose_output'])
         return all_settings
 
+
 # Writes the settings file with updated info from the step_info dict
 def write_settings_file(step_info):
     settings_to_write = ''
@@ -237,6 +241,7 @@ def write_settings_file(step_info):
         elif i:
              settings_to_write += "%s\n"%(' = '.join([i.strip(),step_info['orig_settings'][i].strip()]))
     open_write(step_info['settings_file'], settings_to_write)
+
 
 # Will create the visualisation in VMD
 def VMD_visualise(step_info, PID):
@@ -258,6 +263,7 @@ def VMD_visualise(step_info, PID):
             else:
                 EXC.ERROR("\n\nVMD is taking a long time! I think there may be a bug in VMD script. Try compiling the script manually with the command 'source ./src/TCL/script_4_vmd.vmd' within the tkconsole in VMD.\nIf everything works there then try increasing the 'vmd_step_info['vmd_timeout']' in python main.py settings.")
 
+
 # Will clean up the settings file and make each line executable in order to execute each line individually
 def settings_read(filepath, add_default=False, default=''):
     settings_txt = open_read(filepath)
@@ -273,6 +279,7 @@ def settings_read(filepath, add_default=False, default=''):
 
     return settings_ltxt
 
+
 # Changes variable names in the vmd script
 def vmd_variable_writer(step_info, PID):
     txt = txt_lib.comment_remove(open_read(step_info['vmd_temp']))
@@ -283,6 +290,7 @@ def vmd_variable_writer(step_info, PID):
         txt = txt.replace("$%s"%str(i),str(val) )
     open_write(step_info['vmd_script'][PID], str(txt) )
 
+
 # Prints on a same line
 def print_same_line(message, sys, print_func):
    if sys != False:
@@ -290,6 +298,7 @@ def print_same_line(message, sys, print_func):
      print_func("\r%s"%(message), sep="", end="\r")
    else:
      print_func("\rTrajectory %i/%i"%(step+1, max_steps))
+
 
 # Checks whether VMD has finished by trying to read the vmd output to prevent race conditions
 def vmd_finished_check(vmd_junk_fname):
@@ -299,12 +308,14 @@ def vmd_finished_check(vmd_junk_fname):
     test = sum([1 for i in txt[-5:] if 'exit' in i.lower() and 'normal' in i.lower()])
     return bool(test)
 
+
 # Opens and write a string to a file
 def open_write(filename, message, mkdir=False, TyPe="w+"):
     folder_correct(filename, mkdir)
     f = open(filename, TyPe)
     f.write(message)
     f.close()
+
 
 # Reads a file and closes it
 def open_read(filename, throw_error=True, max_size=1):
@@ -331,6 +342,7 @@ def path_leads_somewhere(path):
     else:
         return False
 
+
 #Checks if the directory exists and makes it if not
 def check_mkdir(path, max_depth=2):
     path = folder_correct(path)
@@ -350,6 +362,7 @@ def check_mkdir(path, max_depth=2):
             if not os.path.isdir(sub_path) and '.' not in sub_path[sub_path.rfind('/'):]:
                os.mkdir(sub_path)
     return True
+
 
 # Returns an absolute file/folder path. Will convert the relative file/folerpaths such as ../foo -> $PATH_TO_PYTHON_MINUS_1/foo
 def folder_correct(f, make_file=False):
@@ -389,6 +402,7 @@ def folder_correct(f, make_file=False):
     else:
         return f
 
+
 # Prints on a same line
 def print_same_line(message, sys, print_func):
    if sys != False:
@@ -396,6 +410,7 @@ def print_same_line(message, sys, print_func):
      print_func("\r%s"%(message), sep="", end="\r")
    else:
      print_func(message+'\r')
+
 
 # Writes a single step of an xyz file (data should be a numpy array with structure [[x1,y1,z1], ... , [xn,yn,zn]] )
 def xyz_step_writer(positions, atom_nums, timestep, step, filepath, conv=0.52918):
@@ -406,6 +421,7 @@ def xyz_step_writer(positions, atom_nums, timestep, step, filepath, conv=0.52918
     s = "%i\ni =  %i, time =    %.3f\n"%(natom,step,timestep)
     s += '\n'.join(['\t'.join([str(atom_nums[i])]+pos.tolist()) for i, pos in enumerate(positions.astype(str))])
     open_write(filepath, s)
+
 
 # Extracts the AOM_coeffs from the AOM_coeffs file
 def AOM_coeffs(filename, atoms_per_site ):
@@ -425,12 +441,14 @@ def AOM_coeffs(filename, atoms_per_site ):
                     mol_count += 1
     else:
         mol_info = False
+
     Acount = 0
     for i,j in enumerate(ltxt):
          if any(at in j[0].lower() for at in ['c','h']):
-            dtxt[i] = [float(j[-1]),Acount]
+            dtxt[i] = (float(j[-1]), Acount)
             Acount += 1
     return np.array([float(i[-1]) for i in ltxt]), dtxt, mol_info
+
 
 # Will print out the timings info from the times dict
 def times_print(times,step, max_len, tot_time=False):
@@ -453,12 +471,14 @@ def times_print(times,step, max_len, tot_time=False):
                print(txt_lib.align(i, 27, 'l'), " | ",
                txt_lib.align(format(times[i][step], ".2g"),13,'r'), "%")
 
+
 # Will take care of saving png images
 def file_handler(i, extension, step_info):
     folderpath = folder_correct(step_info['img_fold']+step_info['title'])
     check_mkdir(folderpath)
     filename = "%s.%s"%(str(i), extension)
     return folderpath, filename, folderpath+filename
+
 
 # Opens and write a string to a file
 def open_write(filename, message, mkdir=False, type_open='w+'):
@@ -470,6 +490,7 @@ def open_write(filename, message, mkdir=False, type_open='w+'):
     f.write(message)
     f.close()
 
+
 # Creates the data and img folders
 def create_data_img_folders(step_info):
     if not path_leads_somewhere(step_info['data_fold']):
@@ -479,6 +500,7 @@ def create_data_img_folders(step_info):
     if not path_leads_somewhere(step_info['img_fold']):
         print("Making a folder for images at:\n%s"%step_info['img_fold'])
         os.mkdir(step_info['img_fold'])
+
 
 # Will change all the filenames in a folder to add leading zeros to them so
 # alphabetesising them preserves order.
@@ -495,6 +517,7 @@ def add_leading_zeros(folder):
            num_zeros_needed = num_leading_zeros
         new_dt = '0'*num_zeros_needed + "%.2f"%dt
         os.rename(folder+f, folder+f.replace(dt_str, new_dt.replace(".",",")))
+
 
 # Find which file inputs aren't in the folder
 def find_missing_files(CP2K_output_files, all_files):
@@ -518,6 +541,7 @@ def find_missing_files(CP2K_output_files, all_files):
                     bad_files[f] = [False]
     return bad_files
 
+
 # Will find the files using fuzzy logic.
 def fuzzy_file_find(path):
     all_files = np.sort(os.listdir(path))
@@ -528,13 +552,21 @@ def fuzzy_file_find(path):
                      'AOM'   : ['AOM', 'COEFF'],
                      'inp'   : ['run.inp']}
     fuzzy_files = {ftype:[f for f in all_files if all(j in f for j in strs_to_match[ftype]) and '.' != f[0] and '.sw' not in f] for ftype in strs_to_match}
-    if any(len(fuzzy_files['pvecs']) != len(fuzzy_files[i]) for i in ['pos','pvecs','coeff']):
+
+    # Pos and Coeffs need same num of steps
+    if any(len(fuzzy_files['pos']) != len(fuzzy_files[i]) for i in ['pos','coeff']):
         files_with_numbers = ["I have found %i files for the %s"%(len(fuzzy_files[i]), i) for i in fuzzy_files]
         files_with_numbers = "\n\t*"+ "\n\t*".join(files_with_numbers)
         raise SystemExit("Sorry I can't find the same number of files for pvecs, posistions and coefficients:%s"%files_with_numbers)
-    if any(len(fuzzy_files[i]) == 0 for i in fuzzy_files):
+
+    # Check if we have certain files
+    if any(len(fuzzy_files[i]) == 0 for i in fuzzy_files if i != 'pvecs'):
         no_files = [i for i in fuzzy_files if len(fuzzy_files[i]) == 0 ]
         raise SystemExit("Sorry I can't seem to find any files for \n\t* %s"%('\n\t* '.join(no_files)))
+
+    if not fuzzy_files['pvecs']:
+        fuzzy_files['pvecs'] = ['CREATE']
+
     return fuzzy_files
 
 

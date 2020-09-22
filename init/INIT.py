@@ -162,6 +162,7 @@ all_steps = xrange(len(all_settings['coords']))
 
 
 
+
 # # Position the time label.
 # if type(pos_time_label) == list:
 #    if len(pos_time_label) == 3:

@@ -8,6 +8,7 @@ from src import IO as io
 from src import load_xyz as XYZ
 from src import type as typ
 from src import consts
+from src import geometry as geom
 
 import numpy as np
 
@@ -59,6 +60,24 @@ def read_coeffs(all_settings):
 
 # Will read the pvecs file
 def read_pvecs(all_settings):
+    # If there is no pvecs file and the code has been instructed to create them.
+    if all_settings['CP2K_output_files']['pvecs'] == 'CREATE':
+        all_settings['pvecs'] = False
+        print("Can't find a pvecs file -will attempt to calculate from positions.")
+        
+        crd_shape = np.shape(all_settings['coords'])
+        nmol = crd_shape[1] / float(all_settings['atoms_per_site'])
+        if int(nmol) != nmol:
+          raise SystemExit("The number of 'atoms per site' doesn't divide perfectly into the 'number of atoms'.")
+        nmol = int(nmol)
+
+        all_settings['mol_nums'] = np.arange(crd_shape[1]) // all_settings['atoms_per_site']
+        all_settings['mol_coords'] = np.reshape(all_settings['coords'], (crd_shape[0], 
+                                                                         nmol,
+                                                                         all_settings['atoms_per_site'],
+                                                                         3))
+        return
+
     # Read all pvecs
     all_pvecs = [XYZ.read_xyz_file(f,
                                    num_data_cols=3,

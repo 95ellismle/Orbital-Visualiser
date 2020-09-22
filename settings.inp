@@ -1,24 +1,20 @@
 # The path to the folder containing the data.
-path = '/home/matt/Data/Work/FROM_Sam/MOVIES_AND_SNAP/RUBRENE_30x18x1/run-fssh-100' 
+path = '/home/matt/Data/Work/TMP/run-fssh-0' 
 #path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 5 
+calibration_step = 12000 
 load_in_vmd = 'y' 
 show_img_after_vmd = 'n' 
 
-title = 'Rubrene_Test' 
+title = 'Pentacene_Mobility_Amorph' 
 
 mol_material = 'AOChalky' 
 mol_style = 'Liquorice' 
-iso_material = 'Translucent' 
+iso_material = 'BrushedMetal' 
 carbon_color = 'silver' 
 hydrogen_color = 'white' 
-neg_real_iso_col = (1, 0, 0) # rgb
-pos_real_iso_col = (0, 0, 1) # rgb
-neg_imag_iso_col = (1, 0, 0) 
-pos_imag_iso_col = (0, 0, 1) 
 
 verbose_output = 'y' 
 
@@ -26,10 +22,8 @@ atoms_to_plot = 'all'
 
 isosurface_to_plot = 5e-05 
 
-rotation = [0,0,0] 
-translate_by = [-0.83,-1.3,0] # How much to translate in xyz directions
-zoom_value = 74860.12259819591 
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
 img_size = [8.4e+02,1.2e+03] # [1.5e+03,1.5e+03] 
+zoom_value = 3.558892984852264 # How much to zoom by

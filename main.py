@@ -430,12 +430,17 @@ class MainLoop(object):
         """
         # Loop over current molecules atoms
         tmpData = np.zeros(self.sizes, dtype=np.complex64)
+        if self.all_settings['pvecs'] == False:
+            pvecs_all = geom.calc_pvecs(all_settings, self.step)
+        else:
+            pvecs_all = self.all_settings['pvecs'][self.step]
+
         # Loop over atoms that belong to molecule molID
         for iat in self.all_settings['reversed_mol_info'][molID]:
 
             at_crds = self.all_settings['coords'][self.step][iat] - translation
             atom_I = self.all_settings['AOM_D'][iat][1]
-            pvecs = self.all_settings['pvecs'][self.step][atom_I]
+            pvecs = pvecs_all[atom_I]
             AOM = self.all_settings['AOM_D'][iat][0]
             AOM = np.round(AOM, 5)  # Can remove later (to check if rounding caused errors betwen py2 and 3)
             tmpData += MT.dot_3D(
@@ -763,7 +768,7 @@ class MainLoop(object):
                                             io.folder_correct('./vmdscene.dat')
                                                 )
         # Garbage collection
-        self.all_settings['delete_these'].append(self.all_settings['f.txt'])
+        # self.all_settings['delete_these'].append(self.all_settings['f.txt'])
         for f in self.all_settings['delete_these']:
             if io.path_leads_somewhere(f):
                 os.remove(f)
