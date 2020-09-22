@@ -28,5 +28,5 @@ isosurface_to_plot = 5e-05
 bounding_box_scale = 16 
 vmd_timeout = 10000 
 #img_size = [8.4e+02,1.2e+03] # [1.5e+03,1.5e+03] 
-zoom_value = 0.7863658318675163 # How much to zoom by
+zoom_value = 0.6513840207923058 # How much to zoom by
 translate_by = [-0.03,0.01,0] # How much to translate in xyz directions

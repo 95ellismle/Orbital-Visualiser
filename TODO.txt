@@ -1,5 +1,4 @@
 ** If plotting real phase (no imag but still phase) then don't create the imag cube file!
-** Fix pvecs calculator -compare to Orestis' C code.
 
 
 

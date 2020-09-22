@@ -62,9 +62,10 @@ def calc_pvecs(all_settings, step):
         imolat = iat - (aps * imol)
 
         dists = np.linalg.norm(mol_crds - at_crd, axis=1)
-        mask = (dists < 3.5) & (dists > 0.01)
-        mol_inds = np.arange(len(dists))[mask][:2]
-        mol_inds = list(mol_inds) + [iat]
+        mask = (dists < 3.5)
+        mol_inds = list(np.arange(len(dists))[mask][:3])
+        if iat in mol_inds:  mol_inds.remove(iat); mol_inds += [iat]
+        else:                mol_inds = mol_inds[:2] + [iat]
         nearest_neighbours.append(all_settings['coords'][step][mol_inds])
     nearest_neighbours = np.array(nearest_neighbours)
 
@@ -72,8 +73,8 @@ def calc_pvecs(all_settings, step):
     pvecs = {}
     for iat, ats in zip(ats_to_calc_for, nearest_neighbours):
         a1, a2, a3 = ats
-        v1 = a2 - a1
-        v2 = a3 - a1
+        v1 = a1 - a3
+        v2 = a2 - a3
         pvec = np.cross(v1, v2)
         pvec /= np.linalg.norm(pvec)
         key = all_settings['AOM_D'][iat][1]
