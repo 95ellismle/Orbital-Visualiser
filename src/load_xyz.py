@@ -27,20 +27,6 @@ def is_atom_line(line):
         return True
 
 
-# Will determine the number of atoms in an xyz file
-def num_atoms_find(ltxt):
-    start_atoms, finish_atoms = 0,0
-    for i,line in enumerate(ltxt):
-        if (is_atom_line(line)) == True:
-            start_atoms = i
-            break
-    for i,line in enumerate(ltxt[start_atoms:],start=start_atoms):
-        if (is_atom_line(line) == False):
-            finish_atoms=i
-            break
-    return start_atoms, finish_atoms-start_atoms
-
-
 def atom_find_more_rigorous(ltxt):
     """
     Will try to find where the atom section starts and ends using some patterns in the file.
@@ -54,10 +40,19 @@ def atom_find_more_rigorous(ltxt):
     Outputs:
       * <int>, <int> Where the atom section starts and ends
     """
-    # Get the most common length of line -this will be the length of atom line.
+    if type_check.is_num(ltxt[0]):
+        if type_check.is_int(float(ltxt[0])):
+            nat = int(ltxt[0])
+            return len(ltxt) - nat - 1, nat
+
+    # Get the length of the last line -this will be the length of atom line.
     first_100_line_counts = [len(line.split()) for line in ltxt[:100]]
     unique_vals = set(first_100_line_counts)
-    modal_val = max(unique_vals, key=first_100_line_counts.count)
+    last_line_len = 0
+    for i in first_100_line_counts[-1:0:-1]:
+        if i != 0:
+            last_line_len = i
+            break
 
     # This means either we have 1 title line, 2 title lines but 1 has the same num words as the atom lines
     #    or 2 title lines and they both have the same length.
@@ -74,12 +69,12 @@ def atom_find_more_rigorous(ltxt):
         len_words = len(line.split())
 
         # Have started and len words changed so will end
-        if len_words != modal_val and start is True:
+        if len_words != last_line_len and start is True:
             atom_end = line_num
             break
 
         # Haven't started and len words changed so will start
-        if len_words == modal_val and start is False:
+        if len_words == last_line_len and start is False:
             start = True
             prev_line = False
             atom_start = line_num
@@ -185,17 +180,17 @@ def get_xyz_metadata(filename, ltxt=False):
     if any('**' in i for i in ltxt[:300]):
         most_stable = True
 
-    if not most_stable:
-        num_title_lines, num_atoms = atom_find_more_rigorous(ltxt)
-        lines_in_step = num_title_lines + num_atoms
-        if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
-           step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        else: #If there is no second step take lines from the first
-           step_data = {1:ltxt[:lines_in_step]}
-    else:
-        lines_in_step = find_num_title_lines(ltxt, filename)
-        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        num_title_lines = find_num_title_lines(step_data[1])
+    #if not most_stable:
+    num_title_lines, num_atoms = atom_find_more_rigorous(ltxt)
+    lines_in_step = num_title_lines + num_atoms
+    if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
+       step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
+    else: #If there is no second step take lines from the first
+       step_data = {1:ltxt[:lines_in_step]}
+    #else:
+    #    lines_in_step = find_num_title_lines(ltxt, filename)
+    #    step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
+    #    num_title_lines = find_num_title_lines(step_data[1])
 
     nsteps = int(len(ltxt)/lines_in_step)
     time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines],
