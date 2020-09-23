@@ -13,8 +13,90 @@
         The movie maker code is quite big now so I've tried to divide the code into logical folders and further sub-divide into different files. An explanation of the files and folders is given below. The ones with python code are src (containing all the visualisation code) and init (containing all the initialisation stuff).
       </p>
       *Mov_Mak_Edit*
-    <h4>Editting the Documentation Code</h4>
-      Still to come
+    <h4>Editting the documentation Code</h4>
+      The documentation code consists of a bunch of (static) HTML files stored in the folder: `Templates/HTML/`.
+      However, loading these files by themselves (e.g. through a browser) doesn't produce a nice looking webpage
+      as all the links to the stylesheets (CSS files) aren't connected. To do this you can run the script e.g: 
+      <code> python3 Create_docs.py </code>.
+      <br>
+      <br>
+      The HTML files contain occasional magic keywords that are surrounded by asterixes. These can be used to 
+      refer to settings in the Templates/defaults.py file or append HTML (such as a header or navbar) from
+      another file (HTML doesn't support this natively!).
+      <br>
+      <br>
+      To add new pages you should first create a new HTML file. Try creating a new file, named test.html, in
+      the Templates/HTML folder and put in the following contents:
+      <br>
+      <br>
+      <pre>
+&lthtml>
+    &lthead>
+        &lttitle>bob&lt/title>
+    &lt/head>
+    &ltbody>
+        &lth1>TEST&lt/h1>
+    &lt/body>
+&lt/html>
+      </pre>
+      To link this add a way to navigate there in the navbar file. To do this you will need to open the file
+      'Templates/HTML/TopNav.html' and add a new anchor tag to end ofthe &ltdiv> class. You will need to use
+      the magic linking syntax like in the following.
+      <br>
+      <br>
+      <pre name="change_at">&lta href="@Test@">Test&lt/a></pre>
+
+
+      If you run the code to build the documentation (<code>python3 Create_docs.py</code>) the code should crash
+      letting you know it doesn't know how to handle the new magic linker <span name="change_at">'@Test@'</span>. 
+      It should say that it couldn't find the key <span name="change_at">@Test@</span> in the replacers dictionary. 
+      To fix this you will need to add the key <span name="change_at">@Test@</span> to the replacers dictionary 
+      so the code can link it. To do this create a new line to the replacers dictionary in the 'Create_docs.py' file.
+      <br>
+      <br>
+      <pre name="change_at">"@Test@": static_folder+"test.html",</pre>
+      <br>
+      The replacers dictionary is around line 460 and the line starts with 'replacers = {'... You may be wondering 
+      why use the static_folder variable here. If you are this is to link the page to the newly created page within
+      the static folder (./Docs/Static/test.hml) rather than the template HTML file in the folder 
+      Templates/HTML/test.html. It may be interesting to have a look at both of those files and see the differences.
+      <br>
+      <br>
+      Once this is done you should be able to run the code again <code>python3 Create_docs.py</code> and refresh
+      your page. You should now see the new 'Test' tab in the navbar at the top. However, you may have noticed
+      the page doesn't look very well styled and you can't get back to the old page very easily! To get around this
+      problem open your Templates/HTML/test.html file again and this time replace all your code by:
+      <br>
+      <br>
+      <pre name="change_at">
+@header_text@
+
+&ltbody>
+    @top_nav@
+
+    &lth1>Bob&lt/h1>
+&ltbody>
+      </pre>
+      Finally run the code once more and navigate to the Test page by clicking the navbar at the top.
+      This page should now have a large Bob and a navbar so you are able to navigate back! To add 
+      content to your new page add it in HTML.
+      <br>
+      <br>
+      You may be wondering why the page is showing phrases within asterixes and the linker code hasn't
+      replaced these or thrown an error. This is because in the original HTML file I haven't used asterixes
+      I used an @ symbol and changed the occurances of this @ symbol with a little bit javascript at the 
+      end of the section. If you want to check this out look at the file Templates/HTML/How_to_edit.html.
+
+<script>
+    elms = document.getElementsByName("change_at");
+    for (var i=0; i<elms.length; i++) {
+        elm = elms[i];
+        txt = elm.innerHTML;
+        txt = txt.replaceAll("\@", "\*");
+        elm.innerHTML = txt;
+        console.log(elm);
+    }
+</script>
       <br>
       <br>
     <div class="row">
@@ -24,29 +106,47 @@
       <div class="col-sm-12">
         <h5>Some Important Variables</h5>
       </div>
+
       <div class="col-sm-12">
         <h6>all_settings</h6>
-        <p>
+        <p> 
           The `all_settings' variable is probably the most important variable in
-          the code. It is the container that stores all the data used within the
-          code.
+          the code. It is the container that stores all the data used within the 
+          code. This is in the form of a large dictionary with keys taking the 
+	      name of the setting and values taking the setting's value.
         </p>
       </div>
       <div class="col-sm-6">
         <h6>mol_info</h6>
-        <p>
-          The `all_settings['mol_info']' variable is a dictionary mapping the
-          atom number to the molecule number. The keys ... The values ...
-          code.
+        <p> 
+          The `all_settings['mol_info']' variable is a dictionary mapping the 
+          atom number to the molecule number. This only contains active atoms.
+          <br>
+          <strong>Keys</strong>: The atom index in the coordinates array
+          <br>
+          <strong>Values</strong>: The molecule index
         </p>
       </div>
       <div class="col-sm-6">
         <h6>AOM_D</h6>
-        <p>
-          The `all_settings['AOM_D']' variable is a dictionary mapping the
-          atom number to the aom coefficient and the index of the atom. The keys
-          .... The values ...
-          code.
+        <p> 
+          The `all_settings['AOM_D']' variable is a dictionary mapping the 
+          atom number to the aom coefficient and the index of the atom.
+          <br>
+          <strong>Keys</strong>: The atom index in the coordinate array
+          <br>
+          <strong>Values</strong>: tuple (AOM Coeff, Active Index) 
+        </p>
+      </div>
+      <div class="col-sm-6">
+        <h6>reverse_mol_info</h6>
+        <p> 
+          The `all_settings['reverse_mol_info']' variable is a dictionary mapping the 
+          molecule index to a list of atomic indices.
+          <br>
+          <strong>Keys</strong>: The molecular index
+          <br>
+          <strong>Values</strong>: A list of atomic indices
         </p>
       </div>
     </div>

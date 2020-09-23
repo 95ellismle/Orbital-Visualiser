@@ -1,9 +1,3 @@
-** If plotting real phase (no imag but still phase) then don't create the imag cube file!
-
-
-
-
-
 Call phaseMasks -> phaseBoundaries
 
 #testing.py

@@ -466,6 +466,7 @@ replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"Perm_img"),
              "*Pagetitle*": "Movie Maker Documentation",
              "*header_text*": io.open_read(templates_folder+'HeaderTxt.html'),
              "*top_nav*": io.open_read(templates_folder+'TopNav.html'),
+             "*Test*": static_folder+"test.html",
              }
 
 # Handle the Sidebar

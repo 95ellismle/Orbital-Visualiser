@@ -60,8 +60,6 @@ for i, f in enumerate(all_files):
 if not all_files:
     raise SystemExit("Lost the files!")
 
-print(all_files)
-
 # Now stitch the files
 framerate = int(len(all_files) / movie_length)
 # Pad string will add a pixel of width or height if needed as libx264 doesn't allow them to be odd integers

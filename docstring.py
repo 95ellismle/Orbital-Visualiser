@@ -121,12 +121,14 @@ class Docstr_Parsing(object):
             if 'README' not in self.docstr_dict[folder]:
                 keys = self.docstr_dict[folder].keys()
                 print("ERROR: README file required in the following folder.")
-                print("Can't find the README file in the folder:\n\t")
-                print("%s" % folder)
+                print("Can't find the README file in the folder:")
+                print("\t'%s'" % folder)
                 print("Files Found: [%s]" % ', '.join(keys))
-                raise SystemExit("Missing README")
+                print("Missing README")
+                self.docstrTxt += "No README.md file in folder..."
 
-            self.docstrTxt += self.docstr_dict[folder]['README']
+            else:
+                self.docstrTxt += self.docstr_dict[folder]['README']
         else:
             self.docstrTxt += "This is the root folder where you will find"
             self.docstrTxt += " the most important files in running the "
