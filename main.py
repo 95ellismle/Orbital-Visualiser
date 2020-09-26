@@ -57,6 +57,8 @@ class MainLoop(object):
         self.pos_iso_cols = {}
         self.tcl_color_dict_count = 0
         self.PID = "MainProcess"
+        self.calc_pvecs = self.all_settings['pvecs'] is False
+
         print("Init complete. Entering mainloop.")
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
@@ -103,8 +105,6 @@ class MainLoop(object):
         # Should order by mol coeff max to min
         #p = mp.Pool(4)
         #p.map(self._create1Mol_, self.active_step_mols)
-        if type(self.all_settings['pvecs']) == dict or self.all_settings['pvecs'] == False:
-            self.all_settings['pvecs'] = {step: geom.calc_pvecs(all_settings, self.step)}
         for molID in self.active_step_mols:
             self._create1Mol_(molID)
 
@@ -432,14 +432,21 @@ class MainLoop(object):
         """
         # Loop over current molecules atoms
         tmpData = np.zeros(self.sizes, dtype=np.complex64)
-        pvecs_all = self.all_settings['pvecs'][self.step]
+        if self.calc_pvecs:
+            act_ats = np.array(self.all_settings['reversed_mol_info'][molID])
+            mol_num = int(self.all_settings['reversed_mol_info'][molID][0] / all_settings['atoms_per_site'])
+            act_ats -= int(mol_num * all_settings['atoms_per_site'])
+            ats = self.all_settings['coords'][self.step][range(mol_num*all_settings['atoms_per_site'], (mol_num+1)*all_settings['atoms_per_site'])]
+            pvecs_all = geom.calc_pvecs_1mol(ats, act_ats)
+        else:
+            pvecs_all = self.all_settings['pvecs'][self.step][self.all_settings['reversed_mol_info']]
 
         # Loop over atoms that belong to molecule molID
-        for iat in self.all_settings['reversed_mol_info'][molID]:
+        for i, iat in enumerate(self.all_settings['reversed_mol_info'][molID]):
 
             at_crds = self.all_settings['coords'][self.step][iat] - translation
-            atom_I = self.all_settings['AOM_D'][iat][1]
-            pvecs = pvecs_all[atom_I]
+            #atom_I = self.all_settings['AOM_D'][iat][1]
+            pvecs = pvecs_all[i]
             AOM = self.all_settings['AOM_D'][iat][0]
             AOM = np.round(AOM, 5)  # Can remove later (to check if rounding caused errors betwen py2 and 3)
             tmpData += MT.dot_3D(

@@ -82,6 +82,42 @@ def calc_pvecs(all_settings, step):
 
     return pvecs
 
+def calc_pvecs_1mol(mol_crds, act_ats):
+    """
+    Will calculate the pvecs for 1 molecule.
+
+    Inputs:
+        * mol_crds <array> => The coordinates of each atom in the molecule
+        * act_ats <array> => Which atom to calculate the pvecs for
+    Outputs:
+        <array> The pvecs
+    """
+    # First get the 3 neighbours that are close enough.
+    #   This is how it's done in CP2K!
+    nearest_neighbours = []
+    for iat in act_ats:
+        at_crd = mol_crds[iat]
+        dists = np.linalg.norm(mol_crds - at_crd, axis=1)
+
+        count = 0
+        nn = [at_crd]
+        for jat, d in enumerate(dists):
+            if 0 < d < 3.5:
+                nn.append(mol_crds[jat])
+                count += 1
+            if count == 2: break
+        nearest_neighbours.append(nn)
+    nearest_neighbours = np.array(nearest_neighbours)
+
+    pvecs = []
+    for a1, a2, a3 in nearest_neighbours:
+        v1 = a2 - a1
+        v2 = a3 - a1
+        pvec = np.cross(v1, v2)
+        pvec /= np.linalg.norm(pvec)
+        pvecs.append(pvec)
+
+    return np.array(pvecs)
 
 # Returns the center and the size of a ND minimum bounding box
 def min_bounding_box(coord, scaling=[2,2,2]):

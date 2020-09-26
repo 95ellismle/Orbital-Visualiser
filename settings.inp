@@ -1,10 +1,11 @@
 # The path to the folder containing the data.
-path = '/home/matt/Data/Work/TMP/sing_mol_pent' 
+#path = '/home/matt/Data/Work/TMP/sing_mol_pent' 
+path = '/home/matt/Data/Work/TMP/run-fssh-0' 
 #path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
 
 # Calibration Settings
 calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 0 
+calibration_step = 12000 
 load_in_vmd = 'y' 
 show_img_after_vmd = 'n' 
 
@@ -28,5 +29,5 @@ isosurface_to_plot = 5e-05
 bounding_box_scale = 16 
 vmd_timeout = 10000 
 #img_size = [8.4e+02,1.2e+03] # [1.5e+03,1.5e+03] 
-zoom_value = 0.6513840207923058 # How much to zoom by
-translate_by = [-0.03,0.01,0] # How much to translate in xyz directions
+
+zoom_value = 1.6675534436894495 # How much to zoom by
