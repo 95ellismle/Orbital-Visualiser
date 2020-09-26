@@ -26,9 +26,9 @@ defaults = {
 'isosurface_to_plot' : 0.003, # Which isosurface to plot during the simulation, a smaller number will show a larger isosurface | [float] | 'not-tested'
 ## Movie Creation
 "title"             : None, # This will change the name of the movie and the folder it is saved in. Will save the movie in ./img/Title/ | [str] | 'not-tested'
-'end_step'         : 'all', # Which step to iterate up to for the movie | ['all', int] | 'not-tested'
-'stride'            : 1, # What stride to use to iterate with for the movie (a stride of 2 would render every 2nd frame) | [int] | 'not-tested'
-'start_step'        : 0, # Which step to start iterating on | [integer (zero is the first)] | 'not-tested'
+'end_step'         : 'all', # Which step to iterate up to for the movie (refers to the MD step). | ['all', int] | 'not-tested'
+'stride'            : 1, # What stride to use to iterate with for the movie (a stride of 2 would render every 2nd frame). Refers to the step index in the file -not the MD step. | [int] | 'not-tested'
+'start_step'        : 0, # Which step to start iterating on (refers to MD step). | [integer (zero is the first)] | 'not-tested'
 'verbose_output'    : False, # Shows lots of info about what is happening | ['yes','no'] | 'not-tested'
 'movie_length' : 6, # The length of the finished movie (will adjust the framerate to match the time) | [int] | 'not-tested'
 'movie_format'      : "mp4", # The format of the created movie | ['mp4'] | 'not-tested'

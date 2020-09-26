@@ -179,7 +179,7 @@ def init_rotation(all_settings):
         auto_rot, _, _ = txt_lib.fuzzy_variable_translate(all_settings['rotation'],
                                                          ['auto', 'A list containing [Rotx, Roty, Rotz]', 'no'],
                                                          all_settings['verbose_output'], False)
-        if auto_rot:       
+        if auto_rot:
             all_settings['rotation'] = MT.find_auto_rotation(all_settings=all_settings)
 
         elif 'n' in all_settings['rotation'].lower() or bool(all_settings['rotation']) == False:
@@ -375,10 +375,10 @@ def init_atoms_to_plot(all_settings):
     if type(all_settings['atoms_to_plot']) == str:
         plot_all_atoms, plot_min_active, plot_auto_atoms,_ ,_ = txt_lib.fuzzy_variable_translate(all_settings['atoms_to_plot'], ["all","min_active",'auto',"A list containing atom indices (or range or xrange)","An integer" ], all_settings['verbose_output'], False)
 
-    # Need atoms_to_plot to be a list    
+    # Need atoms_to_plot to be a list
     if type(all_settings['atoms_to_plot']) == int:
         all_settings['atoms_to_plot'] = [all_settings['atoms_to_plot']]
-    
+
     # Deciding which atoms to plot
     pop_indices = np.array([np.arange(len(all_settings['pops'][0])) for i in range(len(all_settings['pops']))])
     plottable_pop_indices = pop_indices[all_settings['pops'] > all_settings['min_abs_mol_coeff']]
@@ -446,6 +446,7 @@ def init_times_dict(all_settings):
     all_settings['times']['Create Wavefunction'] = np.zeros(num_steps)
     all_settings['times']['Create Cube Data'] = np.zeros(num_steps)
     all_settings['times']['Write Cube File'] = np.zeros(num_steps)
+    all_settings['times']['Create Pvecs'] = np.zeros(num_steps)
     all_settings['times']['VMD Visualisation'] = np.zeros(num_steps)
     all_settings['times']['Plot and Save Img'] = np.zeros(num_steps)
     all_settings['times']['WF Post Processing'] = np.zeros(num_steps)

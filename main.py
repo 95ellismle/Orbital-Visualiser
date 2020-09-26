@@ -433,12 +433,16 @@ class MainLoop(object):
         # Loop over current molecules atoms
         tmpData = np.zeros(self.sizes, dtype=np.complex64)
         if self.calc_pvecs:
+            start_time = time.time()
             act_ats = np.array(self.all_settings['reversed_mol_info'][molID])
             mol_num = int(self.all_settings['reversed_mol_info'][molID][0] / all_settings['atoms_per_site'])
             act_ats -= int(mol_num * all_settings['atoms_per_site'])
             ats = self.all_settings['coords'][self.step][range(mol_num*all_settings['atoms_per_site'], (mol_num+1)*all_settings['atoms_per_site'])]
             pvecs_all = geom.calc_pvecs_1mol(ats, act_ats)
+            self.all_settings['times']['Create Pvecs'][self.step] += time.time() - start_time
         else:
+            if 'Create Pvecs' in self.all_settings['times']:
+                self.all_settings['times'].pop("Create Pvecs")
             pvecs_all = self.all_settings['pvecs'][self.step][self.all_settings['reversed_mol_info']]
 
         # Loop over atoms that belong to molecule molID
