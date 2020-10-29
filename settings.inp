@@ -1,19 +1,19 @@
 # The path to the folder containing the data.
 #path = '/home/matt/Data/Work/TMP/sing_mol_pent' 
-path = '/home/matt/Data/Work/TMP/run-fssh-0' 
+path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/SmallerSystemFSSH/run-fssh-4' 
 #path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
 
 # Calibration Settings
-calibrate = 'y' # Carries out a single 'calibration' step
-calibration_step = 12000 
+calibrate = 'n' # Carries out a single 'calibration' step
+calibration_step = 0 
 load_in_vmd = 'y' 
 show_img_after_vmd = 'n' 
 
 start_step = 0 
-end_step = 12000 
+end_step = 5 
 stride = 1 
 
-title = 'Pentacene_Mobility_Amorph' 
+title = 'SmallerSystem-run-fssh-4' 
 
 mol_material = 'AOChalky' 
 mol_style = 'Lines' 
@@ -21,13 +21,12 @@ iso_material = 'BrushedMetal'
 carbon_color = 'silver' 
 hydrogen_color = 'white' 
 
-neg_imag_iso_col = (0, 0, 1) 
-pos_imag_iso_col = (1, 0, 0) 
+neg_imag_iso_col = (1, 0, 0) 
+pos_imag_iso_col = (0, 0, 1) 
 verbose_output = 'y' 
 
 atoms_to_plot = 'all' 
 
-isosurface_to_plot = 0.0001 
 
 
 
@@ -36,4 +35,4 @@ bounding_box_scale = 16
 vmd_timeout = 10000 
 img_size = [1.5e+03,1.5e+03] 
 
-zoom_value = 1.6675534436894495 # How much to zoom by
+zoom_value = 1.5767193781306308 # How much to zoom by

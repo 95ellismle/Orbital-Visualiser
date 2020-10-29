@@ -37,10 +37,10 @@ if sys.version_info[0] > 2:
 # Checks whether the tachyon path specified is the correct one.
 def check_tachyon(tachyon_path, times=0):
     """
-    Check the tachyon path in the permanent settings file. 
+    Check the tachyon path in the permanent settings file.
 
-    This will attempt to run tachyon and check the output. If 
-    it doesn't work then the permissions will be changed and 
+    This will attempt to run tachyon and check the output. If
+    it doesn't work then the permissions will be changed and
     Tachyon will be checked again. If this still doesn't work
     return False
 
@@ -148,28 +148,29 @@ def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='
         all_files = [i for i in all_files if ext in i.split('.')[-1]] #removing files that don't have the correct extension
         all_files = [i for i in all_files if len(i[len(prefix):i.find('.')]) == num_of_nums] # only files with the correct amount of nums
         num_files = len(all_files)
-        framerate = int(np.round(num_files/length,0))
+        framerate = int(np.round(num_files/length, 0))
         if framerate == 0:
             framerate = 1
         in_files = files_folder+files
         pre_flags = ""
+
     elif "*" in files and '.' in files:
         ext = files.split('.')[-1]
-        print(ext)
         all_files = os.listdir(files_folder)
         all_files = [i for i in all_files if ext in i.split('.')[-1]] #removing files that don't have the correct extension
         num_files = len(all_files)
-        framerate = int(np.round(num_files/length,0))
+        framerate = int(np.round(num_files/length, 0))
         if framerate == 0:
             framerate = 1
         pre_flags = '-pattern_type glob' # Glob type input files
         in_files = '"%s"'%(files_folder+files) #input files must be inside string
+
     else:
         EXC.ERROR("Input format for image files is incorrect.\nPlease input them in the format:\n\n\t'pre%0Xd.ext'\n\nwhere pre is the prefix (can be nothing), X is the number of numbers in the filename, and ext is the file extensions (e.g. png or tga).")
     if path_leads_somewhere(output_name+'.mp4'):  os.remove(output_name+'.mp4') #remove file before starting to prevent hanging on 'are you sure you want to overwrite ...'
     options = (ffmpeg_binary, pre_flags, framerate, in_files, Vcodec, Acodec, extra_flags, output_name, log_file, err_file)
 
-    Stitch_cmd = "%s -f image2 %s -r %s -i %s -vcodec %s -acodec %s %s %s.mp4 > %s 2> %s"%options
+    Stitch_cmd = "%s -f image2 %s -framerate %s -i %s -vcodec %s -acodec %s %s %s.mp4 > %s 2> %s"%options
     print(Stitch_cmd)
     return Stitch_cmd, log_file, err_file
 
@@ -508,6 +509,8 @@ def add_leading_zeros(folder):
     tga_files = [i for i in os.listdir(folder) if '.tga' in i]
     dts = [float(f.replace(",",".")[:f.find('_')]) for f in tga_files]
     num_leading_zeros = int(np.floor(np.log10(np.max(dts))))
+
+    new_files = []
     for f in tga_files:
         dt_str = f[:f.find('_')]
         dt = float(dt_str.replace(',','.'))
@@ -516,7 +519,13 @@ def add_leading_zeros(folder):
         else:
            num_zeros_needed = num_leading_zeros
         new_dt = '0'*num_zeros_needed + "%.2f"%dt
-        os.rename(folder+f, folder+f.replace(dt_str, new_dt.replace(".",",")))
+
+        new_file = folder+f.replace(dt_str, new_dt.replace(".",","))
+        os.rename(folder+f, new_file)
+        new_files.append(new_file)
+
+    return new_files
+
 
 
 # Find which file inputs aren't in the folder

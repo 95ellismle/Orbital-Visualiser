@@ -108,6 +108,8 @@ class MainLoop(object):
         for molID in self.active_step_mols:
             self._create1Mol_(molID)
 
+        localisation = MT.IPR(self.all_settings['mol'][self.step])
+        print(f"IPR = {localisation}")
         print("%i Mols have cubes" % self.__count__)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
@@ -605,6 +607,7 @@ class MainLoop(object):
         cond = 'tga' not in self.all_settings['files_to_keep']
         cond *= not all_settings['calibrate']
         if cond:
+            print(self.tga_filepath)
             self.all_settings['delete_these'].append(self.tga_filepath)
 
         io.VMD_visualise(self.all_settings, self.PID)
@@ -716,12 +719,13 @@ class MainLoop(object):
         garbage.
         """
         io.settings_update(self.all_settings)
+        self._copy_settings_file()
+        self._store_imgs()
         if not all_settings['calibrate']:
             self._stitch_movie()
         else:
             self._display_img()
-        self._copy_settings_file()
-        self._store_imgs()
+
         self._garbage_collector()
 
     # Copy settings.inp to img folder
@@ -786,10 +790,17 @@ class MainLoop(object):
     # Handles converting the image to another img format for storing
     def _store_imgs(self):
         """
-        Will convert images from tga to jpg (for storage). jpg is smaller than
-        tga.
+        Will convert images from tga to jpg (for storage). jpg is much smaller
+        than tga. We also add any leading zeros to files as this makes them
+        easier to stitch together later on.
         """
-        # Convert all .tga to .img
+        # First add leading zeros to files
+        new_files = io.add_leading_zeros(self.tga_folderpath)
+        cond = 'tga' not in self.all_settings['files_to_keep']
+        cond *= not all_settings['calibrate']
+        if cond: all_settings['delete_these'].extend(new_files)
+
+        # Convert all .tga to .<img>
         if 'img' in self.all_settings['files_to_keep']:
             cnvt_command = "mogrify -format %s %s*.tga" % (
                                                self.all_settings['img_format'],
@@ -804,11 +815,10 @@ class MainLoop(object):
         Stitches the individual images together into a movie using the ffmpeg
         binary in the bin/ folder.
         """
-        io.add_leading_zeros(self.tga_folderpath)
-        files = "*.tga"
+        files = "*.%s" % self.all_settings['img_format']
         # Creating the ffmpeg and convert commands for stitching
         if self.all_settings['movie_format'] == 'mp4':
-            os.chmod(self.all_settings['ffmpeg_bin'], 777)
+            os.chmod(self.all_settings['ffmpeg_bin'], int("755", base=8))
             title_path = self.tga_folderpath + self.all_settings['title']
             Stitch_cmd, tmp, _ = io.stitch_mp4(
                                              files,
@@ -819,6 +829,9 @@ class MainLoop(object):
                                               )
             self.all_settings['delete_these'].append(tmp)
             self.all_settings['delete_these'].append(_)
+
+        else:
+            raise SystemExit("Unrecognised `movie_format`. Please choose from:\n\t* mp4")
 
         subprocess.call(Stitch_cmd, shell=True)  # Actually stitch the movie
 
