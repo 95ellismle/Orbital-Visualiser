@@ -85,9 +85,12 @@ def init_output_files_and_folders(all_settings):
                                                 for f in all_settings['CP2K_output_files'][ftyp]]
                                                     for ftyp in all_settings['CP2K_output_files']}
     else:
-        all_settings['CP2K_output_files'] = {ftyp:[cat_path(all_settings['path'], f)
-                                                for i, f in enumerate(all_settings['CP2K_output_files'][ftyp]) if i in all_settings['num_reps']]
-                                                    for ftyp in all_settings['CP2K_output_files']}
+        tmp = {}
+        for ftyp in all_settings['CP2K_output_files']:
+            for i, f in enumerate(all_settings['CP2K_output_files'][ftyp]):
+                if i in all_settings['num_reps']:
+                    tmp.setdefault(ftyp, []).append(cat_path(all_settings['path'], f))
+        all_settings['CP2K_output_files'] = tmp
 
     # Clean up any files we need to create later
     for i in all_settings['CP2K_output_files']:
@@ -109,6 +112,32 @@ def init_all_settings_other(all_settings):
     all_settings['mols_plotted'] = ''
     all_settings['verbose_output']  = typ.translate_to_bool(all_settings['verbose_output'], 'verbose_output')
 
+def transition_state_init(all_settings):
+    all_settings['do_transition_state'] = typ.translate_to_bool(all_settings['do_transition_state'], 'do_transition_state')
+    if all_settings['do_transition_state']:
+        # # Parse the combination rule.
+        # tmp = all_settings['combination_rule'].replace(" ", "")
+        # rule = []
+        # for i in '*-+/':
+        #     if tmp.count(i) == 0:  continue
+        #     elif tmp.count(i) != 1: EXC.ERROR("Incorrect format for the combination rule. Please check your settings file and the documentation.")
+        #     else:                   rule.append(i)
+        # if len(rule) != 1: EXC.ERROR("Can't find a combination rule for the transition state density.Please check your settings file and the documentation.")
+        # comb = rule[0]
+        # R = tmp[:tmp.find(comb)].lower()
+        # L = tmp[tmp.find(comb)+1:].lower()
+        # if 'l' in R and 'h' in R: EXC.ERROR("Incorrect format for the combination rule -L and H specified on the right of the operator. Please check your settings file and the documentation.")
+        # elif 'l' in R: R = 'lumo'
+        # elif 'h' in R: R = 'homo'
+        
+        # if 'l' in L and 'h' in L: EXC.ERROR("Incorrect format for the combination rule -L and H specified on the right of the operator. Please check your settings file and the documentation.")
+        # elif 'l' in L: L = 'lumo'
+        # elif 'h' in L: L = 'homo'
+        # all_settings['combination_rule'] = (L, comb, R)
+
+        cat_path = lambda f: io.folder_correct(all_settings['path'] + f)
+        all_settings['CP2K_output_files']['AOM'] = [cat_path(all_settings['lumo_coeff_file']),
+                                                    cat_path(all_settings['homo_coeff_file'])]
 
 # Will initialise the permanent settings (check tachyon path, read and write permanent settings, set prev_calibrate etc...)
 def init_permanent_settings(all_settings):
@@ -283,14 +312,40 @@ def init_files_to_keep(all_settings):
 
 # Finds the aom dictionary
 def init_AOM_D(all_settings):
-    _, all_settings['AOM_D'], tmp = io.AOM_coeffs(all_settings['CP2K_output_files']['AOM'][0], all_settings['atoms_per_site'])
-    all_settings['mol_info'] = tmp
-    if not tmp:
-        all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']} #converts atom number to molecule number
-    # All the active molecules (according to the AOM_COEFFICIENT.include file)
-    all_settings['active_mols'] = [(i,all_settings['AOM_D'][i][1]) for i in all_settings['AOM_D']]
+    # Standard Movie Maker
+    if not all_settings['do_transition_state']:
+        _, all_settings['AOM_D'], tmp = io.AOM_coeffs(all_settings['CP2K_output_files']['AOM'][0], all_settings['atoms_per_site'])
+        if not tmp:
+            all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']} #converts atom number to molecule number
+        else:
+            all_settings['mol_info'] = tmp
+        at_ind = 1 # The index at which the atom number appears
+
+    # Transition State
+    else:
+        # Parse AOM file
+        all_settings['AOM_D'] = []
+        for f in all_settings['CP2K_output_files']['AOM']:
+            _, aom, tmp = io.AOM_coeffs(f, all_settings['atoms_per_site'])
+            all_settings['AOM_D'].append(aom)
+
+        # Error checking
+        get_ind0 = lambda d: tuple(map(lambda x: (x, d[x][1]), d))
+        aomats1, aomats2 = get_ind0(all_settings['AOM_D'][0]), get_ind0(all_settings['AOM_D'][1])
+        if aomats1 != aomats2:
+            EXC.ERROR("AOM Coeff atom indices don't match for the 2 AOM files.")
+
+        # Reshape AOM coeffs into 1 hastable
+        tmp = all_settings['AOM_D']
+        all_settings['AOM_D'] = {i: (tmp[1][i][0], tmp[0][i][0], tmp[0][i][1]) for i in tmp[0]}
+        
+        # Get mol_info
+        all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']}
+        at_ind = 2 # The index at which the atom number appears in the AOM_D
+
+    # All the active molecules (according to the AOM_COEFFICIENT.include file)        
+    all_settings['active_mols'] = [(i,all_settings['AOM_D'][i][at_ind]) for i in all_settings['AOM_D']]
     all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if np.abs(all_settings['AOM_D'][i][0]) > 0} # Removing inactive atoms from all_settings['AOM_D']
-    all_settings['AOM_D_active_first'] = {all_settings['AOM_D'][i][1]: (all_settings['AOM_D'][i][0], i) for i in all_settings['AOM_D']}
 
 
 # Will initialise the molecules that are needed to be highlighted
@@ -384,6 +439,14 @@ def init_atoms_to_plot(all_settings):
     pop_indices = np.array([np.arange(len(all_settings['pops'][0])) for i in range(len(all_settings['pops']))])
     plottable_pop_indices = pop_indices[all_settings['pops'] > all_settings['min_abs_mol_coeff']]
     all_settings['max_act_mol'] = np.max(plottable_pop_indices) + 1
+
+    # Find which index in the AOM dict is the atom ind (which one is an int)
+    for count, i in enumerate(all_settings['AOM_D'][list(all_settings['AOM_D'].keys())[0]]):
+        if type(i) == int:
+            at_ind = count
+            break
+    else: EXC.ERROR("Something went wrong with the parsing of the AOM dictionary! This is a major error tell Matt.")
+
     if plot_all_atoms:
        all_settings['atoms_to_plot'] = range(len(all_settings['coords'][0]))
 
@@ -395,12 +458,13 @@ def init_atoms_to_plot(all_settings):
         all_settings['atoms_to_plot'] = range(0, all_settings['max_act_mol']*all_settings['atoms_per_site'])
 
     else: # Can add a test here for all_settings['atoms_to_plot'] type... (should be list -could convert int but not float etc..)
-       if not (type(all_settings['atoms_to_plot']) == list or type(all_settings['atoms_to_plot']) == type(xrange(1))):
-          EXC.ERROR("Sorry the variable 'atoms_to_plot' seems to be in an unfamiliar format (please use a list, an xrange or an integer).\n\nCurrent all_settings['atoms_to_plot'] type is:\t%s"%str(type(all_settings['atoms_to_plot'])))
-       all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i < len(all_settings['mol_info'])]
-       if len(all_settings['atoms_to_plot']) == 0:
-          EXC.ERROR('NO DATA PLOTTED, THERE ARE NO ATOMS CURRENTLY PLOTTED. PLEASE CHECK THE VARIABLE "atoms_to_plot"')
-       all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][1] in all_settings['atoms_to_plot']}
+        if not (type(all_settings['atoms_to_plot']) == list or type(all_settings['atoms_to_plot']) == type(xrange(1))):
+            EXC.ERROR("Sorry the variable 'atoms_to_plot' seems to be in an unfamiliar format (please use a list, an xrange or an integer).\n\nCurrent all_settings['atoms_to_plot'] type is:\t%s"%str(type(all_settings['atoms_to_plot'])))
+        all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i < len(all_settings['mol_info'])]
+        if len(all_settings['atoms_to_plot']) == 0:
+            EXC.ERROR('NO DATA PLOTTED, THERE ARE NO ATOMS CURRENTLY PLOTTED. PLEASE CHECK THE VARIABLE "atoms_to_plot"')
+ 
+        all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']}
 
     poss_atoms = [i for i, elm in enumerate(all_settings['at_num']) if elm not in all_settings['atoms_to_ignore']]
 
@@ -410,9 +474,9 @@ def init_atoms_to_plot(all_settings):
 
     all_settings['mol_info'] = {i:all_settings['mol_info'][i] for i in all_settings['mol_info'] if i in all_settings['AOM_D'].keys()}
 
-    active_atoms = [all_settings['AOM_D'][i][1] for i in all_settings['AOM_D']]
+    active_atoms = [all_settings['AOM_D'][i][at_ind] for i in all_settings['AOM_D']]
     if all_settings['ignore_inactive_atoms']:
-        all_settings['atoms_to_plot'] = [i for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][1] in all_settings['atoms_to_plot']]
+        all_settings['atoms_to_plot'] = [i for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']]
     all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i in poss_atoms]
     all_settings['active_atoms_index'] = [find_value_dict(all_settings['mol_info'],i) for i in range(all_settings['nmol'])]
 
@@ -510,10 +574,10 @@ def find_step_numbers(all_settings):
         all_settings['end_step'] += 1
 
     else:
-        calStep = all_settings['calibration_step']
+        calStep = all_settings['step_to_render']
         all_settings['start_step'] = __translateEndStep(all_settings,
                                                         numPosSteps,
-                                                        'calibration_step')
+                                                        'step_to_render')
         print("Calibrating for step %i" % (all_settings['start_step']))
         # Error Catching
         if all_settings['start_step'] >= numPosSteps:

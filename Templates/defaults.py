@@ -20,7 +20,7 @@
 defaults = {
 ## Calibration
 'calibrate'         : True , # Performs a single `calibration' step and save the image in the folder ./img/Calibration/ | ['yes','no'] | 'not-tested'
-'calibration_step'  : 10 , # Chooses which (nuclear) timestep to perform the calibration on. Floats (less than 1) will be converted to a percentage of total time (e.g. 0.1 will give 10% time) | [int, float, '"half"', '"last"'] | 'not-tested'
+'step_to_render'  : 10 , # Chooses which (nuclear) timestep to perform the calibration on. Floats (less than 1) will be converted to a percentage of total time (e.g. 0.1 will give 10% time) | [int, float, '"half"', '"last"'] | 'not-tested'
 'show_img_after_vmd' : False, # Loads the calibration img after the code has ran | ['yes','no'] | 'not-tested'
 'load_in_vmd'       : False, # Loads the calibration img in VMD. This is useful for setting the position of the image as the code will save any rotations, scalings and translations performed within VMD | ['yes', 'no'] | 'not-tested'
 'isosurface_to_plot' : 0.007, # Which isosurface to plot during the simulation, a smaller number will show a larger isosurface | [float] | 'not-tested'
@@ -42,12 +42,10 @@ defaults = {
 'img_format'        : "jpg", # The format to store the img files in | [str (e.g. "png" or "jpg") ] | 'not-tested'
 'find_fuzzy_files'  : True, # Uses a fuzzy file finder to find files within a folder | [ 'yes', 'no' ] | 'not-tested'
 ## Transition State
-'show_transition_state': False, # Will plot the transition state density from 2 AOM coeff files | ['yes','no'] | 'not-tested'
-'LUMO_coeff_file': 'CP2K_LUMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the LUMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
-'HOMO_coeff_file': 'CP2K_HOMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the HOMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
-'combination_rule': 'L*H', # How to combine the LUMO and HOMO to create the transition state density. This is a string the possible values are: 'L*H' -> LUMO*HOMO, 'L+H' -> LUMO+HOMO, 'H-L' -> HOMO - LUMO, 'L/H' -> LUMO - HOMO | ['(L or H)*(L or H)', '(L or H)+(L or H)', '(L or H)-(L or H)', '(L or H)/(L or H)']
-'show_img_after_vmd' : False, # Loads the calibration img after the code has ran | ['yes','no'] | 'not-tested'
-'load_in_vmd'       : False, # Loads the calibration img in VMD. This is useful for setting the position of the image as the code will save any rotations, scalings and translations performed within VMD | ['yes', 'no'] | 'not-tested'
+'do_transition_state' : False, # Will plot the transition state density from 2 AOM coeff files | ['yes', 'no'] | 'not-tested'
+'LUMO_coeff_file' : 'CP2K_LUMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the LUMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
+'HOMO_coeff_file' : 'CP2K_HOMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the HOMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
+#'combination_rule' : 'L*H', # How to combine the LUMO and HOMO to create the transition state density. <br>This is a string the possible values are: <ul> <li>'L*H' -> LUMO*HOMO</li> <li>'L+H' -> LUMO+HOMO</li> <li>'H-L' -> HOMO - LUMO</li> <li>'L/H' -> LUMO - HOMO</li> | ['(L or H)*(L or H)'<br> '(L or H)+(L or H)'<br> '(L or H)-(L or H)'<br> '(L or H)/(L or H)'] | 'not-tested'
 ## Replicas -deprecated
 'num_reps'          : 1, # The number of replicas in the system DEPRECATED | [int] | 'not-tested'
 'rep_comb_type'     : 'mean', # What type of replica set-up. 'mean' will mean the data from each replica. DEPRECATED. | ['mean'] | 'not-tested'
@@ -87,9 +85,9 @@ defaults = {
 'bounding_box_scale' : 7, # What to add to the dimension of the bounding box surrounding the atoms | [int, list [x,y,z]] | 'not-tested'
 'dynamic_bounding_box' : True, # Will dynamically change the size of the bounding box depending on the size of the wavefunction | ['yes','no'] | 'not-tested'
 ## Text on the image
-'draw_time'         : False, # |NOT WORKING| Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
-'pos_time_label'    : 'auto', # The position of the time-stamp | ['auto', list [x,y,z]] | 'not-tested'
-'time_label_text'   : "Time = * fs", # The time-label text, the code will replace any * symbols with the current time-step | [str] | 'not-tested'
+'draw_time'         : False, # <span style="color: red; text-transform: uppercase; font-weight: bold;"> Doesn't Work</span> Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
+'pos_time_label'    : 'auto', # <span style="color: red; text-transform: uppercase; font-weight: bold;"> Doesn't Work</span> The position of the time-stamp | ['auto', list [x,y,z]] | 'not-tested'
+'time_label_text'   : "Time = * fs", # <span style="color: red; text-transform: uppercase; font-weight: bold;"> Doesn't Work</span> The time-label text, the code will replace any * symbols with the current time-step | [str] | 'not-tested'
 ## Graph -Deprecated
 'side_by_side_graph' : False, # Plots a graph of the molecular coefficients beside the visualisation | ['yes','no'] | 'not-tested'
 'mols_to_highlight' : 0, # Which molecules to highlight in the graph (shows as a opaque line instead a transparent one) | ['max', 'min', 'all', int (mol index)] | 'not-tested'

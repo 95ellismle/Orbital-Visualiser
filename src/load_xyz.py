@@ -44,6 +44,10 @@ def atom_find_more_rigorous(ltxt):
         if type_check.is_int(float(ltxt[0])):
             nat = int(ltxt[0])
             if len(ltxt[1].split()) == len(ltxt[2].split()):
+                line2_types = (type(type_check.eval_type(i)) for i in ltxt[1].split())
+                line3_types = (type(type_check.eval_type(i)) for i in ltxt[2].split())
+                for t1, t2 in zip(line2_types, line3_types):
+                    if t1 != t2: return 2, int(ltxt[0])
                 return 1, int(ltxt[0])
             return 2, int(ltxt[0])
 
@@ -177,6 +181,8 @@ def get_xyz_metadata(filename, ltxt=False):
     """
     if ltxt == False:
         ltxt = gen_io.open_read(filename, max_size=0.3).split('\n')
+    ltxt = list(filter(None, ltxt))
+
     # Check whether to use the very stable but slow parser or quick slightly unstable one
     most_stable = False
     if any('**' in i for i in ltxt[:300]):
@@ -190,10 +196,7 @@ def get_xyz_metadata(filename, ltxt=False):
        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
     else: #If there is no second step take lines from the first
        step_data = {1:ltxt[:lines_in_step]}
-    #else:
-    #    lines_in_step = find_num_title_lines(ltxt, filename)
-    #    step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-    #    num_title_lines = find_num_title_lines(step_data[1])
+    
 
     nsteps = int(len(ltxt)/lines_in_step)
     time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines],

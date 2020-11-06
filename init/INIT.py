@@ -114,6 +114,7 @@ io.create_data_img_folders(all_settings)
 keep_tga_files = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 IU.init_permanent_settings(all_settings)
 IU.init_tcl_dict(all_settings)
+IU.transition_state_init(all_settings) # Will init any transition state settings if required.
 
 # Functions that don't need coords, coeffs, pvecs etc...
 IU.get_all_files_metadata(all_settings)

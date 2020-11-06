@@ -143,8 +143,9 @@ class MainLoop(object):
         relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
         relevantImag /= size
 
-        self.writeImagCube = relevantImag > 0.003  # At least 0.3% is visible
-        self.writeRealCube = relevantReal > 0.003  # At least 0.3% is visible
+
+        self.writeImagCube = True #relevantImag > 0.001  # At least 0.3% is visible
+        self.writeRealCube = True #relevantReal > 0.001  # At least 0.3% is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
@@ -417,15 +418,30 @@ class MainLoop(object):
         if self.all_settings['pops'][self.step][molID] > 0.07:
             for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
                 u_l = self.all_settings['mol'][self.step][molNum]
-                self.data += (self.__calc_SOMO(molNum, translation) * u_l)
+                self.data += (self.__calc_SOMO(molNum, translation, 0) * u_l)
+
+            if all_settings['do_transition_state']:
+                tmp = np.zeros(self.sizes, dtype=np.complex64)
+                for molNum in self.nearestNeighbours[molID]:
+                    u_l = self.all_settings['mol'][self.step][molNum]
+                    tmp += (self.__calc_SOMO(molNum, translation, 1) * u_l)
+
         else:
             u_l = self.all_settings['mol'][self.step][molID]
-            self.data += (self.__calc_SOMO(molID, translation) * u_l)
+            self.data = (self.__calc_SOMO(molID, translation, 0) * u_l)
+
+            tmp = np.zeros(self.sizes, dtype=np.complex64)
+            tmp = (self.__calc_SOMO(molID, translation, 1) * u_l)
+
+        if all_settings['do_transition_state']:
+            # 50 just to enlarge the isosurface as the multiplication reduces its size
+            self.data = 50 * np.conjugate(tmp) * self.data
+        
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 
-    def __calc_SOMO(self, molID, translation):
+    def __calc_SOMO(self, molID, translation, AOM_D_ind=0):
         """
         Will create the SOMO for 1 molecule. This involves looping over all
         active atoms in one molecule and creating a p orbtial on each one. This
@@ -453,7 +469,7 @@ class MainLoop(object):
             at_crds = self.all_settings['coords'][self.step][iat] - translation
             #atom_I = self.all_settings['AOM_D'][iat][1]
             pvecs = pvecs_all[i]
-            AOM = self.all_settings['AOM_D'][iat][0]
+            AOM = self.all_settings['AOM_D'][iat][AOM_D_ind]
             AOM = np.round(AOM, 5)  # Can remove later (to check if rounding caused errors betwen py2 and 3)
             tmpData += MT.dot_3D(
                       MT.SH_p(self.sizes[0],
@@ -462,6 +478,7 @@ class MainLoop(object):
                               self.all_settings['resolution'],
                               at_crds),
                       pvecs) * AOM
+
         return tmpData
         #''' will fix atom syntax highlighting (don't know why)'''
 

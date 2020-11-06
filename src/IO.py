@@ -581,7 +581,7 @@ def fuzzy_file_find(path):
 
 # Will write the original settings (with typos fixed etc...) to a settings file
 def write_cleaned_orig_settings(orig_settings_dict, settings_file):
-    settings_whitelist = ['calibrate', 'load_in_vmd', 'calibration_step','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
+    settings_whitelist = ['calibrate', 'load_in_vmd', 'step_to_render','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
     s = ''
     for sett_name in orig_settings_dict:
         # If type is list or array then put square brackets and commas in the settings file.

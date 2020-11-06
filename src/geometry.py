@@ -77,7 +77,15 @@ def calc_pvecs(all_settings, step):
         v2 = a2 - a3
         pvec = np.cross(v1, v2)
         pvec /= np.linalg.norm(pvec)
-        key = all_settings['AOM_D'][iat][1]
+
+        # Find which index in the AOM dict is the atom ind (which one is an int)
+        for count, i in enumerate(all_settings['AOM_D'][list(all_settings['AOM_D'].keys())[0]]):
+            if type(i) == int:
+                at_ind = count
+                break
+        else: EXC.ERROR("Something went wrong with the parsing of the AOM dictionary! This is a major error tell Matt.")
+
+        key = all_settings['AOM_D'][iat][at_ind]
         pvecs[key] = pvec
 
     return pvecs
