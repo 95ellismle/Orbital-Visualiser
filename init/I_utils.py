@@ -166,6 +166,7 @@ def find_ignoring_steps(all_settings):
         max_step = int(len(ltxt)/all_settings['coeff_metadata']['lines_in_step'])
         timesteps = ["%.2f"%float(txt_lib.string_between(ltxt[all_settings['coeff_metadata']['lines_in_step']*i + all_settings['coeff_metadata']['time_ind']], "time = ", all_settings['coeff_metadata']['time_delim'])) for i in range(max_step)]
         common_timesteps = np.intersect1d( completed_timesteps, timesteps, return_indices=True)
+
         return common_timesteps[1] # return indices of timesteps
     else:
         return []

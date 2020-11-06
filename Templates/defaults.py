@@ -41,10 +41,16 @@ defaults = {
 'keep_tga_files'    : False, # Keeps the tga files after the simulation | ['yes','no'] | 'not-tested'
 'img_format'        : "jpg", # The format to store the img files in | [str (e.g. "png" or "jpg") ] | 'not-tested'
 'find_fuzzy_files'  : True, # Uses a fuzzy file finder to find files within a folder | [ 'yes', 'no' ] | 'not-tested'
+## Transition State
+'show_transition_state': False, # Will plot the transition state density from 2 AOM coeff files | ['yes','no'] | 'not-tested'
+'LUMO_coeff_file': 'CP2K_LUMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the LUMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
+'HOMO_coeff_file': 'CP2K_HOMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the HOMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
+'combination_rule': 'L*H', # How to combine the LUMO and HOMO to create the transition state density. This is a string the possible values are: 'L*H' -> LUMO*HOMO, 'L+H' -> LUMO+HOMO, 'H-L' -> HOMO - LUMO, 'L/H' -> LUMO - HOMO | ['(L or H)*(L or H)', '(L or H)+(L or H)', '(L or H)-(L or H)', '(L or H)/(L or H)']
+'show_img_after_vmd' : False, # Loads the calibration img after the code has ran | ['yes','no'] | 'not-tested'
+'load_in_vmd'       : False, # Loads the calibration img in VMD. This is useful for setting the position of the image as the code will save any rotations, scalings and translations performed within VMD | ['yes', 'no'] | 'not-tested'
 ## Replicas -deprecated
 'num_reps'          : 1, # The number of replicas in the system DEPRECATED | [int] | 'not-tested'
 'rep_comb_type'     : 'mean', # What type of replica set-up. 'mean' will mean the data from each replica. DEPRECATED. | ['mean'] | 'not-tested'
-
 ## Positioning
 'zoom_value'        : 1, # How much to scale the image by | [float, int] | 'not-tested'
 'rotation'          : 'auto', # How much to rotate the image by: 'Auto' will let the code try and align the long axis along the x axis, you can also use manually set the angle of rotation (as Euler angles), this will rotate in the order z,y,x. You can also turn it off by setting this variable to 'no' | ['auto', list [x,y,z], 'no'] | 'not-tested'
@@ -81,7 +87,7 @@ defaults = {
 'bounding_box_scale' : 7, # What to add to the dimension of the bounding box surrounding the atoms | [int, list [x,y,z]] | 'not-tested'
 'dynamic_bounding_box' : True, # Will dynamically change the size of the bounding box depending on the size of the wavefunction | ['yes','no'] | 'not-tested'
 ## Text on the image
-'draw_time'         : False, # Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
+'draw_time'         : False, # |NOT WORKING| Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
 'pos_time_label'    : 'auto', # The position of the time-stamp | ['auto', list [x,y,z]] | 'not-tested'
 'time_label_text'   : "Time = * fs", # The time-label text, the code will replace any * symbols with the current time-step | [str] | 'not-tested'
 ## Graph -Deprecated

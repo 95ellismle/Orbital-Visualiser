@@ -43,7 +43,9 @@ def atom_find_more_rigorous(ltxt):
     if type_check.is_num(ltxt[0]):
         if type_check.is_int(float(ltxt[0])):
             nat = int(ltxt[0])
-            return len(ltxt) - nat - 1, nat
+            if len(ltxt[1].split()) == len(ltxt[2].split()):
+                return 1, int(ltxt[0])
+            return 2, int(ltxt[0])
 
     # Get the length of the last line -this will be the length of atom line.
     first_100_line_counts = [len(line.split()) for line in ltxt[:100]]
@@ -183,6 +185,7 @@ def get_xyz_metadata(filename, ltxt=False):
     #if not most_stable:
     num_title_lines, num_atoms = atom_find_more_rigorous(ltxt)
     lines_in_step = num_title_lines + num_atoms
+
     if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
     else: #If there is no second step take lines from the first

@@ -1,33 +1,13 @@
 # The path to the folder containing the data.
-#path = '/home/matt/Data/Work/TMP/sing_mol_pent' 
-path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/SmallerSystemFSSH/run-fssh-4' 
-#path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
+path = '/home/matt/Downloads/coeff_for_Matt' 
 
-# Calibration Settings
-calibrate = 'n' # Carries out a single 'calibration' step
-calibration_step = 0 
-load_in_vmd = 'y' 
-show_img_after_vmd = 'n' 
+show_transition_state = "y"
+load_in_vmd = "y"
 
-start_step = 0 
-end_step = 5 
-stride = 1 
 
-title = 'SmallerSystem-run-fssh-4' 
-
-mol_material = 'AOChalky' 
-mol_style = 'Lines' 
-iso_material = 'BrushedMetal' 
-carbon_color = 'silver' 
-hydrogen_color = 'white' 
-
-neg_imag_iso_col = (1, 0, 0) 
-pos_imag_iso_col = (0, 0, 1) 
-verbose_output = 'y' 
+title = 'Avg_Traj' 
 
 atoms_to_plot = 'all' 
-
-
 
 
 

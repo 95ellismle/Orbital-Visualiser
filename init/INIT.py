@@ -130,8 +130,8 @@ IU.check_VMD_TEMP(all_settings)
 # Read input files
 IU.read_cp2k_inp_file(all_settings)
 IU.init_AOM_D(all_settings)
-i_IO.read_coords(all_settings)
 i_IO.read_coeffs(all_settings)
+i_IO.read_coords(all_settings)
 i_IO.read_pvecs(all_settings)
 
 # Functions needing data from input files

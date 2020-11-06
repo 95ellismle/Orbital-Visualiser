@@ -114,13 +114,13 @@ class Write_XYZ_File(gen_io.Write_File):
           """
           all_lists = (self.cols, self.xyz_data, self.timesteps)
           if len(np.shape(self.xyz_data)) == 4:
-  
+
               if len(self.cols) != len(self.xyz_data) != self.timesteps:
                 raise SystemError("\n\nThe length of the cols, xyz_data and timesteps arrays are different.\n\n"
                                   + "These arrays should all be the same length and should contain info for each file to write.")
-              
+
               all_file_strings = [self.create_single_file_str(xyz_data, cols, timesteps)
-                                  for cols, xyz_data, timesteps in zip(self.cols, self.xyz_data, self.timesteps)]  
+                                  for cols, xyz_data, timesteps in zip(self.cols, self.xyz_data, self.timesteps)]
 
           # Create the str
           else:
@@ -135,7 +135,7 @@ class Write_XYZ_File(gen_io.Write_File):
           # Create an array of spaces/newlines to add between data columns in str
           natom = len(cols[0])
           space = ["    "] * natom
-  
+
           # Convert floats to strings (the curvy brackets are important for performance here)
           xyz = xyz_data.astype(str)
           xyz = (['    '.join(line) for line in step_data] for step_data in xyz)
@@ -144,7 +144,7 @@ class Write_XYZ_File(gen_io.Write_File):
 
           s = (head_str + ("%.3f\n" % t) + '\n'.join(np.char.add(cols, step_data)) + "\n"
                for step_data, t in zip(xyz, timesteps))
-  
+
           return ''.join(s)
 
 def string_between(Str, substr1, substr2):
@@ -203,7 +203,7 @@ def atom_find_more_rigorous(ltxt):
     unique_vals = set(first_100_line_counts)
     modal_val = max(unique_vals, key=first_100_line_counts.count)
 
-    # This means either we have 1 title line, 2 title lines but 1 has the same num words as the atom lines 
+    # This means either we have 1 title line, 2 title lines but 1 has the same num words as the atom lines
     #    or 2 title lines and they both have the same length.
     # If this function needs to be more rigorous this can be modified.
     if len(unique_vals) == 2:
@@ -250,6 +250,9 @@ def find_num_title_lines(step): # should be the text in a step split by line
         if is_atom_line(line):
             break
         num_title_lines += 1
+
+        if num_title_lines > 2:
+            raise SystemExit("Can't find how many atom lines this xyz file has")
 
     return num_title_lines
 
