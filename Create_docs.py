@@ -189,7 +189,7 @@ class ParseDefaults(object):
 
             ERROR: The length of line (%s) split by '%s' is %i, it should be 2.
 
-            This is probably due to something being entered wrong in the
+            This is probably due to something being entered incorrectly in the
             Templates/defaults file.
 
             Each line needs to have the format:
