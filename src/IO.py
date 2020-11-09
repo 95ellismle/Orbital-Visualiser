@@ -508,7 +508,12 @@ def create_data_img_folders(step_info):
 def add_leading_zeros(folder):
     tga_files = [i for i in os.listdir(folder) if '.tga' in i]
     dts = [float(f.replace(",",".")[:f.find('_')]) for f in tga_files]
-    num_leading_zeros = int(np.floor(np.log10(np.max(dts))))
+    if len(dts) == 1 and dts[0] < 1 and dts[0] > -0.00001:
+        num_leading_zeros = 1
+    elif dts > 0:
+        num_leading_zeros = int(np.floor(np.log10(np.max(dts))))
+    else:
+        raise SystemExit("Creating negative times???")
 
     new_files = []
     for f in tga_files:

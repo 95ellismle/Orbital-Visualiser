@@ -135,14 +135,6 @@ Couldn't find the correct setting in the Templates/permanent settings.py file.
 The file has probably been corrupted somehow. Please try deleting it and
 restarting the code.
 """)
-# Adds zeros at the begining of an integer
-def add_leading_zeros(in_int, len_str):
-    I = str(in_int)
-    num_zeros = (len_str-len(I))
-    if num_zeros > 0:
-       return num_zeros*"0" + I
-    else:
-       return I
 
 # Removes any comments from some text
 def comment_remove(string, cmt_str='#'):
