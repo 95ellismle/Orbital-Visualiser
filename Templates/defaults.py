@@ -43,8 +43,8 @@ defaults = {
 'find_fuzzy_files'  : True, # Uses a fuzzy file finder to find files within a folder | [ 'yes', 'no' ] | 'not-tested'
 ## Transition State
 'do_transition_state' : False, # Will plot the transition state density from 2 AOM coeff files | ['yes', 'no'] | 'not-tested'
-'LUMO_coeff_file' : 'CP2K_LUMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the LUMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
-'HOMO_coeff_file' : 'CP2K_HOMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the HOMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
+'lumo_coeff_file' : 'CP2K_LUMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the LUMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
+'homo_coeff_file' : 'CP2K_HOMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the HOMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
 #'combination_rule' : 'L*H', # How to combine the LUMO and HOMO to create the transition state density. <br>This is a string the possible values are: <ul> <li>'L*H' -> LUMO*HOMO</li> <li>'L+H' -> LUMO+HOMO</li> <li>'H-L' -> HOMO - LUMO</li> <li>'L/H' -> LUMO - HOMO</li> | ['(L or H)*(L or H)'<br> '(L or H)+(L or H)'<br> '(L or H)-(L or H)'<br> '(L or H)/(L or H)'] | 'not-tested'
 ## Replicas -deprecated
 'num_reps'          : 1, # The number of replicas in the system DEPRECATED | [int] | 'not-tested'

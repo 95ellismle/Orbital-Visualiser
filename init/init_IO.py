@@ -52,6 +52,7 @@ def read_coeffs(all_settings):
                                       do_timesteps=all_settings['common_timesteps'],
                                       ignore_steps=all_settings['global_steps_to_ignore'],
                                       metadata=all_settings['coeff_metadata']) for f in all_settings['CP2K_output_files']['coeff']]
+
     if all_settings['mean_rep']:
         all_settings['mol'] = np.mean([i[0] for i in all_mol_data], axis=0)
         all_settings['Mtime-steps'] = np.mean([i[2] for i in all_mol_data], axis=0)

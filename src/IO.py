@@ -197,7 +197,7 @@ def settings_update(all_settings):
     single operation. These are then written into the settings file.
     """
     vmd_log_text = open_read(all_settings['vmd_log_file'], False)
-    if vmd_log_text != False:
+    if bool(vmd_log_text) is not False:
         os.remove(all_settings['vmd_log_file'])
         new_transforms = vmd_log_text[vmd_log_text.find(consts.end_of_vmd_file)+len(consts.end_of_vmd_file):].split('\n')
 
@@ -507,11 +507,11 @@ def create_data_img_folders(step_info):
 # alphabetesising them preserves order.
 def add_leading_zeros(folder):
     tga_files = [i for i in os.listdir(folder) if '.tga' in i]
-    dts = [float(f.replace(",",".")[:f.find('_')]) for f in tga_files]
-    if len(dts) == 1 and dts[0] < 1 and dts[0] > -0.00001:
+    dts = max([float(f.replace(",",".")[:f.find('_')]) for f in tga_files])
+    if dts < 0.01 and dts > -0.01:
         num_leading_zeros = 1
     elif dts > 0:
-        num_leading_zeros = int(np.floor(np.log10(np.max(dts))))
+        num_leading_zeros = int(np.floor(np.log10(dts)))
     else:
         raise SystemExit("Creating negative times???")
 

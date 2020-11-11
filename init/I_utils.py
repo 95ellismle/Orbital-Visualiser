@@ -129,7 +129,7 @@ def transition_state_init(all_settings):
         # if 'l' in R and 'h' in R: EXC.ERROR("Incorrect format for the combination rule -L and H specified on the right of the operator. Please check your settings file and the documentation.")
         # elif 'l' in R: R = 'lumo'
         # elif 'h' in R: R = 'homo'
-        
+
         # if 'l' in L and 'h' in L: EXC.ERROR("Incorrect format for the combination rule -L and H specified on the right of the operator. Please check your settings file and the documentation.")
         # elif 'l' in L: L = 'lumo'
         # elif 'h' in L: L = 'homo'
@@ -338,12 +338,12 @@ def init_AOM_D(all_settings):
         # Reshape AOM coeffs into 1 hastable
         tmp = all_settings['AOM_D']
         all_settings['AOM_D'] = {i: (tmp[1][i][0], tmp[0][i][0], tmp[0][i][1]) for i in tmp[0]}
-        
+
         # Get mol_info
         all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']}
         at_ind = 2 # The index at which the atom number appears in the AOM_D
 
-    # All the active molecules (according to the AOM_COEFFICIENT.include file)        
+    # All the active molecules (according to the AOM_COEFFICIENT.include file)
     all_settings['active_mols'] = [(i,all_settings['AOM_D'][i][at_ind]) for i in all_settings['AOM_D']]
     all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if np.abs(all_settings['AOM_D'][i][0]) > 0} # Removing inactive atoms from all_settings['AOM_D']
 
@@ -463,7 +463,7 @@ def init_atoms_to_plot(all_settings):
         all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i < len(all_settings['mol_info'])]
         if len(all_settings['atoms_to_plot']) == 0:
             EXC.ERROR('NO DATA PLOTTED, THERE ARE NO ATOMS CURRENTLY PLOTTED. PLEASE CHECK THE VARIABLE "atoms_to_plot"')
- 
+
         all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']}
 
     poss_atoms = [i for i, elm in enumerate(all_settings['at_num']) if elm not in all_settings['atoms_to_ignore']]
@@ -490,7 +490,7 @@ def find_value_dict(D, value):
 def check_charge_spread(all_settings):
     all_settings['num_mols_active'] = len([i for i in  all_settings['active_atoms_index'] if i])
     if all_settings['max_act_mol'] > all_settings['num_mols_active']:
-        cont = raw_input("The charge will eventually leave the number of plotted molecules in this simulation.\n\nCharge reaches mol %i (this is out of bounds for the mols plotted).\n\nAre you sure you want to continue [y/n]:\t"%all_settings['max_act_mol'])
+        cont = raw_input("The charge will eventually leave the number of plotted molecules in this simulation.\n\nCharge reaches mol %i (this is out of bounds for the mols plotted).\n\nThis is often due to the AOM file not having a coefficient for each atom. You may want to check this.\n\nAre you sure you want to continue now [y/n]:\t"%all_settings['max_act_mol'])
         if not typ.translate_to_bool(cont, 'cont'):
             raise SystemExit("\n\nOk, exiting so you can change the settings file.\nI suggest using the keyword:\n`atoms_to_plot = 'auto'` in the settings file.")
         else:
