@@ -138,20 +138,24 @@ class MainLoop(object):
         imaginary data containers to update the minimum absolute coefficient
         threshold for visualising the molecule.
         """
-        size = float(self.ImagData.size)
+        size = float(self.RealData.size)
         isoToPlot = self.all_settings['isosurface_to_plot']
         relevantReal = np.sum(np.abs(self.RealData) > isoToPlot)
         relevantReal /= size
-        relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
-        relevantImag /= size
+        self.writeImagCube = True
+        if all_settings['color_type'] == "phase":
+            relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
+            relevantImag /= size
+            self.writeImagCube = relevantImag > 0.001  # At least 0.1% is visible
 
 
-        self.writeImagCube = relevantImag > 0.001  # At least 0.3% is visible
-        self.writeRealCube = relevantReal > 0.001  # At least 0.3% is visible
+        self.writeRealCube = relevantReal > 0.001  # At least 0.1% is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
                 self.all_settings['min_abs_mol_coeff'] = molPop
+
+        if all_settings['color_type'] == "real-phase": self.writeImagCube = False
 
     def _reapplyPhase(self, molID):
         """
@@ -176,7 +180,8 @@ class MainLoop(object):
             self.RealData = self.data * np.conjugate(self.data)
             self.RealData = np.sqrt(self.RealData)
             self.ImagData = False  # We don't have imaginary data here
-        else:
+
+        elif self.all_settings['color_type'] == "phase":
             # Get phase info
             self.phase = np.angle(self.data)
             # Get the density
@@ -210,6 +215,16 @@ class MainLoop(object):
             self.RealData[self.NImask + self.PImask] = 0  # Set imag part to 0
             self.ImagData[self.NImask] = -self.ImagData[self.NImask]  # make neg
             self.ImagData[self.NRmask + self.PRmask] = 0  # Set real part to 0
+
+        elif self.all_settings['color_type'] == "real-phase":
+            # Get phase info
+            self.negMask = self.data < 0
+            # Get the density
+            self.RealData = self.data * np.conjugate(self.data)
+            self.RealData = np.sqrt(self.RealData)
+            self.RealData[self.negMask] *= -1
+
+
 
         self.__findCubesToWrite(molID)
         end_time = time.time() - start_data_create_time
@@ -506,7 +521,7 @@ class MainLoop(object):
         msg += " maker in order for him to fix it)"
         if np.sum(self.RealData.imag) > 1e-12:
             raise SystemExit(msg + '    (Bad Real Data)')
-        if type(self.ImagData) == type(np.array(1)):
+        if self.writeImagCube and type(self.ImagData) == type(np.array(1)):
             if np.sum(self.ImagData.imag) > 1e-12:
                 raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
 
@@ -524,7 +539,7 @@ class MainLoop(object):
                                   basis_vec=xyz_basis_vectors
                                                   )
 
-        if type(self.ImagData) == type(np.array(1)) and self.writeImagCube:
+        if self.writeImagCube and type(self.ImagData) == type(np.array(1)):
             self.ICubeTxt = txt_lib.cube_file_text(
                                self.ImagData.real,
                                vdim=self.sizes,
@@ -563,7 +578,7 @@ class MainLoop(object):
             self.pos_iso_cols[self.tcl_color_dict_count] = 22
             self.tcl_color_dict_count += 1
 
-        elif self.all_settings['color_type'] == 'phase':
+        elif 'phase' in self.all_settings['color_type']:
             # First real cube file
             if self.writeRealCube:
                 self.pos_iso_cols[self.tcl_color_dict_count] = 20
@@ -574,6 +589,7 @@ class MainLoop(object):
                 self.pos_iso_cols[self.tcl_color_dict_count] = 18
                 self.neg_iso_cols[self.tcl_color_dict_count] = 19
                 self.tcl_color_dict_count += 1
+
         self._saveWfCol()
 
     # Saves the wavefunction coloring in the tcl dictionary
@@ -745,6 +761,7 @@ class MainLoop(object):
         else:
             self._display_img()
 
+        raise SystemExit
         self._garbage_collector()
 
     # Copy settings.inp to img folder

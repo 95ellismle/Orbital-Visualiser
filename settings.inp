@@ -8,7 +8,7 @@ homo_coeff_file = 'CP2K_HOMO_AOM_COEFF.include_adjusted'
 calibrate = 'y' 
 step_to_render = 1 
 load_in_vmd = 'y' 
-missing_pos_steps = 'closest' 
+missing_pos_steps = 'use 0' 
 
 start_step = 0 
 end_step = 'all' 
@@ -20,11 +20,14 @@ atoms_to_plot = 'all'
 
 isosurface_to_plot = 0.005 
 
+neg_imag_iso_col = (0.0, 0.0, 1.0) 
+pos_imag_iso_col = (1.0, 0.0, 0.0) 
+
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
 img_size = [1.5e+03,1.5e+03] 
 
-zoom_value = 2.2201726827640185 # How much to zoom by
+zoom_value = 2.6493263877486046 # How much to zoom by
 
 translate_by = [-0.03,-0.04,0] # How much to translate in xyz directions

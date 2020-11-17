@@ -102,7 +102,7 @@ defaults = {
 'max_data_in_graph' : 450, # Maximum amount of data points in the graph before refreshing them | [int] | 'not-tested'
 ## Miscellaneous
 'vmd_timeout'       : 400, # How long to wait before assuming there is an error with the VMD script | [int, float] | 'not-tested'
-'type_of_wavefunction' : "phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
+'type_of_wavefunction' : "real-phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
 'num_cores'         : 'half', # DEPRECATED | 'not-tested'
 'time_step'         : False , # DEPRECATED | 'not-tested'
 }

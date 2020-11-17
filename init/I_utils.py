@@ -614,7 +614,8 @@ def missing_pos_steps(n_avail_dt, c_avail_dt, all_settings):
 
     Can choose from:
         'skip' -> Will simply ignore the steps that don't have positions.
-        'closest' -> Will use the last known position step.
+        'closest' -> Will use the closest known position to the coeff timestep.
+        'use N' -> Will use a specified position timestep.
 
     Inputs:
         * n_avail_dt -> The available position timesteps.
@@ -668,11 +669,19 @@ def missing_pos_steps(n_avail_dt, c_avail_dt, all_settings):
             return n_avail_dt, c_avail_dt
 
     elif var == 'use':
-        all_settings['pos_step_inds'] = [pos_step] * len(c_avail_dt)
+        # N.B This doesn't check for missing coefficient steps -as it is a function to
+        #                                                       correct for pos steps.
+        all_settings['pos_step_inds'] = [pos_step]
+        if not do_cal: all_settings['pos_step_inds'] *= len(c_avail_dt)
+
         avail_n = sorted(list(n_avail_dt))
-        if pos_step < len(avail_n): return [avail_n[pos_step]], c_avail_dt
+        if pos_step < len(avail_n) and not do_cal:
+            return [avail_n[pos_step]], c_avail_dt
+        elif do_cal:
+            avail_c = sorted(list(c_avail_dt))
+            return [avail_n[pos_step]], [avail_c[cal_step]]
         else: EXC.ERROR("Position step number: %i doesn't exist.\n\nPlease choose a step" % pos_step
-                      + " less than or equal to: %i" % (len(avail_n)-1))
+                          + " less than or equal to: %i" % (len(avail_n)-1))
 
     else:
         EXC.ERROR("I don't understand how you want me to correct for unknown positions")
