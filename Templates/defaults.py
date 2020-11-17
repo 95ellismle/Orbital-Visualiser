@@ -101,6 +101,7 @@ defaults = {
 'graph_to_vis_ratio' : 1, # The ratio of sizes (x dimension) for the graph and the visualisation (e.g. 2 would mean the graph would be 2 times as big as the visualisation) | [int] | 'not-tested'
 'max_data_in_graph' : 450, # Maximum amount of data points in the graph before refreshing them | [int] | 'not-tested'
 ## Miscellaneous
+'vmd_exe' : 'vmd', # Where to find the vmd binary. Should be a filepath pointing to vmd bin. | str | 'not-tested'
 'vmd_timeout'       : 400, # How long to wait before assuming there is an error with the VMD script | [int, float] | 'not-tested'
 'type_of_wavefunction' : "real-phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
 'num_cores'         : 'half', # DEPRECATED | 'not-tested'

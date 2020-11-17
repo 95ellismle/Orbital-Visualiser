@@ -1,11 +1,11 @@
 # The path to the folder containing the data.
-path = '/home/matt/Downloads/coeff_for_Matt/Bug_Coeff/run-fssh-500' 
+path = 'SamData' 
 
 do_transition_state = 'y' 
 lumo_coeff_file = 'CP2K_LUMO_AOM_COEFF.include_adjusted' 
 homo_coeff_file = 'CP2K_HOMO_AOM_COEFF.include_adjusted' 
 
-calibrate = 'y' 
+calibrate = 'n' 
 step_to_render = 1 
 load_in_vmd = 'y' 
 missing_pos_steps = 'use 0' 
@@ -26,6 +26,7 @@ pos_imag_iso_col = (1.0, 0.0, 0.0)
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
+vmd_exe = '/homes/mellis/VMD_DIR/VMD/bin/vmd' 
 img_size = [1.5e+03,1.5e+03] 
 
 zoom_value = 2.6493263877486046 # How much to zoom by

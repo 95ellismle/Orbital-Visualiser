@@ -14,7 +14,6 @@ import time
 import subprocess as sb
 import difflib as dfl
 from collections import OrderedDict
-import psutil
 #import multiprocessing as mp
 
 from src import text as txt_lib
@@ -248,8 +247,12 @@ def write_settings_file(step_info):
 def VMD_visualise(step_info, PID):
     os.system("touch %s"%step_info['vmd_junk'][PID])
     os.system("touch %s"%step_info['vmd_err'][PID])
-    # 2> %s &
-    vmd_commnd = "vmd -nt -dispdev none -e %s > %s 2> %s &"%(step_info['vmd_script'][PID], step_info['vmd_junk'][PID], step_info['vmd_err'][PID])
+    
+    vmd_exe = step_info['vmd_exe']
+    vmd_script = step_info['vmd_script'][PID]
+    vmd_junk = step_info['vmd_junk'][PID]
+    vmd_err = step_info['vmd_err'][PID]
+    vmd_commnd = "%s -nt -dispdev none -e %s > %s 2> %s &"%(vmd_exe, vmd_script, vmd_junk, vmd_err)
     #print(vmd_commnd)
     os.system(vmd_commnd)  #Maybe subprocess.call would be better as this would open VMD in a new thread?
     made_file = False
@@ -322,11 +325,17 @@ def open_write(filename, message, mkdir=False, TyPe="w+"):
 def open_read(filename, throw_error=True, max_size=1):
     filename = folder_correct(filename)
     if path_leads_somewhere(filename):
-        if os.path.getsize(filename) >= psutil.virtual_memory().available * max_size:
-            raise IOError("\n\nFilesize too big.\n\t* "
-                          +f"Filepath: '{filename}'" + "\n\t* "
-                          +f"Avail Mem: {psutil.virtual_memory().available}" + "\n\t* "
-                          +f"Filesize:  {os.path.getsize(filename)}" + "\n\n\n")
+        check_size = True
+        try:
+            import psutil
+        except ModuleNotFoundError:
+            check_size = False
+        if check_size:
+            if os.path.getsize(filename) >= psutil.virtual_memory().available * max_size:
+               raise IOError("\n\nFilesize too big.\n\t* "  
+                           +f"Filepath: '{filename}'" + "\n\t* "
+                           +f"Avail Mem: {psutil.virtual_memory().available}" + "\n\t* "
+                           +f"Filesize:  {os.path.getsize(filename)}" + "\n\n\n")
 
         with open(filename, 'r') as f:
             txt = f.read()
