@@ -151,7 +151,7 @@ def find_auto_rotation(all_settings):
     # Finds the rotation angle to align the first molecule to face the user (perp to z)
     new_sys_dims = find_sys_dims(coords2)
     xangle = find_angle(coords2, new_sys_dims['lens'], [1,2])
-    return [xangle*(180./np.pi),0,zangle*(180./np.pi)]
+    return [xangle*(180./np.pi), 0, zangle*(180./np.pi)]
 
 # # Converts a rotation matrix to Euler angles (that VMD can read)
 # #This consists of a z rotation, followed by a y rotation, followed by an x rotation

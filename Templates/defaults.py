@@ -32,6 +32,7 @@ defaults = {
 'verbose_output'    : False, # Shows lots of info about what is happening | ['yes','no'] | 'not-tested'
 'movie_length' : 6, # The length of the finished movie (will adjust the framerate to match the time) | [int] | 'not-tested'
 'movie_format'      : "mp4", # The format of the created movie | ['mp4'] | 'not-tested'
+'missing_pos_steps' : "use 0", # Will decide what to do with any position steps that are missing. Option details: <br><ul><li>'skip': Will skip any missing position steps.</li><li>'closest': Use the closest available position step in time (default).</li><li>'use N': Use position step N as the only step in the full visualisation.</li></ul> | ['skip', 'closest', 'use N'] | 'not-tested'
 'restart_vis'       : False, # Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end | ['yes', 'no'] | 'not-tested'
 'img_size' : 'auto', # The size of the image rendered if 'auto' is chosen the image will be 1000x1000 for calibration and 650x650 for a movie | ['auto', [int, int]] | 'not-tested'
 ## File Handling

@@ -62,12 +62,14 @@ class MainLoop(object):
         print("Init complete. Entering mainloop.")
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
+            self.posStepInd = all_settings['pos_step_inds'][step]
+
             # Find the phase of the first mol as a reference.
             # phase = angle in complex plane
             self.thetaRef = np.angle(self.all_settings['mol'][self.step][0])
             tmp = consts.Orig_img_prefix.replace(
                     "$fs",
-                    "%.2f" % self.all_settings['Ntime-steps'][self.step])
+                    "%.2f" % self.all_settings['Mtime-steps'][self.step])
             self.all_settings['img_prefix'] = tmp.replace(".", ",")
             start_time = time.time()
 
@@ -144,8 +146,8 @@ class MainLoop(object):
         relevantImag /= size
 
 
-        self.writeImagCube = True #relevantImag > 0.001  # At least 0.3% is visible
-        self.writeRealCube = True #relevantReal > 0.001  # At least 0.3% is visible
+        self.writeImagCube = relevantImag > 0.001  # At least 0.3% is visible
+        self.writeRealCube = relevantReal > 0.001  # At least 0.3% is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
@@ -264,12 +266,12 @@ class MainLoop(object):
         """
         # Dealing with the background molecules
         largest_dim = np.argmax(
-                          [np.max(self.all_settings['coords'][self.step][:, i])
+                          [np.max(self.all_settings['coords'][self.posStepInd][:, i])
                            for i in range(3)]
                                )
         # dims = [Xdims, Ydims, Zdims][largest_dim]
         # Find maximum coordinate
-        at_crds = self.all_settings['coords'][self.step]
+        at_crds = self.all_settings['coords'][self.posStepInd]
         at_crds = at_crds[self.all_settings['atoms_to_plot']][:, largest_dim]
         max_coord = np.max(at_crds)
         max_coord += self.all_settings['background_mols_end_extend']
@@ -279,7 +281,7 @@ class MainLoop(object):
         mask = mask[self.step][:, largest_dim] < max_coord
 
         # Apply the mask to get data. Find metadata.
-        background_mols_pos = self.all_settings['coords'][self.step][mask]
+        background_mols_pos = self.all_settings['coords'][self.posStepInd][mask]
         background_mols_at_num = self.all_settings['at_num'][mask]
         backgrnd_mols_filepath = self.all_settings['data_fold'] + \
             "bckgrnd_mols-%s.xyz" % self.PID
@@ -349,7 +351,7 @@ class MainLoop(object):
         """
         # Find active coordinates (from active atom index)
         atMask = [i for i in self.all_settings['active_atoms_index'][molID]]
-        self.active_coords = self.all_settings['coords'][self.step][atMask]
+        self.active_coords = self.all_settings['coords'][self.posStepInd][atMask]
         self.active_coords = [self.active_coords[:, k] for k in range(3)]
         self.active_coords = np.array(self.active_coords)
 
@@ -436,7 +438,7 @@ class MainLoop(object):
         if all_settings['do_transition_state']:
             # 50 just to enlarge the isosurface as the multiplication reduces its size
             self.data = 50 * np.conjugate(tmp) * self.data
-        
+
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
@@ -455,7 +457,8 @@ class MainLoop(object):
             act_ats = np.array(self.all_settings['reversed_mol_info'][molID])
             mol_num = int(self.all_settings['reversed_mol_info'][molID][0] / all_settings['atoms_per_site'])
             act_ats -= int(mol_num * all_settings['atoms_per_site'])
-            ats = self.all_settings['coords'][self.step][range(mol_num*all_settings['atoms_per_site'], (mol_num+1)*all_settings['atoms_per_site'])]
+            ats = self.all_settings['coords'][self.posStepInd]
+            ats = ats[range(mol_num*all_settings['atoms_per_site'], (mol_num+1)*all_settings['atoms_per_site'])]
             pvecs_all = geom.calc_pvecs_1mol(ats, act_ats)
             self.all_settings['times']['Create Pvecs'][self.step] += time.time() - start_time
         else:
@@ -466,7 +469,7 @@ class MainLoop(object):
         # Loop over atoms that belong to molecule molID
         for i, iat in enumerate(self.all_settings['reversed_mol_info'][molID]):
 
-            at_crds = self.all_settings['coords'][self.step][iat] - translation
+            at_crds = self.all_settings['coords'][self.posStepInd][iat] - translation
             #atom_I = self.all_settings['AOM_D'][iat][1]
             pvecs = pvecs_all[i]
             AOM = self.all_settings['AOM_D'][iat][AOM_D_ind]
@@ -514,7 +517,7 @@ class MainLoop(object):
                                   vdim=self.sizes,
                                   mol_info=self.all_settings['mol_info'],
                                   orig=self.origin,
-                                  Ac=self.all_settings['coords'][self.step],
+                                  Ac=self.all_settings['coords'][self.posStepInd],
                                   An=self.all_settings['at_num'],
                                   tit=self.all_settings['title'],
                                   atoms_to_plot=self.all_settings['atoms_to_plot'],
@@ -527,7 +530,7 @@ class MainLoop(object):
                                vdim=self.sizes,
                                mol_info=self.all_settings['mol_info'],
                                orig=self.origin,
-                               Ac=self.all_settings['coords'][self.step],
+                               Ac=self.all_settings['coords'][self.posStepInd],
                                An=self.all_settings['at_num'],
                                tit=self.all_settings['title'],
                                atoms_to_plot=self.all_settings['atoms_to_plot'],
@@ -624,7 +627,6 @@ class MainLoop(object):
         cond = 'tga' not in self.all_settings['files_to_keep']
         cond *= not all_settings['calibrate']
         if cond:
-            print(self.tga_filepath)
             self.all_settings['delete_these'].append(self.tga_filepath)
 
         io.VMD_visualise(self.all_settings, self.PID)
@@ -690,7 +692,7 @@ class MainLoop(object):
         revMolVals = self.all_settings['reversed_mol_info'].values()
         atIndsPerMol = [atNums for atNums in revMolVals]
 
-        molCoords = self.all_settings['coords'][0,atIndsPerMol]
+        molCoords = self.all_settings['coords'][0, atIndsPerMol]
         avgPosMols = np.array([np.mean(i, axis=0) for i in molCoords])
 
         molKeys = list(self.all_settings['reversed_mol_info'].keys())

@@ -20,7 +20,7 @@ def read_coords(all_settings):
                                         min_step=all_settings['start_step'],
                                         max_step=all_settings['max_step'],
                                         stride=all_settings['stride'],
-                                        do_timesteps=all_settings['common_timesteps'],
+                                        do_timesteps=all_settings['nucl_steps_to_read'],
                                         ignore_steps=all_settings['global_steps_to_ignore'],
                                         metadata=all_settings['pos_metadata']) for filename in all_settings['CP2K_output_files']['pos']]
 
@@ -49,7 +49,7 @@ def read_coeffs(all_settings):
                                       min_step=all_settings['start_step'],
                                       max_step=all_settings['max_step'],
                                       stride=all_settings['stride'],
-                                      do_timesteps=all_settings['common_timesteps'],
+                                      do_timesteps=all_settings['coeff_steps_to_read'],
                                       ignore_steps=all_settings['global_steps_to_ignore'],
                                       metadata=all_settings['coeff_metadata']) for f in all_settings['CP2K_output_files']['coeff']]
 
@@ -85,7 +85,7 @@ def read_pvecs(all_settings):
                                    min_step=all_settings['start_step'],
                                    max_step=all_settings['max_step'],
                                    stride=all_settings['stride'],
-                                   do_timesteps=all_settings['common_timesteps'],
+                                   do_timesteps=all_settings['coeff_steps_to_read'].union(all_settings['nuclear_steps_to_read']),
                                    ignore_steps=all_settings['global_steps_to_ignore'],
                                    metadata=all_settings['pvecs_metadata'])[0]
              for f in all_settings['CP2K_output_files']['pvecs']]

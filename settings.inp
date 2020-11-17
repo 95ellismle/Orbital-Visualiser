@@ -2,24 +2,29 @@
 path = '/home/matt/Downloads/coeff_for_Matt/Bug_Coeff/run-fssh-500' 
 
 do_transition_state = 'y' 
-step_to_render = 0 
-load_in_vmd = 'y' 
-
 lumo_coeff_file = 'CP2K_LUMO_AOM_COEFF.include_adjusted' 
 homo_coeff_file = 'CP2K_HOMO_AOM_COEFF.include_adjusted' 
 
-title = 'Avg_Traj' 
+calibrate = 'y' 
+step_to_render = 1 
+load_in_vmd = 'y' 
+missing_pos_steps = 'closest' 
 
-atoms_to_plot = 'min_active' 
+start_step = 0 
+end_step = 'all' 
 
-isosurface_to_plot = 5e-05 
 
-resolution = 0.22 
+title = 'Anthracene_Traj_trans' 
+
+atoms_to_plot = 'all' 
+
+isosurface_to_plot = 0.005 
+
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
 img_size = [1.5e+03,1.5e+03] 
 
-zoom_value = 2.2308572711951924 # How much to zoom by
+zoom_value = 2.2201726827640185 # How much to zoom by
 
-translate_by = [-0.03,-0.07,0] # How much to translate in xyz directions
+translate_by = [-0.03,-0.04,0] # How much to translate in xyz directions

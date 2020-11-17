@@ -25,6 +25,12 @@ def tcl_3D_input(data, dims, tcl_info, start_str):
 
 # Will fix typos in a line of the settings file.
 def setting_typo_check(line, defaults, setting_file_settings, replacer_settings):
+    """
+    Inputs:
+        * line <str> => ...
+        * setting_file_settings <?> => ...
+        * replacer_settings <?> => ...
+    """
     sett = line.split('=')[0].strip()
     poss_setts = fuzzy_variable_translate(sett, list(defaults),False, False,0.6)
     if sum(poss_setts) == 1:
@@ -41,20 +47,65 @@ def setting_typo_check(line, defaults, setting_file_settings, replacer_settings)
         EXC.WARN("There are too many possible settings for '%s'. These are:\n\t* %s.\n\nI do not want to assume which one it is, please correct it in the input file!"%(sett, '\n\t* '.join(defaults[poss_setts])), True)
     return line
 
-# Uses a fuzzy finder to correct spelling mistakes in variables. Returns a list of bools, so switches variables on or off.
 def fuzzy_variable_translate(variable, poss_variables, verbose_output, throw_error=True, min_tol=0.3):
-   if type(variable) != str:
-      return False
-   a = [dfl.SequenceMatcher(None, variable.lower(), i.lower()).ratio() for i in poss_variables]
-   if all(i < min_tol for i in a) and throw_error:
-       EXC.ERROR("I don't know what variable '%s' means. \nValid Options are:%s"%(variable,'\n\t*'+'\n\t*'.join(poss_variables))  )
-   if all(i < min_tol for i in a):
-       return [False]*len(poss_variables)
-   temp_array = [False]*len(poss_variables)
-   temp_array = [True if i == max(a) else False for i in a ]
-   if all(i < 0.95 for i in a) and verbose_output:
-       EXC.WARN("Assuming '%s' means you want me to use %s"%(variable,np.array(poss_variables)[temp_array][0]) )
-   return temp_array
+    """
+    Uses a fuzzy finder to correct spelling mistakes in variables.
+
+    Inputs:
+        * variable <str> => The variable to be checked for typos.
+        * poss_variables <list<str>> => The possible (correct) names of the variables.
+        * verbose_output <bool> => Whether to output lots of info or not.
+        * throw_error <bool>  (default True) => Whether to throw an error for no hits.
+        * min_tol <float> (default 0.3) => The tolerance for classifying a 'hit'.
+
+    Outputs:
+        Returns a list of bools, these tell which element of the input list poss_variables are
+         possible correct strings.
+    """
+    if type(variable) != str:
+       return False
+    a = [dfl.SequenceMatcher(None, variable.lower(), i.lower()).ratio() for i in poss_variables]
+    if all(i < min_tol for i in a) and throw_error:
+        EXC.ERROR("I don't know what variable '%s' means. \nValid Options are:%s"%(variable,'\n\t*'+'\n\t*'.join(poss_variables))  )
+    if all(i < min_tol for i in a):
+        return [False]*len(poss_variables)
+    temp_array = [False]*len(poss_variables)
+    temp_array = [True if i == max(a) else False for i in a ]
+    if all(i < 0.95 for i in a) and verbose_output:
+        EXC.WARN("Assuming '%s' means you want me to use %s"%(variable,np.array(poss_variables)[temp_array][0]) )
+    return temp_array
+
+def fuzzy_variable_helper(variable, poss_var, just_1_var=True,
+                          tol=0.3, verbose_out=True, throw_error=True):
+    """
+    A function to make the fuzzy_variable_translate slightly easier to use.
+
+    Inputs:
+        * variable <str> => The variable to be checked for typos.
+        * poss_variables <list<str>> => The possible (correct) names of the variables.
+        * just_1_var <bool> (default False) => Only allow 1 variable or not.
+        * tol <float> (default 0.3) => The tolerance for classifying a 'hit'.
+        * verbose_out <bool> => Whether to output lots of info or not.
+        * throw_error <bool>  (default True) => Whether to throw an error for no hits.
+
+    Outputs:
+        Returns a list of strings that can be the variable. If
+    """
+    poss_var_inds = fuzzy_variable_translate(variable, poss_var, verbose_out, throw_error, tol)
+    poss_vars = np.array(poss_var)
+    poss_vars = poss_vars[poss_var_inds]
+
+    if len(poss_vars) < 1: EXC.ERROR("I don't know what '%s' is supposed to mean." % variable)
+
+    elif len(poss_vars) == 1:
+        return poss_vars[0]
+
+    elif len(poss_vars) > 1:
+        if just_1_var:
+            EXC.ERROR("I don't know what you mean by: '%s'.\n" % variable
+                    + "You could mean:\n\t* %s" % '\n\t* '.join(poss_var))
+
+        else: return poss_vars
 
 # Take the product of a list of transformations in vmd such as: scaling; x,y,z rotations etc...
 def combine_vmd_scalings(ltxt):

@@ -28,6 +28,7 @@ import numpy as np
 import datetime
 import difflib
 import os
+import re
 import sys
 import subprocess
 from collections import OrderedDict
@@ -323,10 +324,16 @@ def init_AOM_D(all_settings):
 
     # Transition State
     else:
+        # Error checking
+        if len(all_settings['CP2K_output_files']['AOM']) > 2:
+            EXC.ERROR("More AOM files found than expected.")
+
         # Parse AOM file
         all_settings['AOM_D'] = []
+        mol_infos = []
         for f in all_settings['CP2K_output_files']['AOM']:
             _, aom, tmp = io.AOM_coeffs(f, all_settings['atoms_per_site'])
+            mol_infos.append(tmp)
             all_settings['AOM_D'].append(aom)
 
         # Error checking
@@ -340,7 +347,11 @@ def init_AOM_D(all_settings):
         all_settings['AOM_D'] = {i: (tmp[1][i][0], tmp[0][i][0], tmp[0][i][1]) for i in tmp[0]}
 
         # Get mol_info
-        all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']}
+        if not mol_infos[0]:
+            all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']}
+        else:
+            all_settings['mol_info'] = mol_infos[0]
+
         at_ind = 2 # The index at which the atom number appears in the AOM_D
 
     # All the active molecules (according to the AOM_COEFFICIENT.include file)
@@ -506,7 +517,7 @@ def init_times_dict(all_settings):
     from each step for the different categories.
     """
     all_settings['init_times'] = {}
-    num_steps = len(all_settings['coords'])
+    num_steps = len(all_settings['pos_step_inds'])
     all_settings['times'] = OrderedDict()
     all_settings['times']['Create Wavefunction'] = np.zeros(num_steps)
     all_settings['times']['Create Cube Data'] = np.zeros(num_steps)
@@ -565,7 +576,7 @@ def __translateEndStep(all_settings, numSteps, setting):
 # Will initialise the start_step, end_step and stride variables
 def find_step_numbers(all_settings):
     """
-    This function will set the start and end step for the simulation.
+    This function will set the start step, end step and stride for the simulation.
     """
     numPosSteps = all_settings['pos_metadata']['nsteps']
     if not all_settings['calibrate']:
@@ -593,6 +604,118 @@ def find_step_numbers(all_settings):
         all_settings['max_step'] = np.max([all_settings['pos_metadata']['nsteps'],
                                            all_settings['coeff_metadata']['nsteps']])
 
+
+def missing_pos_steps(n_avail_dt, c_avail_dt, all_settings):
+    """
+    Will handle any missing position timesteps.
+
+    This works by creating an array of indices that tells the code which position
+    step to use for that particular timestep.
+
+    Can choose from:
+        'skip' -> Will simply ignore the steps that don't have positions.
+        'closest' -> Will use the last known position step.
+
+    Inputs:
+        * n_avail_dt -> The available position timesteps.
+        * c_avail_dt -> The available coefficient timesteps.
+        * all_settings -> A dictionary containing all the settings for the code.
+
+    Outputs:
+        Will ammend the all_settings dictionary and create the 'pos_step_inds' array.
+        Will output <arr>, <arr>: nucl_timesteps to read, coeff timesteps to read.
+    """
+    do_cal, cal_step = all_settings['calibrate'], all_settings['step_to_render']
+
+    all_settings['missing_pos_steps'] = all_settings['missing_pos_steps'].lower()
+    if 'use' in all_settings['missing_pos_steps']:
+        nums = re.findall("[0-9]+", all_settings['missing_pos_steps'])
+        var = "use"
+        if len(nums) == 1: pos_step = int(nums[0])
+        else: EXC.ERROR("Don't understand the correction for missing position steps."
+                      + "\n\nBad Lines: '%s'" % all_settings['missing_pos_steps'])
+    else:
+        var = txt_lib.fuzzy_variable_helper(all_settings['missing_pos_steps'],
+                                            ('skip', 'closest'))
+
+    if var == 'skip':
+        all_settings['pos_step_inds'] = range(len(n_avail_dt))
+        common_timesteps = np.intersect1d(n_avail_dt, c_avail_dt)
+        if do_cal:
+            all_settings['pos_step_inds'] = [0]
+            if cal_step < len(common_timesteps) and cal_step >= 0:
+                return [common_timesteps[cal_step]], [common_timesteps[cal_step]]
+            else: EXC.ERROR("Can't find step %i in the steps to load." % cal_step
+                          + "\n\nPlease choose a number less than %i" % len(common_timesteps)
+                          + "\n\nNote that the step chosen is the indexing common timesteps."
+                          + " That is timesteps that appear in both coeffs and positions.")
+        return common_timesteps, common_timesteps
+
+    elif var == 'closest':
+        all_settings['pos_step_inds'] = get_closest_inds(n_avail_dt, c_avail_dt)
+        if do_cal:
+            if cal_step < len(c_avail_dt) and cal_step >= 0:
+                c_time = sorted(list(c_avail_dt))[cal_step]
+                n_time = sorted(list(n_avail_dt))[all_settings['pos_step_inds'][cal_step]]
+                all_settings['pos_step_inds'] = [0]
+                return [n_time], [c_time]
+            else:
+                EXC.ERROR("The 'step_to_render' (%i) can't be found in the coefficients array." % cal_step
+                        + "\n\nPlease choose a calibration step between 0 and %i (inclusive)." % (len(c_avail_dt)-1))
+            raise SystemExit
+
+        else:
+            return n_avail_dt, c_avail_dt
+
+    elif var == 'use':
+        all_settings['pos_step_inds'] = [pos_step] * len(c_avail_dt)
+        avail_n = sorted(list(n_avail_dt))
+        if pos_step < len(avail_n): return [avail_n[pos_step]], c_avail_dt
+        else: EXC.ERROR("Position step number: %i doesn't exist.\n\nPlease choose a step" % pos_step
+                      + " less than or equal to: %i" % (len(avail_n)-1))
+
+    else:
+        EXC.ERROR("I don't understand how you want me to correct for unknown positions")
+
+def get_closest_inds(arr1, arr2):
+    """
+    Will return an array of size len(arr2) with integers that tell the user
+    which index in arr1 is closest to the value in arr2.
+
+    N.B.
+    The inputs arr1 and arr2 will be sorted at the beginning. This will give
+    incorrect results if the data isn't sorted.
+    """
+    arr1_list = sorted(list(arr1))
+    arr2_list = sorted(list(arr2))
+    arr1_hm_inds = {val: i for i, val in enumerate(arr1)}
+
+    closest_inds = []
+    i, j = 0, 0
+    while (i < len(arr2_list)):
+        coeff_dt = arr2_list[i]
+        pos_dt = arr1_list[j]
+
+        # If the value is exactly there just add the index of
+        #   where it appears in the coeff list
+        if coeff_dt in arr1_hm_inds:
+            j = arr1_hm_inds[coeff_dt]
+            closest_inds.append(j)
+
+        # Find the closest index
+        else:
+            curr_val = abs(arr1_list[j] - coeff_dt)
+            for k in range(j+1, len(arr1_list)):
+                if abs(arr1_list[k]-coeff_dt) < curr_val:
+                    j = k
+                else: break
+            closest_inds.append(j)
+        i += 1
+
+    return closest_inds
+
+
+
 def init_local_steps_to_ignore(all_settings):
     """
     Will initialise which timesteps to carry out based on which steps are
@@ -617,16 +740,10 @@ def init_local_steps_to_ignore(all_settings):
     # Read in which timesteps are available
     n_avail_dt = all_settings['pos_metadata']['tsteps'][all_nucl_steps]
     c_avail_dt = all_settings['coeff_metadata']['tsteps']
-    if 'pvecs_metadata' in all_settings:
-        p_avail_dt = all_settings['pvecs_metadata']['tsteps']
 
-    # Find timesteps that are in all sets
-    if 'pvecs_metadata' in all_settings:
-        common_timesteps = np.intersect1d(np.intersect1d(n_avail_dt, c_avail_dt), p_avail_dt)
-    else:
-        common_timesteps = np.intersect1d(n_avail_dt, c_avail_dt)
-
-    all_settings['common_timesteps'] = common_timesteps
+    n_avail_dt, c_avail_dt = missing_pos_steps(n_avail_dt, c_avail_dt, all_settings)
+    all_settings['nucl_steps_to_read'] = sorted(list(n_avail_dt))
+    all_settings['coeff_steps_to_read'] = sorted(list(c_avail_dt))
 
 
 # Will check the last lines of the file TemplatesVMD_TEMP.vmd are known
