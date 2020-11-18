@@ -894,7 +894,7 @@ def fix_missing_pos_steps(all_settings):
        if 0 > use_step > len(pos_steps):
           EXC.ERROR("Step %i is out of bounds to use as a the correction to missing position steps." % use_step
                   + "\n\nPlease choose a step 0 <= i <= %i as `missing_pos_steps = 'use N'`" % len(pos_steps))
-       all_settings['nucl_tsteps_to_read'] = pos_steps[use_step]
+       all_settings['nucl_tsteps_to_read'] = [pos_steps[use_step]]
        all_settings['pos_step_inds'] = [0] * len(mol_steps)
 
     elif all_settings['missing_pos_steps'] == 'closest':

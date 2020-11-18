@@ -59,7 +59,6 @@ def read_pvecs(all_settings):
     # If there is no pvecs file and the code has been instructed to create them.
 #    if all_settings['CP2K_output_files']['pvecs'] == 'CREATE':
     all_settings['pvecs'] = False
-    print("Can't find a pvecs file -will attempt to calculate from positions.")
 
     crd_shape = np.shape(all_settings['coords'])
     nmol = crd_shape[1] / float(all_settings['atoms_per_site'])

@@ -8,10 +8,10 @@ homo_coeff_file = 'CP2K_HOMO_AOM_COEFF.include_adjusted'
 calibrate = 'n' 
 timestep_to_render = 101.0 
 load_in_vmd = 'y' 
-missing_pos_steps = 'closest' 
+missing_pos_steps = 'use 0' 
 
 end_time = 'all' 
-stride = 2 
+stride = 1 
 
 
 title = 'Anthracene_Traj_trans' 

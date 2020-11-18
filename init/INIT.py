@@ -136,5 +136,3 @@ IU.check_charge_spread(all_settings)
 all_settings['reversed_mol_info'] = IU.reverseDict(all_settings['mol_info'])
 IU.init_times_dict(all_settings)
 all_steps = xrange(len(all_settings['pos_step_inds']))
-print(all_steps)
-raise SystemExit
