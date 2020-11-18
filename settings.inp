@@ -6,12 +6,12 @@ lumo_coeff_file = 'CP2K_LUMO_AOM_COEFF.include_adjusted'
 homo_coeff_file = 'CP2K_HOMO_AOM_COEFF.include_adjusted' 
 
 calibrate = 'n' 
-step_to_render = 1 
+timestep_to_render = 101.0 
 load_in_vmd = 'y' 
-missing_pos_steps = 'use 0' 
+missing_pos_steps = 'closest' 
 
-start_step = 0 
-end_step = 'all' 
+end_time = 'all' 
+stride = 2 
 
 
 title = 'Anthracene_Traj_trans' 
@@ -26,6 +26,7 @@ pos_imag_iso_col = (1.0, 0.0, 0.0)
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
+restart_vis = True 
 vmd_exe = '/homes/mellis/VMD_DIR/VMD/bin/vmd' 
 img_size = [1.5e+03,1.5e+03] 
 

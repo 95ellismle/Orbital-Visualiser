@@ -20,19 +20,19 @@
 defaults = {
 ## Calibration
 'calibrate'         : True , # Performs a single `calibration' step and save the image in the folder ./img/Calibration/ | ['yes','no'] | 'not-tested'
-'step_to_render'  : 10 , # Chooses which (nuclear) timestep to perform the calibration on. Floats (less than 1) will be converted to a percentage of total time (e.g. 0.1 will give 10% time) | [int, float, '"half"', '"last"'] | 'not-tested'
+'timestep_to_render'  : 0 , # Chooses which timestep to perform the calibration on. This is subject to the 'missing_pos_steps' setting. | [float, 'last'] | 'not-tested'
 'show_img_after_vmd' : False, # Loads the calibration img after the code has ran | ['yes','no'] | 'not-tested'
 'load_in_vmd'       : False, # Loads the calibration img in VMD. This is useful for setting the position of the image as the code will save any rotations, scalings and translations performed within VMD | ['yes', 'no'] | 'not-tested'
 'isosurface_to_plot' : 0.007, # Which isosurface to plot during the simulation, a smaller number will show a larger isosurface | [float] | 'not-tested'
 ## Movie Creation
 "title"             : None, # This will change the name of the movie and the folder it is saved in. Will save the movie in ./img/Title/ | [str] | 'not-tested'
-'end_step'         : 'all', # Which step to iterate up to for the movie (refers to the step in the xyz file). | ['all', int] | 'not-tested'
+'end_time'         : 'all', # Which <strong>time-step</strong> to iterate up to for the movie. This is inclusive e.g. an end_time of 20.0 would include the frame for 20.0fs. | ['all', float] | 'not-tested'
 'stride'            : 1, # What stride to use to iterate with for the movie (a stride of 2 would render every 2nd frame). Refers to the step index in the file -not the MD step. | [int] | 'not-tested'
-'start_step'        : 0, # Which step to start iterating on (refers to step in xyz file). | [integer (zero is the first)] | 'not-tested'
+'start_time'        : 0.0, # Which <strong>time-step</strong> to start iterating on. This is inclusive e.g. a start_time of 0.0fs would include the frame for 0.0fs.| [float (zero is the first)] | 'not-tested'
 'verbose_output'    : False, # Shows lots of info about what is happening | ['yes','no'] | 'not-tested'
 'movie_length' : 6, # The length of the finished movie (will adjust the framerate to match the time) | [int] | 'not-tested'
 'movie_format'      : "mp4", # The format of the created movie | ['mp4'] | 'not-tested'
-'missing_pos_steps' : "use 0", # Will decide what to do with any position steps that are missing. Option details: <br><ul><li>'skip': Will skip any missing position steps.</li><li>'closest': Use the closest available position step in time (default).</li><li>'use N': Use position step N as the only step in the full visualisation.</li></ul> | ['skip', 'closest', 'use N'] | 'not-tested'
+'missing_pos_steps' : "use 0", # Will decide what to do with any position steps that are missing. Option details: <br><ul><li>'skip': Will skip any missing position steps.</li><li>'closest': Use the closest available position step in time (default).</li><li>'use N': Use position step N as the only step in the full visualisation. <emph>N.B. this is the step index rather than a timestep.</emph></li></ul> | ['skip', 'closest', 'use N'] | 'not-tested'
 'restart_vis'       : False, # Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end | ['yes', 'no'] | 'not-tested'
 'img_size' : 'auto', # The size of the image rendered if 'auto' is chosen the image will be 1000x1000 for calibration and 650x650 for a movie | ['auto', [int, int]] | 'not-tested'
 ## File Handling

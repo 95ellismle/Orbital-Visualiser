@@ -112,6 +112,7 @@ def init_all_settings_other(all_settings):
     # Misc required step data
     all_settings['mols_plotted'] = ''
     all_settings['verbose_output']  = typ.translate_to_bool(all_settings['verbose_output'], 'verbose_output')
+    init_missing_pos_step_vars(all_settings)
 
 def transition_state_init(all_settings):
     all_settings['do_transition_state'] = typ.translate_to_bool(all_settings['do_transition_state'], 'do_transition_state')
@@ -187,20 +188,6 @@ def find_ignoring_steps(all_settings):
     a previous run. This function will loop through the img folder and find the
     timesteps already completed and decide to ignore these steps.
     """
-    if all_settings['title'] in os.listdir(all_settings['img_fold']):
-        all_steps = range(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
-        img_folderpath = io.folder_correct(all_settings['img_fold']+all_settings['title'])
-        tga_files = [i.replace(",",".") for i in os.listdir(img_folderpath)]
-        completed_timesteps = ['%.2f'%float(i[:i.find('_')]) for i in tga_files if typ.is_num(i[:i.find('_')])]
-        ltxt = io.open_read(all_settings['CP2K_output_files']['coeff'][0]).split('\n')
-        max_step = int(len(ltxt)/all_settings['coeff_metadata']['lines_in_step'])
-        timesteps = ["%.2f"%float(txt_lib.string_between(ltxt[all_settings['coeff_metadata']['lines_in_step']*i + all_settings['coeff_metadata']['time_ind']], "time = ", all_settings['coeff_metadata']['time_delim'])) for i in range(max_step)]
-        common_timesteps = np.intersect1d( completed_timesteps, timesteps, return_indices=True)
-
-        return common_timesteps[1] # return indices of timesteps
-    else:
-        return []
-
 
 # Determines the correct all_settings['rotation'] vector to use
 def init_rotation(all_settings):
@@ -425,12 +412,38 @@ def read_cp2k_inp_file(all_settings):
     all_settings['nmol'] = int(ndiab_states/norbits)
 
 
-# Will find which steps to ignore
-def init_global_steps_to_ignore(all_settings):
-    all_settings['global_steps_to_ignore'] = []
-    if all_settings['restart_vis'] and not all_settings['calibrate']:
-        all_settings['global_steps_to_ignore'] = list( find_ignoring_steps(all_settings) )
+def init_ignore_steps_for_restart(all_settings):
+    """
+    Find which steps to ignore for restarting visualisations.
 
+    We loop over any files in the folder that we're writing to and if
+    the images corresponding to the timesteps that need to be done are there
+    then don't re-plot them.
+    """
+    if all_settings['restart_vis']:
+       # Check if we have the image folder containing prior data
+       img_fold = all_settings['img_fold'] + "/" + all_settings['title']
+       if os.path.isdir(img_fold):
+           all_tga_files = [re.findall("[0-9,]+", i) for i in os.listdir(img_fold) if '.tga' == i[-4:]]
+           completed_timesteps = set([float(i[0].replace(",", ".")) for i in all_tga_files if i])
+
+           # If we don't use a missing position correction then use strict rules for pos and coeff
+           if all_settings['missing_pos_steps'] == 'skip':
+               timesteps_names = ('nucl_tsteps_to_read', 'coeff_tsteps_to_read')
+           else:
+               timesteps_names = ('coeff_tsteps_to_read',)
+           
+           # Remove any steps to do that have been done
+           for name in timesteps_names:
+              tmp = []
+              for i in all_settings[name]:
+                  if i not in completed_timesteps:
+                      tmp.append(i)
+              all_settings[name] = tmp
+
+              if len(tmp) == 0:
+                  raise SystemExit("No more steps for me to carry out. If you would like to stitch the images then use a script from the UsefulScripts folder.")
+           
 
 # Will find which atoms should be plotted
 def init_atoms_to_plot(all_settings):
@@ -509,6 +522,16 @@ def check_charge_spread(all_settings):
     all_active_coords = all_settings['coords'][:,[i[0] for i in all_settings['active_mols']]]
 
 
+def init_steps_to_do(all_settings):
+   """
+   Will simply create arrays with all steps that are possible for the nuclear and coefficient steps.
+
+   Will add 2 arrays to the all_settings dict: 'nucl_tsteps_to_read' and 'coeff_tsteps_to_read'.
+   """
+   all_settings['nucl_tsteps_to_read'] = all_settings['pos_metadata']['tsteps']
+   all_settings['coeff_tsteps_to_read'] = all_settings['coeff_metadata']['tsteps']
+
+
 # Will create the storage containers to store the timings
 def init_times_dict(all_settings):
     """
@@ -537,8 +560,9 @@ def __translateEndStep(all_settings, numSteps, setting):
     timestep.
 
     Inputs:
-        * val => Step to translate
+        * all_settings => all setting dict
         * numSteps => max number of steps allowed
+        * setting => The setting to translate
     """
     val = all_settings[setting]
     if type(val) == str:
@@ -549,7 +573,7 @@ def __translateEndStep(all_settings, numSteps, setting):
                    'last': numSteps}
 
         settMask = txt_lib.fuzzy_variable_translate(
-                                            all_settings['end_step'],
+                                            all_settings['end_time'],
                                             list(allowedOptions),
                                             all_settings['verbose_output'],
                                             False)
@@ -573,37 +597,158 @@ def __translateEndStep(all_settings, numSteps, setting):
         raise SystemExit(msg)
 
 
-# Will initialise the start_step, end_step and stride variables
+# Will initialise the start_time, end_time and stride variables
 def find_step_numbers(all_settings):
     """
     This function will set the start step, end step and stride for the simulation.
+
+    N.B. Step nums are inclusive i.e. start <= i <= end.
     """
-    numPosSteps = all_settings['pos_metadata']['nsteps']
-    if not all_settings['calibrate']:
-        all_settings['end_step'] = __translateEndStep(all_settings,
-                                                      numPosSteps, 'end_step')
-        all_settings['end_step'] += 1
+    # Choose either nuclear of coefficient timesteps based on the missing pos step setting.
+    if all_settings['missing_pos_steps'] == 'skip':
+       availSteps = all_settings['pos_metadata']['tsteps']
+    else:       availSteps = all_settings['coeff_metadata']['tsteps']
 
-    else:
-        calStep = all_settings['step_to_render']
-        all_settings['start_step'] = __translateEndStep(all_settings,
-                                                        numPosSteps,
-                                                        'step_to_render')
-        print("Calibrating for step %i" % (all_settings['start_step']))
-        # Error Catching
-        if all_settings['start_step'] >= numPosSteps:
-            all_settings['start_step'] = numPosSteps - 1
-        all_settings['end_step'] = all_settings['start_step'] + 1
+    do_cal, calTStep = all_settings['calibrate'], all_settings['timestep_to_render']
+    startT, endT, stride = all_settings['start_time'], all_settings['end_time'], all_settings['stride']
+
+    # Render 1 pic
+    if do_cal:
         all_settings['stride'] = 1
+        if calTStep > max(availSteps): 
+            if all_settings['missing_pos_steps'] != 'skip':
+               EXC.WARN("Calibration step (%.2f) chosen to be out of bounds of the simulation data. Using last step instead." % calTStep)
+               calTStep = availSteps[-1]
+            else:
+               EXC.ERROR("Calibration step (%.2f) chosen to be out of bounds of the simulation data." % calTStep)
+        
+        if calTStep not in availSteps:
+           if all_settings['missing_pos_steps'] != 'skip':
+              diffs = availSteps - calTStep
+              cal_step_ind = np.argmin(np.abs(diffs))
+              new_calTStep = availSteps[cal_step_ind]
+              EXC.WARN("Calibration step %.2f isn't in the available timesteps. Using timestep %.2f instead." % (calTStep, new_calTStep))
+              calTStep = new_calTStep
+           else:
+              EXC.ERROR("Calibration step %.2f isn't in the available timesteps." % (calTStep))
 
-    if 'pvecs_metadata' in all_settings:
-        all_settings['max_step'] = np.max([all_settings['pos_metadata']['nsteps'],
-                                           all_settings['coeff_metadata']['nsteps'],
-                                           all_settings['pvecs_metadata']['nsteps']])
+        all_settings['start_time'] = calTStep
+        all_settings['end_time'] = calTStep
+    
+    # Making a movie 
     else:
-        all_settings['max_step'] = np.max([all_settings['pos_metadata']['nsteps'],
-                                           all_settings['coeff_metadata']['nsteps']])
+        # Set the end timestep if a string is given (e.g. 'all')
+        if type(endT) == str:
+            possVals = ['all', 'A float or integer representing the timestep to end the visualisation (see docs)']
+            var = txt_lib.fuzzy_variable_helper(endT.lower(), possVals)
+            if var == 'all':  all_settings['end_time'] = availSteps[-1]
+        else:
+            all_settings['end_time'] = __convert_to_float(endT, "end_time")
 
+        all_settings['start_time'] = __convert_to_float(startT, "start_time")
+        all_settings['stride'] = __convert_to_int(stride, "stride")
+            
+    correct_steps_to_read_startMaxStride(all_settings)
+
+def __convert_to_int(string, var_name):
+    """
+     Will convert a number to a int and if it can't be done raise an error.
+    """
+    try:
+       val=int(string)
+    except:
+       EXC.ERROR("'%s' must be a int" % var_name)
+    return val
+
+
+def __convert_to_float(string, var_name):
+    """
+    Will convert a number to a float and if it can't be done raise an error.
+    """
+    try:
+       val=float(string)
+    except:
+       EXC.ERROR("'%s' must be a float" % var_name)
+    return val
+
+
+def correct_steps_to_read_startMaxStride(all_settings):
+   """
+   Will adjust the steps to read so that no steps outside of the
+   start_time, end_time and stride are included (subject to caveats).
+
+   Caveats:
+      * If 'missing_pos_steps' is used then we don't adjust the pos steps
+        and allow another function to fix those later. This doesn't apply if
+        the 'skip' setting is used in missing pos steps.
+
+   Will change everything in place in the all_settings dictionary.
+   """
+   start_time = all_settings['start_time']
+   end_time = all_settings['end_time']
+   stride = all_settings['stride']
+   var = all_settings['missing_pos_steps']
+
+   # Using no correction for missing position steps
+   if var == "skip":
+       names = ('nucl_tsteps_to_read', 'coeff_tsteps_to_read')
+   else:
+       names = ('coeff_tsteps_to_read',)
+   
+   # Only allow steps allowed by min_step, max_step and stride
+   for name in names:
+       steps_to_do = set(all_settings[name][::stride])
+       tmp = []
+       for i in all_settings[name]:
+           if i in steps_to_do:
+               tmp.append(i)
+
+       if len(tmp) == 0 and all_settings['missing_pos_steps'] == 'skip': 
+         common_timesteps = set(all_settings['nucl_tsteps_to_read']).intersection(set(all_settings['coeff_tsteps_to_read']))
+         EXC.ERROR("Can't find any nucl and coeff timesteps to read.\n\nPlease adjust your settings.inp file." + 
+                                   "Available steps are: %s" % ', '.join(map(str, common_timesteps)))
+
+       elif len(tmp) == 0 and all_settings['missing_pos_steps'] != 'skip': 
+           EXC.ERROR("Can't find any coeff timesteps to read.\n\nPlease adjust your settings.inp file" +
+                     ".\nAvailable steps are: %s" % ', '.join(map(str, all_settings['coeff_tsteps_to_read'])))
+
+       all_settings[name] = tmp
+       
+
+def init_missing_pos_step_vars(all_settings):
+    """
+    Will initialise the missing_pos_steps variable.
+
+    There are 3 options:
+         'skip' -> Will simply ignore the steps that don't have positions.
+         'closest' -> Will use the closest known position to the coeff timestep.
+         'use N' -> Will use a specified position timestep.
+
+    This will change the setting in the all_settings dictionary.
+    """
+    var = all_settings['missing_pos_steps'].lower()
+    varSplit = var.strip().split()
+    
+    if len(varSplit) == 0:
+        EXC.ERROR("Please set the variable 'missing_pos_steps'.\n\n"
+                 +"It is currently: '%s'" % var)
+   
+    poss_vars = ('skip', 'closest', 'use')
+    varFixed = txt_lib.fuzzy_variable_helper(varSplit[0], poss_vars)
+    if varFixed == 'use':
+        
+        if len(varSplit) != 2:
+            EXC.ERROR("The correct syntax for using the 'use' keyword in the 'missing_pos_steps'"
+                    + " is `missing_pos_steps = 'use N' where N represents the step you wish to"
+                    + " use as the atomic coords for the full visualisation.")
+        else:
+            try:
+               all_settings['use_missing_pos_step'] = int(varSplit[1])
+            except:
+               EXC.ERROR("Can't find position step '%s'. Please choose an integer." % varSplit[1])
+
+    all_settings['missing_pos_steps'] = varFixed
+    
 
 def missing_pos_steps(n_avail_dt, c_avail_dt, all_settings):
     """
@@ -627,21 +772,13 @@ def missing_pos_steps(n_avail_dt, c_avail_dt, all_settings):
         Will output <arr>, <arr>: nucl_timesteps to read, coeff timesteps to read.
     """
     do_cal, cal_step = all_settings['calibrate'], all_settings['step_to_render']
-
-    all_settings['missing_pos_steps'] = all_settings['missing_pos_steps'].lower()
-    if 'use' in all_settings['missing_pos_steps']:
-        nums = re.findall("[0-9]+", all_settings['missing_pos_steps'])
-        var = "use"
-        if len(nums) == 1: pos_step = int(nums[0])
-        else: EXC.ERROR("Don't understand the correction for missing position steps."
-                      + "\n\nBad Lines: '%s'" % all_settings['missing_pos_steps'])
-    else:
-        var = txt_lib.fuzzy_variable_helper(all_settings['missing_pos_steps'],
-                                            ('skip', 'closest'))
+    var = all_settings['missing_pos_steps']
 
     if var == 'skip':
-        all_settings['pos_step_inds'] = range(len(n_avail_dt))
         common_timesteps = np.intersect1d(n_avail_dt, c_avail_dt)
+        all_settings['pos_step_inds'] = range(len(common_timesteps))
+        print(common_timesteps, all_settings['pos_step_inds'])
+        raise SystemExit
         if do_cal:
             all_settings['pos_step_inds'] = [0]
             if cal_step < len(common_timesteps) and cal_step >= 0:
@@ -671,6 +808,7 @@ def missing_pos_steps(n_avail_dt, c_avail_dt, all_settings):
     elif var == 'use':
         # N.B This doesn't check for missing coefficient steps -as it is a function to
         #                                                       correct for pos steps.
+        pos_step = all_settings['use_missing_pos_step']
         all_settings['pos_step_inds'] = [pos_step]
         if not do_cal: all_settings['pos_step_inds'] *= len(c_avail_dt)
 
@@ -725,35 +863,47 @@ def get_closest_inds(arr1, arr2):
 
 
 
-def init_local_steps_to_ignore(all_settings):
+def fix_missing_pos_steps(all_settings):
     """
     Will initialise which timesteps to carry out based on which steps are
     available.
-        E.g. if nuclear timesteps = [1,2,3,    6]
+
+    This is dependant on the method chosen to correct for missing position steps.
+    If 'skip' is chosen then the following applies:
+             if nuclear timesteps = [1,2,3,    6]
              and coeff timesteps =  [1,2,3,4,5,6]
              we would carry out     [1,2,3,    6]...
+
+    If 'closest' or 'use ' is chosen we correct for missing position steps as
+    outlined in the documentation or the docstr on the function `missing_pos_steps`
 
     We do this by finding which steps aren't common to all 3 lists as that is
     the way the xyz reader works.
     """
-    Oall_nucl_steps = np.arange(all_settings['start_step'], all_settings['end_step'], all_settings['stride'])
-    maxPosStep = all_settings['pos_metadata']['nsteps']
-    all_nucl_steps = Oall_nucl_steps[Oall_nucl_steps < maxPosStep]
-    if len(all_nucl_steps) < 1:
-        print("Start Step = %i\tEnd Step = %i" % (all_settings['start_step'],
-                                                  all_settings['end_step']))
-        print("Maximum possible step = %i" % maxPosStep)
-        print("All pos steps = %s" % str(Oall_nucl_steps))
-        raise SystemExit("Error: Can't find any nuclear steps to carry out")
+    if all_settings['missing_pos_steps'] == 'skip':
+       common_timesteps = np.intersect1d(all_settings['nucl_tsteps_to_read'],
+                                         all_settings['coeff_tsteps_to_read'])
+       all_settings['nucl_tsteps_to_read'] = common_timesteps
+       all_settings['coeff_tsteps_to_read'] = common_timesteps
+       all_settings['pos_step_inds'] = np.arange(len(common_timesteps))
 
-    # Read in which timesteps are available
-    n_avail_dt = all_settings['pos_metadata']['tsteps'][all_nucl_steps]
-    c_avail_dt = all_settings['coeff_metadata']['tsteps']
+    elif all_settings['missing_pos_steps'] == 'use':
+       use_step = all_settings['use_missing_pos_step']
+       pos_steps = all_settings['nucl_tsteps_to_read']
+       mol_steps = all_settings['coeff_tsteps_to_read']
+       if 0 > use_step > len(pos_steps):
+          EXC.ERROR("Step %i is out of bounds to use as a the correction to missing position steps." % use_step
+                  + "\n\nPlease choose a step 0 <= i <= %i as `missing_pos_steps = 'use N'`" % len(pos_steps))
+       all_settings['nucl_tsteps_to_read'] = pos_steps[use_step]
+       all_settings['pos_step_inds'] = [0] * len(mol_steps)
 
-    n_avail_dt, c_avail_dt = missing_pos_steps(n_avail_dt, c_avail_dt, all_settings)
-    all_settings['nucl_steps_to_read'] = sorted(list(n_avail_dt))
-    all_settings['coeff_steps_to_read'] = sorted(list(c_avail_dt))
-
+    elif all_settings['missing_pos_steps'] == 'closest':
+        pos_steps = all_settings['nucl_tsteps_to_read']
+        mol_steps = all_settings['coeff_tsteps_to_read']
+        all_settings['pos_step_inds'] = get_closest_inds(pos_steps, mol_steps)
+        pos_inds = set(all_settings['pos_step_inds'])
+        all_settings['nucl_tsteps_to_read'] = [pos_steps[i] for i in sorted(list(pos_inds))]
+    
 
 # Will check the last lines of the file TemplatesVMD_TEMP.vmd are known
 def check_VMD_TEMP(all_settings):

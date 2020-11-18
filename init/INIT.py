@@ -98,15 +98,6 @@ START_TIME = time.time()
 #      Add more checks and debugging info (better error messages etc).
 
 
-if type(all_settings['end_step']) != int:
-    if type(all_settings['end_step']) == str:
-        if 'al' not in all_settings['end_step'].lower():
-            EXC.WARN("Sorry the 'end_step' variable needs to be an integer not a %s!\n\nConverting from %.2g to %i"%(type(all_settings['end_step']),all_settings['end_step'],int(round(all_settings['end_step']))))
-            all_settings['end_step'] = int(round(all_settings['end_step']))
-    else:
-        EXC.WARN("Sorry the 'end_step' variable needs to be an integer not a %s!\n\nConverting from %.2g to %i"%(type(all_settings['end_step']),all_settings['end_step'],int(round(all_settings['end_step']))))
-        all_settings['end_step'] = int(round(all_settings['end_step']))
-
 # Sorting out filenames
 IU.init_output_files_and_folders(all_settings) # Will declare all the paths that are required in the code
 IU.init_all_settings_other(all_settings) # Will initialise settings that aren't file/folder paths
@@ -118,9 +109,10 @@ IU.transition_state_init(all_settings) # Will init any transition state settings
 
 # Functions that don't need coords, coeffs, pvecs etc...
 IU.get_all_files_metadata(all_settings)
+IU.init_steps_to_do(all_settings)
 IU.find_step_numbers(all_settings)
-IU.init_global_steps_to_ignore(all_settings)
-IU.init_local_steps_to_ignore(all_settings)
+IU.init_ignore_steps_for_restart(all_settings)
+IU.fix_missing_pos_steps(all_settings)
 IU.init_show_box(all_settings)
 IU.init_cal_display_img(all_settings)
 IU.init_files_to_keep(all_settings)
@@ -144,3 +136,5 @@ IU.check_charge_spread(all_settings)
 all_settings['reversed_mol_info'] = IU.reverseDict(all_settings['mol_info'])
 IU.init_times_dict(all_settings)
 all_steps = xrange(len(all_settings['pos_step_inds']))
+print(all_steps)
+raise SystemExit

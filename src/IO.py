@@ -595,7 +595,7 @@ def fuzzy_file_find(path):
 
 # Will write the original settings (with typos fixed etc...) to a settings file
 def write_cleaned_orig_settings(orig_settings_dict, settings_file):
-    settings_whitelist = ['calibrate', 'load_in_vmd', 'step_to_render','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
+    #settings_whitelist = ['calibrate', 'load_in_vmd', 'timestep_to_render','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
     s = ''
     for sett_name in orig_settings_dict:
         # If type is list or array then put square brackets and commas in the settings file.
@@ -610,9 +610,9 @@ def write_cleaned_orig_settings(orig_settings_dict, settings_file):
             s += orig_settings_dict[sett_name][1] + '\n'
             continue
 
-        # Remove settings from file that are the defaults (apart from certain ones in whitelist)
-        if orig_settings_dict[sett_name][0] == dft.defaults.get(sett_name) and sett_name not in settings_whitelist:
-            continue
+        ## Remove settings from file that are the defaults (apart from certain ones in whitelist)
+        #if orig_settings_dict[sett_name][0] == dft.defaults.get(sett_name) and sett_name not in settings_whitelist:
+        #    continue
 
         # Need to put quotations around strings
         if type(orig_settings_dict[sett_name][0]) == str:
