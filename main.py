@@ -59,7 +59,7 @@ class MainLoop(object):
         self.PID = "MainProcess"
         self.calc_pvecs = self.all_settings['pvecs'] is False
 
-        print("Init complete. Entering mainloop.")
+        print("Init complete. Entering mainloop -%i steps to complete." % len(all_steps))
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
             self.posStepInd = all_settings['pos_step_inds'][step]
