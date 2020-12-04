@@ -138,24 +138,27 @@ class MainLoop(object):
         imaginary data containers to update the minimum absolute coefficient
         threshold for visualising the molecule.
         """
+        # What percentage of the data is visible
+        tol = 0.01 if self.all_settings['do_transition_state'] else 0.001
+
         size = float(self.RealData.size)
         isoToPlot = self.all_settings['isosurface_to_plot']
         relevantReal = np.sum(np.abs(self.RealData) > isoToPlot)
         relevantReal /= size
-        self.writeImagCube = True
+        self.writeImagCube = False
         if all_settings['color_type'] == "phase":
             relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
             relevantImag /= size
-            self.writeImagCube = relevantImag > 0.001  # At least 0.1% is visible
+            self.writeImagCube = relevantImag > tol  # At least tol% is visible
 
 
-        self.writeRealCube = relevantReal > 0.001  # At least 0.1% is visible
+        self.writeRealCube = relevantReal > tol  # At least tol% of the data structure is visible is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
                 self.all_settings['min_abs_mol_coeff'] = molPop
 
-        if all_settings['color_type'] == "real-phase": self.writeImagCube = False
+        #if all_settings['color_type'] == "real-phase": self.writeImagCube = False
 
     def _reapplyPhase(self, molID):
         """

@@ -1,20 +1,17 @@
 # The path to the folder containing the data.
-path = 'SamData' 
-
-do_transition_state = 'y' 
-lumo_coeff_file = 'CP2K_LUMO_AOM_COEFF.include_adjusted' 
-homo_coeff_file = 'CP2K_HOMO_AOM_COEFF.include_adjusted' 
+path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/1nsQuench/FSSH/1TrajTest_SizeConvergence' 
 
 calibrate = 'n' 
-timestep_to_render = 101.0 
+timestep_to_render = 100.0 
 load_in_vmd = 'y' 
-missing_pos_steps = 'use 0' 
+
 
 end_time = 'all' 
 stride = 1 
+restart_vis = 'n' 
 
 
-title = 'Anthracene_Traj_trans' 
+title = '1nsQuenchTestTraj' 
 
 atoms_to_plot = 'all' 
 
@@ -26,10 +23,9 @@ pos_imag_iso_col = (1.0, 0.0, 0.0)
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 
-restart_vis = True 
 vmd_exe = '/homes/mellis/VMD_DIR/VMD/bin/vmd' 
 img_size = [1.5e+03,1.5e+03] 
 
-zoom_value = 2.6493263877486046 # How much to zoom by
+zoom_value = 1.5301110950232044 # How much to zoom by
 
 translate_by = [-0.03,-0.04,0] # How much to translate in xyz directions

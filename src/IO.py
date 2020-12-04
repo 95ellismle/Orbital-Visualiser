@@ -82,6 +82,63 @@ def check_dir_for_tachyon(directory):
                 return dpath+'/'+fname
     return False
 
+
+def check_vmd_exe(vmd_fp):
+    """
+    Will check the vmd executable filepath is working as expected.
+
+    Will simply run vmd via `vmd -h` and check if the substrings
+    'isual', 'olecular' and 'ynamics' are in the output.
+
+
+    Inputs:
+        * vmd_fp <str> => The string to check
+
+    Outputs:
+        <bool> Whether the vmd executable works or not.
+    """
+    p = sb.Popen([vmd_fp, '-h'], stdout=sb.PIPE, stderr=sb.PIPE)
+    out, err = p.communicate()
+    out = out.decode("utf-8")
+    if all(i in out for i in ('isual', 'olecular', 'ynamics')):
+        return True
+    return False
+
+
+def find_vmd(current_vmd_path="vmd"):
+    """
+    Will try to find where vmd is on the user's computer.
+
+    If the executable can't be found then an error message will be displayed and
+    the code will stop.
+
+    Inputs:
+        * current_vmd_path <str> => The first place to look for the path to vmd.
+
+    Outputs:
+        <str> A filepath pointing to a working vmd executable.
+    """
+    print("\rChecking VMD binary...                    ", end="\r")
+    if os.path.isfile(current_vmd_path):
+        is_exe = check_vmd_exe(current_vmd_path)
+        if is_exe: return current_vmd_path
+
+    if current_vmd_path != "vmd":
+        p = sb.Popen(['which', 'vmd'], stdout=sb.PIPE, stderr=sb.PIPE)
+        out, err = p.communicate()
+        out = out.decode("utf-8").strip("\n")
+        if out != "" and check_vmd_exe(out): return out
+
+    all_bin = os.listdir("/usr/local/bin")
+    if 'vmd' in all_bin:
+        out = "/usr/local/bin/vmd"
+        if check_vmd_exe(out): return out
+
+    raise SystemExit("Can't find the vmd binary on your computer!\n\nPlease point me to it in your settings.inp file via:\n\t`vmd_exe = \"...\"`")
+
+
+
+
 # Searches recursively for the VMD tachyon renderer path.
 def find_tachyon(current_tachyon_path=''):
     if check_tachyon(current_tachyon_path):
@@ -247,7 +304,7 @@ def write_settings_file(step_info):
 def VMD_visualise(step_info, PID):
     os.system("touch %s"%step_info['vmd_junk'][PID])
     os.system("touch %s"%step_info['vmd_err'][PID])
-    
+
     vmd_exe = step_info['vmd_exe']
     vmd_script = step_info['vmd_script'][PID]
     vmd_junk = step_info['vmd_junk'][PID]
@@ -332,7 +389,7 @@ def open_read(filename, throw_error=True, max_size=1):
             check_size = False
         if check_size:
             if os.path.getsize(filename) >= psutil.virtual_memory().available * max_size:
-               raise IOError("\n\nFilesize too big.\n\t* "  
+               raise IOError("\n\nFilesize too big.\n\t* "
                            +f"Filepath: '{filename}'" + "\n\t* "
                            +f"Avail Mem: {psutil.virtual_memory().available}" + "\n\t* "
                            +f"Filesize:  {os.path.getsize(filename)}" + "\n\n\n")
