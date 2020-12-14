@@ -16,6 +16,9 @@ from __future__ import   division
  do_step method which is the function which makes an image from the data.
 """
 
+import sys
+if sys.version_info.major < 3:
+   raise SystemExit("This code no longer supports python2! Please use python3 via: `python3 main.py`")
 
 import numpy as np
 import time
@@ -111,7 +114,7 @@ class MainLoop(object):
             self._create1Mol_(molID)
 
         localisation = MT.IPR(self.all_settings['mol'][self.step])
-        print(f"IPR = {localisation}")
+        print("IPR = %.2f" % localisation)
         print("%i Mols have cubes" % self.__count__)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)

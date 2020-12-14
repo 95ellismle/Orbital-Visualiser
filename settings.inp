@@ -1,5 +1,5 @@
 # The path to the folder containing the data.
-path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/1nsQuench/FSSH/1TrajTest_SizeConvergence' 
+path = '/scratch/mellis/InstantQuenchLammpsPlane/24_25_5/1nsQuenching/FSSH/Slice1/run-fssh-32' 
 
 calibrate = 'n' 
 timestep_to_render = 100.0 
@@ -8,10 +8,10 @@ load_in_vmd = 'y'
 
 end_time = 'all' 
 stride = 1 
-restart_vis = 'n' 
+restart_vis = 'y' 
 
 
-title = '1nsQuenchTestTraj' 
+title = '1nsQuench_runfssh32' 
 
 atoms_to_plot = 'all' 
 
@@ -26,6 +26,6 @@ vmd_timeout = 10000
 vmd_exe = '/homes/mellis/VMD_DIR/VMD/bin/vmd' 
 img_size = [1.5e+03,1.5e+03] 
 
-zoom_value = 1.5301110950232044 # How much to zoom by
+zoom_value = 2.030111095023204 # How much to zoom by
 
 translate_by = [-0.03,-0.04,0] # How much to translate in xyz directions
