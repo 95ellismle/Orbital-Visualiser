@@ -104,13 +104,16 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        # Should order by mol coeff max to min
-        #p = mp.Pool(4)
-        #p.map(self._create1Mol_, self.active_step_mols)
-        for molID in self.active_step_mols:
-            self._create1Mol_(molID)
 
         localisation = MT.IPR(self.all_settings['mol'][self.step])
+
+        # Ordered by mol coeff max to min
+        const = 0.01/self.all_settings['isosurface_to_plot']
+        loc = const*localisation if const >= 1.2 else localisation * 1.2
+        for count, molID in enumerate(self.active_step_mols):
+            if count > loc: break
+            self._create1Mol_(molID)
+
         print(f"IPR = {localisation}")
         print("%i Mols have cubes" % self.__count__)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
@@ -434,24 +437,27 @@ class MainLoop(object):
         # Actually create the data
         self.data = np.zeros(self.sizes, dtype=np.complex64)
 
-        # Only use nearest neighbours if there's a large population
+        # Only use nearest neighbours if there's a large enough population
         if self.all_settings['pops'][self.step][molID] > 0.07:
             for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
                 u_l = self.all_settings['mol'][self.step][molNum]
-                self.data += (self.__calc_SOMO(molNum, translation, 0) * u_l)
+                if self.all_settings['pops'][self.step][molNum] > 0.1:
+                    self.data += (self.__calc_SOMO(molNum, translation, 0) * u_l)
 
             if all_settings['do_transition_state']:
                 tmp = np.zeros(self.sizes, dtype=np.complex64)
                 for molNum in self.nearestNeighbours[molID]:
                     u_l = self.all_settings['mol'][self.step][molNum]
-                    tmp += (self.__calc_SOMO(molNum, translation, 1) * u_l)
+                    if self.all_settings['pops'][self.step][molNum] > 0.1:
+                        tmp += (self.__calc_SOMO(molNum, translation, 1) * u_l)
 
         else:
             u_l = self.all_settings['mol'][self.step][molID]
             self.data = (self.__calc_SOMO(molID, translation, 0) * u_l)
 
-            tmp = np.zeros(self.sizes, dtype=np.complex64)
-            tmp = (self.__calc_SOMO(molID, translation, 1) * u_l)
+            if all_settings['do_transition_state']:
+                tmp = np.zeros(self.sizes, dtype=np.complex64)
+                tmp = (self.__calc_SOMO(molID, translation, 1) * u_l)
 
         if all_settings['do_transition_state']:
             # 50 just to enlarge the isosurface as the multiplication reduces its size

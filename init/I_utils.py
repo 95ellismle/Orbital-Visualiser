@@ -614,6 +614,13 @@ def find_step_numbers(all_settings):
     do_cal, calTStep = all_settings['calibrate'], all_settings['timestep_to_render']
     startT, endT, stride = all_settings['start_time'], all_settings['end_time'], all_settings['stride']
 
+    if type(calTStep) == str:
+        if calTStep.lower() == "last":
+            calTStep = max(availSteps)
+            all_settings['timestep_to_render'] = calTStep
+        else:
+            raise SystemExit("Bad value for 'timestep_to_render' please see choose int, float or 'last' (not '%s'). See docs for more info." % calTStep)
+
     # Render 1 pic
     if do_cal:
         all_settings['stride'] = 1
