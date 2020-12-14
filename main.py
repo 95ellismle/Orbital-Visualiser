@@ -16,6 +16,9 @@ from __future__ import   division
  do_step method which is the function which makes an image from the data.
 """
 
+import sys
+if sys.version_info.major < 3:
+   raise SystemExit("This code no longer supports python2! Please use python3 via: `python3 main.py`")
 
 import numpy as np
 import time
