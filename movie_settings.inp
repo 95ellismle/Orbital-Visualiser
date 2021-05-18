@@ -1,0 +1,42 @@
+# The path to the folder containing the data.
+#path = '/home/matt/Data/Work/TMP/sing_mol_pent' 
+#path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/SmallerSystemFSSH/run-fssh-12' 
+path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/SmallerSystemFSSH/FROM_ARCHER/AvgTraj' 
+#path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
+
+show_transition_state = "y"
+
+# Calibration Settings
+calibrate = 'n' # Carries out a single 'calibration' step
+calibration_step = 0 
+load_in_vmd = 'y' 
+show_img_after_vmd = 'n' 
+
+start_step = 0 
+end_step = 'all' 
+stride = 1 
+
+title = 'Avg_Traj' 
+
+mol_material = 'AOChalky' 
+mol_style = 'Lines' 
+iso_material = 'BrushedMetal' 
+carbon_color = 'silver' 
+hydrogen_color = 'white' 
+
+neg_imag_iso_col = (1, 0, 0) 
+pos_imag_iso_col = (0, 0, 1) 
+verbose_output = 'y' 
+
+atoms_to_plot = 'all' 
+
+draw_time = True 
+
+
+
+
+bounding_box_scale = 16 
+vmd_timeout = 10000 
+img_size = [1.5e+03,1.5e+03] 
+
+zoom_value = 1.5767193781306308 # How much to zoom by

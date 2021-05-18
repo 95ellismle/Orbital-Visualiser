@@ -773,7 +773,6 @@ class MainLoop(object):
         else:
             self._display_img()
 
-        raise SystemExit
         self._garbage_collector()
 
     # Copy settings.inp to img folder
@@ -830,23 +829,23 @@ class MainLoop(object):
                                             io.folder_correct('./vmdscene.dat')
                                                 )
         # Garbage collection
-        # self.all_settings['delete_these'].append(self.all_settings['f.txt'])
-        for f in self.all_settings['delete_these']:
-            if io.path_leads_somewhere(f):
+        #self.all_settings['delete_these'].append(self.all_settings['f.txt'])
+        for f in all_settings['delete_these']:
+            if os.path.isfile(f):
                 os.remove(f)
 
     # Handles converting the image to another img format for storing
     def _store_imgs(self):
         """
-        Will convert images from tga to jpg (for storage). jpg is much smaller
+        Will convert images from tga to jpg (for storage). jpg creates smaller images
         than tga. We also add any leading zeros to files as this makes them
         easier to stitch together later on.
         """
         # First add leading zeros to files
-        new_files = io.add_leading_zeros(self.tga_folderpath)
+        new_files, tga_files = io.add_leading_zeros(self.tga_folderpath)
         cond = 'tga' not in self.all_settings['files_to_keep']
         cond *= not all_settings['calibrate']
-        if cond: all_settings['delete_these'].extend(new_files)
+        if cond: all_settings['delete_these'].extend(set(new_files))
 
         # Convert all .tga to .<img>
         if 'img' in self.all_settings['files_to_keep']:

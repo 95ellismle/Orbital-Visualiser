@@ -102,7 +102,6 @@ START_TIME = time.time()
 IU.init_output_files_and_folders(all_settings) # Will declare all the paths that are required in the code
 IU.init_all_settings_other(all_settings) # Will initialise settings that aren't file/folder paths
 io.create_data_img_folders(all_settings)
-keep_tga_files = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 IU.init_permanent_settings(all_settings)
 IU.init_tcl_dict(all_settings)
 IU.transition_state_init(all_settings) # Will init any transition state settings if required.
@@ -119,6 +118,7 @@ IU.init_files_to_keep(all_settings)
 IU.init_animation_type(all_settings)
 IU.init_colors(all_settings)    # Initialises the colors of the wavefunction
 IU.check_VMD_TEMP(all_settings)
+all_settings['keep_tga_files'] = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 
 # Read input files
 IU.read_cp2k_inp_file(all_settings)

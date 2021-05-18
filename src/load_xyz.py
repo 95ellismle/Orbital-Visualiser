@@ -196,7 +196,7 @@ def get_xyz_metadata(filename, ltxt=False):
        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
     else: #If there is no second step take lines from the first
        step_data = {1:ltxt[:lines_in_step]}
-    
+
 
     nsteps = int(len(ltxt)/lines_in_step)
     time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines],

@@ -1,0 +1,263 @@
+Finished reading coords (1 steps)
+Can't find a pvecs file -will attempt to calculate from positions.
+Init complete. Entering mainloop.
+IPR = 1.0
+1 Mols have cubes
+
+Trajectory 1/87    CPU: 6.2 s    Timestep 0.0                        *IPR = 2.784193934396181
+7 Mols have cubes
+
+Trajectory 2/87    CPU: 20 s    Timestep 2.0                         *IPR = 3.278564778747722
+8 Mols have cubes
+
+Trajectory 3/87    CPU: 13 s    Timestep 4.0                         *IPR = 3.4261491660954864
+8 Mols have cubes
+
+Trajectory 4/87    CPU: 27 s    Timestep 6.0                         *IPR = 3.8781316064669022
+8 Mols have cubes
+
+Trajectory 5/87    CPU: 24 s    Timestep 8.0                         *IPR = 4.128642922195014
+8 Mols have cubes
+
+Trajectory 6/87    CPU: 26 s    Timestep 10.0                        *IPR = 4.042968500749818
+8 Mols have cubes
+
+Trajectory 7/87    CPU: 25 s    Timestep 12.0                        *IPR = 3.7777258228602193
+8 Mols have cubes
+
+Trajectory 8/87    CPU: 26 s    Timestep 14.0                        *IPR = 3.361074604631653
+8 Mols have cubes
+
+Trajectory 9/87    CPU: 26 s    Timestep 16.0                        *IPR = 2.799854164117435
+8 Mols have cubes
+
+Trajectory 10/87    CPU: 26 s    Timestep 18.0                       *IPR = 2.356818350999284
+8 Mols have cubes
+
+Trajectory 11/87    CPU: 25 s    Timestep 20.0                       *IPR = 2.203455019681639
+6 Mols have cubes
+
+Trajectory 12/87    CPU: 24 s    Timestep 22.0                       *IPR = 2.3239267067725846
+6 Mols have cubes
+
+Trajectory 13/87    CPU: 27 s    Timestep 24.0                       *IPR = 2.697127300340631
+6 Mols have cubes
+
+Trajectory 14/87    CPU: 38 s    Timestep 26.0                       *IPR = 3.2305606911132805
+7 Mols have cubes
+
+Trajectory 15/87    CPU: 40 s    Timestep 28.0                       *IPR = 3.616720675827447
+9 Mols have cubes
+
+Trajectory 16/87    CPU: 39 s    Timestep 30.0                       *IPR = 3.6698880031081833
+7 Mols have cubes
+
+Trajectory 17/87    CPU: 37 s    Timestep 32.0                       *IPR = 3.534538527410626
+7 Mols have cubes
+
+Trajectory 18/87    CPU: 37 s    Timestep 34.0                       *IPR = 3.2971759308326725
+7 Mols have cubes
+
+Trajectory 19/87    CPU: 33 s    Timestep 36.0                       *IPR = 2.977127150079495
+7 Mols have cubes
+
+Trajectory 20/87    CPU: 34 s    Timestep 38.0                       *IPR = 2.7202294335792785
+6 Mols have cubes
+
+Trajectory 21/87    CPU: 23 s    Timestep 40.0                       *IPR = 2.648697043166717
+7 Mols have cubes
+
+Trajectory 22/87    CPU: 34 s    Timestep 42.0                       *IPR = 2.7810716539788425
+7 Mols have cubes
+
+Trajectory 23/87    CPU: 33 s    Timestep 44.0                       *IPR = 3.0838498767552704
+7 Mols have cubes
+
+Trajectory 24/87    CPU: 33 s    Timestep 46.0                       *IPR = 3.437270268415966
+9 Mols have cubes
+
+Trajectory 25/87    CPU: 34 s    Timestep 48.0                       *IPR = 3.6397883690887034
+8 Mols have cubes
+
+Trajectory 26/87    CPU: 32 s    Timestep 50.0                       *IPR = 3.6026925563970424
+7 Mols have cubes
+
+Trajectory 27/87    CPU: 32 s    Timestep 52.0                       *IPR = 3.4246774202508683
+7 Mols have cubes
+
+Trajectory 28/87    CPU: 31 s    Timestep 54.0                       *IPR = 3.2103290078385025
+7 Mols have cubes
+
+Trajectory 29/87    CPU: 31 s    Timestep 56.0                       *IPR = 3.0343204693723216
+7 Mols have cubes
+
+Trajectory 30/87    CPU: 32 s    Timestep 58.0                       *IPR = 2.979498814182161
+7 Mols have cubes
+
+Trajectory 31/87    CPU: 32 s    Timestep 60.0                       *IPR = 3.075827925660265
+7 Mols have cubes
+
+Trajectory 32/87    CPU: 32 s    Timestep 62.0                       *IPR = 3.2664247398350215
+8 Mols have cubes
+
+Trajectory 33/87    CPU: 33 s    Timestep 64.0                       *IPR = 3.4224049510511994
+8 Mols have cubes
+
+Trajectory 34/87    CPU: 34 s    Timestep 66.0                       *IPR = 3.4369694063050824
+8 Mols have cubes
+
+Trajectory 35/87    CPU: 34 s    Timestep 68.0                       *IPR = 3.310131669716899
+8 Mols have cubes
+
+Trajectory 36/87    CPU: 34 s    Timestep 70.0                       *IPR = 3.067222212225642
+8 Mols have cubes
+
+Trajectory 37/87    CPU: 34 s    Timestep 72.0                       *IPR = 2.7538141319850222
+8 Mols have cubes
+
+Trajectory 38/87    CPU: 34 s    Timestep 74.0                       *IPR = 2.5043768918724743
+7 Mols have cubes
+
+Trajectory 39/87    CPU: 34 s    Timestep 76.0                       *IPR = 2.440909006660274
+6 Mols have cubes
+
+Trajectory 40/87    CPU: 33 s    Timestep 78.0                       *IPR = 2.5937696361707463
+6 Mols have cubes
+
+Trajectory 41/87    CPU: 34 s    Timestep 80.0                       *IPR = 2.9623144195429836
+6 Mols have cubes
+
+Trajectory 42/87    CPU: 36 s    Timestep 82.0                       *IPR = 3.4419185710824785
+7 Mols have cubes
+
+Trajectory 43/87    CPU: 35 s    Timestep 84.0                       *IPR = 3.736900301707293
+7 Mols have cubes
+
+Trajectory 44/87    CPU: 35 s    Timestep 86.0                       *IPR = 3.6480107259900687
+7 Mols have cubes
+
+Trajectory 45/87    CPU: 35 s    Timestep 88.0                       *IPR = 3.4238236249396654
+7 Mols have cubes
+
+Trajectory 46/87    CPU: 35 s    Timestep 90.0                       *IPR = 3.288583797903216
+9 Mols have cubes
+
+Trajectory 47/87    CPU: 36 s    Timestep 92.0                       *IPR = 3.0684275893053594
+9 Mols have cubes
+
+Trajectory 48/87    CPU: 37 s    Timestep 94.0                       *IPR = 2.709018570205322
+8 Mols have cubes
+
+Trajectory 49/87    CPU: 36 s    Timestep 96.0                       *IPR = 2.497915444527997
+7 Mols have cubes
+
+Trajectory 50/87    CPU: 36 s    Timestep 98.0                       *IPR = 2.5453286267644155
+6 Mols have cubes
+
+Trajectory 51/87    CPU: 36 s    Timestep 100.0                      *IPR = 2.8252470340640663
+6 Mols have cubes
+
+Trajectory 52/87    CPU: 36 s    Timestep 102.0                      *IPR = 3.234771060882578
+5 Mols have cubes
+
+Trajectory 53/87    CPU: 36 s    Timestep 104.0                      *IPR = 3.4988926564690908
+5 Mols have cubes
+
+Trajectory 54/87    CPU: 36 s    Timestep 106.0                      *IPR = 3.4276670694935256
+6 Mols have cubes
+
+Trajectory 55/87    CPU: 36 s    Timestep 108.0                      *IPR = 3.2435709702267803
+6 Mols have cubes
+
+Trajectory 56/87    CPU: 35 s    Timestep 110.0                      *IPR = 3.153635386897573
+7 Mols have cubes
+
+Trajectory 57/87    CPU: 37 s    Timestep 112.0                      *IPR = 3.0256918289900248
+8 Mols have cubes
+
+Trajectory 58/87    CPU: 38 s    Timestep 114.0                      *IPR = 2.7992981398754475
+8 Mols have cubes
+
+Trajectory 59/87    CPU: 38 s    Timestep 116.0                      *IPR = 2.654575479929375
+8 Mols have cubes
+
+Trajectory 60/87    CPU: 39 s    Timestep 118.0                      *IPR = 2.666693006807237
+8 Mols have cubes
+
+Trajectory 61/87    CPU: 39 s    Timestep 120.0                      *IPR = 2.8030757376297073
+7 Mols have cubes
+
+Trajectory 62/87    CPU: 39 s    Timestep 122.0                      *IPR = 2.9811397474616714
+6 Mols have cubes
+
+Trajectory 63/87    CPU: 38 s    Timestep 124.0                      *IPR = 3.0864386825837786
+6 Mols have cubes
+
+Trajectory 64/87    CPU: 38 s    Timestep 126.0                      *IPR = 3.083377362330862
+6 Mols have cubes
+
+Trajectory 65/87    CPU: 38 s    Timestep 128.0                      *IPR = 3.0101276844213882
+6 Mols have cubes
+
+Trajectory 66/87    CPU: 38 s    Timestep 130.0                      *IPR = 2.896369474274566
+5 Mols have cubes
+
+Trajectory 67/87    CPU: 38 s    Timestep 132.0                      *IPR = 2.7919290218422455
+6 Mols have cubes
+
+Trajectory 68/87    CPU: 38 s    Timestep 134.0                      *IPR = 2.7743413373127837
+7 Mols have cubes
+
+Trajectory 69/87    CPU: 39 s    Timestep 136.0                      *IPR = 2.8873226054858714
+7 Mols have cubes
+
+Trajectory 70/87    CPU: 39 s    Timestep 138.0                      *IPR = 3.0869493756177366
+8 Mols have cubes
+
+Trajectory 71/87    CPU: 41 s    Timestep 140.0                      *IPR = 3.2042568064989028
+8 Mols have cubes
+
+Trajectory 72/87    CPU: 40 s    Timestep 142.0                      *IPR = 3.0992777498337385
+8 Mols have cubes
+
+Trajectory 73/87    CPU: 40 s    Timestep 144.0                      *IPR = 2.931886217838207
+8 Mols have cubes
+
+Trajectory 74/87    CPU: 40 s    Timestep 146.0                      *IPR = 2.8830391686264583
+7 Mols have cubes
+
+Trajectory 75/87    CPU: 40 s    Timestep 148.0                      *IPR = 2.8706672382769836
+7 Mols have cubes
+
+Trajectory 76/87    CPU: 40 s    Timestep 150.0                      *IPR = 2.7341856784962206
+7 Mols have cubes
+
+Trajectory 77/87    CPU: 40 s    Timestep 152.0                      *IPR = 2.6030964900429208
+7 Mols have cubes
+
+Trajectory 78/87    CPU: 40 s    Timestep 154.0                      *IPR = 2.6570643139279273
+6 Mols have cubes
+
+Trajectory 79/87    CPU: 40 s    Timestep 156.0                      *IPR = 2.9346862878683684
+5 Mols have cubes
+
+Trajectory 80/87    CPU: 41 s    Timestep 158.0                      *IPR = 3.3592957758182043
+6 Mols have cubes
+
+Trajectory 81/87    CPU: 41 s    Timestep 160.0                      *IPR = 3.8550442273549104
+6 Mols have cubes
+
+Trajectory 82/87    CPU: 41 s    Timestep 162.0                      *IPR = 4.212124636596206
+7 Mols have cubes
+
+Trajectory 83/87    CPU: 42 s    Timestep 164.0                      *IPR = 4.244048537658973
+8 Mols have cubes
+
+Trajectory 84/87    CPU: 44 s    Timestep 166.0                      *IPR = 3.8659415006540083
+8 Mols have cubes
+
+Trajectory 85/87    CPU: 44 s    Timestep 168.0                      *IPR = 3.2320669660497585
+8 Mols have cubes
+
+Trajectory 86/87    CPU: 42 s    Timestep 170.0                      *IPR = 2.711019220258493
+8 Mols have cubes

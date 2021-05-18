@@ -324,6 +324,8 @@ def VMD_visualise(step_info, PID):
             else:
                 EXC.ERROR("\n\nVMD is taking a long time! I think there may be a bug in VMD script. Try compiling the script manually with the command 'source ./src/TCL/script_4_vmd.vmd' within the tkconsole in VMD.\nIf everything works there then try increasing the 'vmd_step_info['vmd_timeout']' in python main.py settings.")
 
+        time.sleep(0.1)
+
 
 # Will clean up the settings file and make each line executable in order to execute each line individually
 def settings_read(filepath, add_default=False, default=''):
@@ -572,6 +574,9 @@ def create_data_img_folders(step_info):
 # Will change all the filenames in a folder to add leading zeros to them so
 # alphabetesising them preserves order.
 def add_leading_zeros(folder):
+    """
+
+    """
     tga_files = [i for i in os.listdir(folder) if '.tga' in i]
     dts = max([float(f.replace(",",".")[:f.find('_')]) for f in tga_files])
     if dts < 0.01 and dts > -0.01:
@@ -595,7 +600,7 @@ def add_leading_zeros(folder):
         os.rename(folder+f, new_file)
         new_files.append(new_file)
 
-    return new_files
+    return new_files, tga_files
 
 
 
