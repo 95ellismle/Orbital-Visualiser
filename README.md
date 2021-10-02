@@ -27,7 +27,7 @@ This file should lead you through your first steps in visualising the output of 
 TODO:
 ====
 
-+ Update the videos in this README to something better -the current ones aren't particularly greate adverts!
++ Update the videos in this README to something better.
 
 + Add option to visualise general orbitals. E.g. visualise sulphur with it's s orbital and maybe transition metal with their funky d ones... Need to have a general AOM_COEFFICIENT reader.
 
@@ -36,8 +36,6 @@ TODO:
 + I've added a TACHYON_LINUXAND64 binary. Would like to just use this instead of finding the binary on the computer. Also could compile a better version which supports rendering straight to png.
 
 + Add and test support for visualising replicas
-
-+ Finish the pvecs calculator. It works for ethylene but needs to work in general.
 
 + Try parallelising again! (maybe this means only parallelising the python part and not the VMD part)
 
