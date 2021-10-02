@@ -1,1 +1,0 @@
-\Psi = \sum_l^{N_{states}} u_{l} \sum_{\nu}^{N_{active\ atoms}} C_{AOM, \nu} \sum_{i=x,y,z} \left. \left. Pvec_{i, \nu} \right|p_{i} \right\rangle

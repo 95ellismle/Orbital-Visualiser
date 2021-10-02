@@ -16,6 +16,9 @@ from __future__ import   division
  do_step method which is the function which makes an image from the data.
 """
 
+import sys
+if sys.version_info.major < 3:
+   raise SystemExit("This code no longer supports python2! Please use python3 via: `python3 main.py`")
 
 import numpy as np
 import time
@@ -23,6 +26,7 @@ import os
 import subprocess
 import sys
 import shutil
+import multiprocessing as mp
 
 from src import EXCEPT as EXC
 from src import geometry as geom
@@ -56,19 +60,27 @@ class MainLoop(object):
         self.pos_iso_cols = {}
         self.tcl_color_dict_count = 0
         self.PID = "MainProcess"
+        self.calc_pvecs = self.all_settings['pvecs'] is False
+
+        print("Init complete. Entering mainloop -%i steps to complete." % len(all_steps))
         for step in all_steps:  # Loop over all steps and visualise them
             self.step = step
+            self.posStepInd = all_settings['pos_step_inds'][step]
+
             # Find the phase of the first mol as a reference.
             # phase = angle in complex plane
             self.thetaRef = np.angle(self.all_settings['mol'][self.step][0])
             tmp = consts.Orig_img_prefix.replace(
                     "$fs",
-                    "%.2f" % self.all_settings['Ntime-steps'][self.step])
+                    "%.2f" % self.all_settings['Mtime-steps'][self.step])
             self.all_settings['img_prefix'] = tmp.replace(".", ",")
             start_time = time.time()
+
             self._do_step(step)  # Do a visualisation step
+
             # Pretty print timings
             self.__print_timings(step, len(all_steps), start_time)
+
         self._finalise(len(all_steps))
 
     # Completes 1 step
@@ -86,7 +98,7 @@ class MainLoop(object):
         self.neg_iso_cols = {}
         self.pos_iso_cols = {}
         self.tcl_color_dict_count = 0
-        count = 0
+        self.__count__ = 0
         self.data_files_to_visualise = []
 
         # Carry out meat of step
@@ -95,26 +107,35 @@ class MainLoop(object):
         if self.all_settings['background_mols']:
             self._write_background_mols()
         self._nearestNeighbourKeys()  # Find nearest neighbour list
-        # Should order by mol coeff max to min
-        for mol_i, molID in enumerate(self.active_step_mols):
-            molPop = self.all_settings['pops'][self.step][molID]
-            if molPop < self.all_settings['min_abs_mol_coeff']:
-                break
-            self._find_active_atoms(molID)
-            self._create_wf_data(molID, step)
-            self._post_wf_processing()
-            self._findCubesToWrite(molID)
-            self._set_wf_colors()
-            self._save_wf_colors()
-            self._create_cube_file_txt(step)
-            self._write_cube_file(step, molID)
-            count += self.writeImagCube + self.writeRealCube
-        print("%i Mols have cubes" % count)
+
+        localisation = MT.IPR(self.all_settings['mol'][self.step])
+
+        # Ordered by mol coeff max to min
+        const = 0.01/self.all_settings['isosurface_to_plot']
+        loc = const*localisation if const >= 1.2 else localisation * 1.2
+        for count, molID in enumerate(self.active_step_mols):
+            if count > loc: break
+            self._create1Mol_(molID)
+
+        print(f"IPR = {localisation}")
+        print("%i Mols have cubes" % self.__count__)
         self._vmd_visualise(step)  # run the vmd script and visualise the data
         # if self.all_settings['side_by_side_graph']:  # (Not supported)
         #     self._plot(step)  # Will plot a graph to one side (Not supported)
 
-    def _findCubesToWrite(self, molID):
+    def _create1Mol_(self, molID):
+        molPop = self.all_settings['pops'][self.step][molID]
+        if molPop < self.all_settings['min_abs_mol_coeff']:
+            return None
+
+        self._findActiveAtoms(molID)
+        self._createWfData(molID, self.step)
+        self._reapplyPhase(molID)
+        self._setWfCol()
+        self._writeCubeFile(self.step, molID)
+        self.__count__ += self.writeImagCube + self.writeRealCube
+
+    def __findCubesToWrite(self, molID):
         """
         Will find whether the real or imaginary data has enough data (at least
         0.3%) above the isosurface that is to be plotted.
@@ -123,21 +144,29 @@ class MainLoop(object):
         imaginary data containers to update the minimum absolute coefficient
         threshold for visualising the molecule.
         """
-        size = float(self.ImagData.size)
+        # What percentage of the data is visible
+        tol = 0.01 if self.all_settings['do_transition_state'] else 0.001
+
+        size = float(self.RealData.size)
         isoToPlot = self.all_settings['isosurface_to_plot']
         relevantReal = np.sum(np.abs(self.RealData) > isoToPlot)
         relevantReal /= size
-        relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
-        relevantImag /= size
+        self.writeImagCube = False
+        if all_settings['color_type'] == "phase":
+            relevantImag = np.sum(np.abs(self.ImagData) > isoToPlot)
+            relevantImag /= size
+            self.writeImagCube = relevantImag > tol  # At least tol% is visible
 
-        self.writeImagCube = relevantImag > 0.003  # At least 0.3% is visible
-        self.writeRealCube = relevantReal > 0.003  # At least 0.3% is visible
+
+        self.writeRealCube = relevantReal > tol  # At least tol% of the data structure is visible is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
                 self.all_settings['min_abs_mol_coeff'] = molPop
 
-    def _post_wf_processing(self):
+        #if all_settings['color_type'] == "real-phase": self.writeImagCube = False
+
+    def _reapplyPhase(self, molID):
         """
         Will handle the processing of the data after being created. For the
         phase option this involves finding which quadrant the data points lie
@@ -160,7 +189,8 @@ class MainLoop(object):
             self.RealData = self.data * np.conjugate(self.data)
             self.RealData = np.sqrt(self.RealData)
             self.ImagData = False  # We don't have imaginary data here
-        else:
+
+        elif self.all_settings['color_type'] == "phase":
             # Get phase info
             self.phase = np.angle(self.data)
             # Get the density
@@ -195,6 +225,17 @@ class MainLoop(object):
             self.ImagData[self.NImask] = -self.ImagData[self.NImask]  # make neg
             self.ImagData[self.NRmask + self.PRmask] = 0  # Set real part to 0
 
+        elif self.all_settings['color_type'] == "real-phase":
+            # Get phase info
+            self.negMask = self.data < 0
+            # Get the density
+            self.RealData = self.data * np.conjugate(self.data)
+            self.RealData = np.sqrt(self.RealData)
+            self.RealData[self.negMask] *= -1
+
+
+
+        self.__findCubesToWrite(molID)
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['WF Post Processing'][self.step] += end_time
 
@@ -249,12 +290,12 @@ class MainLoop(object):
         """
         # Dealing with the background molecules
         largest_dim = np.argmax(
-                          [np.max(self.all_settings['coords'][self.step][:, i])
+                          [np.max(self.all_settings['coords'][self.posStepInd][:, i])
                            for i in range(3)]
                                )
         # dims = [Xdims, Ydims, Zdims][largest_dim]
         # Find maximum coordinate
-        at_crds = self.all_settings['coords'][self.step]
+        at_crds = self.all_settings['coords'][self.posStepInd]
         at_crds = at_crds[self.all_settings['atoms_to_plot']][:, largest_dim]
         max_coord = np.max(at_crds)
         max_coord += self.all_settings['background_mols_end_extend']
@@ -264,7 +305,7 @@ class MainLoop(object):
         mask = mask[self.step][:, largest_dim] < max_coord
 
         # Apply the mask to get data. Find metadata.
-        background_mols_pos = self.all_settings['coords'][self.step][mask]
+        background_mols_pos = self.all_settings['coords'][self.posStepInd][mask]
         background_mols_at_num = self.all_settings['at_num'][mask]
         backgrnd_mols_filepath = self.all_settings['data_fold'] + \
             "bckgrnd_mols-%s.xyz" % self.PID
@@ -324,7 +365,7 @@ class MainLoop(object):
         return self.active_step_mols
 
     # Will find the active atoms to loop over
-    def _find_active_atoms(self, molID):
+    def _findActiveAtoms(self, molID):
         """
         Find which atoms are active according to the AOM_COEFF.include file.
         These are atoms on a molecule.
@@ -334,7 +375,7 @@ class MainLoop(object):
         """
         # Find active coordinates (from active atom index)
         atMask = [i for i in self.all_settings['active_atoms_index'][molID]]
-        self.active_coords = self.all_settings['coords'][self.step][atMask]
+        self.active_coords = self.all_settings['coords'][self.posStepInd][atMask]
         self.active_coords = [self.active_coords[:, k] for k in range(3)]
         self.active_coords = np.array(self.active_coords)
 
@@ -358,7 +399,7 @@ class MainLoop(object):
                 return False
 
     # Will create the wavefunction data
-    def _create_wf_data(self, molID, step):
+    def _createWfData(self, molID, step):
         """
         Will create the wavefunction data. This involves creating a bounding
         box big enough to encapsulate the wf and creating the SOMO (p orbital
@@ -399,19 +440,37 @@ class MainLoop(object):
         # Actually create the data
         self.data = np.zeros(self.sizes, dtype=np.complex64)
 
-        # Only use nearest neighbours if there's a large population
+        # Only use nearest neighbours if there's a large enough population
         if self.all_settings['pops'][self.step][molID] > 0.07:
             for molNum in self.nearestNeighbours[molID]:  # loop nearest mols
                 u_l = self.all_settings['mol'][self.step][molNum]
-                self.data += (self.__calc_SOMO(molNum, translation) * u_l)
+                if self.all_settings['pops'][self.step][molNum] > 0.1:
+                    self.data += (self.__calc_SOMO(molNum, translation, 0) * u_l)
+
+            if all_settings['do_transition_state']:
+                tmp = np.zeros(self.sizes, dtype=np.complex64)
+                for molNum in self.nearestNeighbours[molID]:
+                    u_l = self.all_settings['mol'][self.step][molNum]
+                    if self.all_settings['pops'][self.step][molNum] > 0.1:
+                        tmp += (self.__calc_SOMO(molNum, translation, 1) * u_l)
+
         else:
             u_l = self.all_settings['mol'][self.step][molID]
-            self.data += (self.__calc_SOMO(molID, translation) * u_l)
+            self.data = (self.__calc_SOMO(molID, translation, 0) * u_l)
+
+            if all_settings['do_transition_state']:
+                tmp = np.zeros(self.sizes, dtype=np.complex64)
+                tmp = (self.__calc_SOMO(molID, translation, 1) * u_l)
+
+        if all_settings['do_transition_state']:
+            # 50 just to enlarge the isosurface as the multiplication reduces its size
+            self.data = 50 * np.conjugate(tmp) * self.data
+
 
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 
-    def __calc_SOMO(self, molID, translation):
+    def __calc_SOMO(self, molID, translation, AOM_D_ind=0):
         """
         Will create the SOMO for 1 molecule. This involves looping over all
         active atoms in one molecule and creating a p orbtial on each one. This
@@ -420,13 +479,27 @@ class MainLoop(object):
         """
         # Loop over current molecules atoms
         tmpData = np.zeros(self.sizes, dtype=np.complex64)
-        # Loop over atoms that belong to molecule molID
-        for iat in self.all_settings['reversed_mol_info'][molID]:
+        if self.calc_pvecs:
+            start_time = time.time()
+            act_ats = np.array(self.all_settings['reversed_mol_info'][molID])
+            mol_num = int(self.all_settings['reversed_mol_info'][molID][0] / all_settings['atoms_per_site'])
+            act_ats -= int(mol_num * all_settings['atoms_per_site'])
+            ats = self.all_settings['coords'][self.posStepInd]
+            ats = ats[range(mol_num*all_settings['atoms_per_site'], (mol_num+1)*all_settings['atoms_per_site'])]
+            pvecs_all = geom.calc_pvecs_1mol(ats, act_ats)
+            self.all_settings['times']['Create Pvecs'][self.step] += time.time() - start_time
+        else:
+            if 'Create Pvecs' in self.all_settings['times']:
+                self.all_settings['times'].pop("Create Pvecs")
+            pvecs_all = self.all_settings['pvecs'][self.step][self.all_settings['reversed_mol_info']]
 
-            at_crds = self.all_settings['coords'][self.step][iat] - translation
-            atom_I = self.all_settings['AOM_D'][iat][1]
-            pvecs = self.all_settings['pvecs'][self.step][atom_I]
-            AOM = self.all_settings['AOM_D'][iat][0]
+        # Loop over atoms that belong to molecule molID
+        for i, iat in enumerate(self.all_settings['reversed_mol_info'][molID]):
+
+            at_crds = self.all_settings['coords'][self.posStepInd][iat] - translation
+            #atom_I = self.all_settings['AOM_D'][iat][1]
+            pvecs = pvecs_all[i]
+            AOM = self.all_settings['AOM_D'][iat][AOM_D_ind]
             AOM = np.round(AOM, 5)  # Can remove later (to check if rounding caused errors betwen py2 and 3)
             tmpData += MT.dot_3D(
                       MT.SH_p(self.sizes[0],
@@ -435,11 +508,12 @@ class MainLoop(object):
                               self.all_settings['resolution'],
                               at_crds),
                       pvecs) * AOM
+
         return tmpData
         #''' will fix atom syntax highlighting (don't know why)'''
 
     # Creates the cube file to save
-    def _create_cube_file_txt(self, step):
+    def __createCubeFileTxt(self, step):
         """
         Creates the cube file as a string. This is created as a string first
         then written to a file as this is much more efficient than writing each
@@ -459,7 +533,7 @@ class MainLoop(object):
         msg += " maker in order for him to fix it)"
         if np.sum(self.RealData.imag) > 1e-12:
             raise SystemExit(msg + '    (Bad Real Data)')
-        if type(self.ImagData) == type(np.array(1)):
+        if self.writeImagCube and type(self.ImagData) == type(np.array(1)):
             if np.sum(self.ImagData.imag) > 1e-12:
                 raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
 
@@ -470,20 +544,20 @@ class MainLoop(object):
                                   vdim=self.sizes,
                                   mol_info=self.all_settings['mol_info'],
                                   orig=self.origin,
-                                  Ac=self.all_settings['coords'][self.step],
+                                  Ac=self.all_settings['coords'][self.posStepInd],
                                   An=self.all_settings['at_num'],
                                   tit=self.all_settings['title'],
                                   atoms_to_plot=self.all_settings['atoms_to_plot'],
                                   basis_vec=xyz_basis_vectors
                                                   )
 
-        if type(self.ImagData) == type(np.array(1)) and self.writeImagCube:
+        if self.writeImagCube and type(self.ImagData) == type(np.array(1)):
             self.ICubeTxt = txt_lib.cube_file_text(
                                self.ImagData.real,
                                vdim=self.sizes,
                                mol_info=self.all_settings['mol_info'],
                                orig=self.origin,
-                               Ac=self.all_settings['coords'][self.step],
+                               Ac=self.all_settings['coords'][self.posStepInd],
                                An=self.all_settings['at_num'],
                                tit=self.all_settings['title'],
                                atoms_to_plot=self.all_settings['atoms_to_plot'],
@@ -494,7 +568,7 @@ class MainLoop(object):
         self.all_settings['times']['Create Cube Data'][step] += end_time
 
     # Handles the saving the wf colors in a dictionary of the wavefunction.
-    def _set_wf_colors(self, numCube=-1):
+    def _setWfCol(self, numCube=-1):
         """
         Will determine the colour of the wavefunction depending on the setting
         chosen. If density is chosen then the wavefunction will all be one
@@ -516,7 +590,7 @@ class MainLoop(object):
             self.pos_iso_cols[self.tcl_color_dict_count] = 22
             self.tcl_color_dict_count += 1
 
-        elif self.all_settings['color_type'] == 'phase':
+        elif 'phase' in self.all_settings['color_type']:
             # First real cube file
             if self.writeRealCube:
                 self.pos_iso_cols[self.tcl_color_dict_count] = 20
@@ -528,8 +602,10 @@ class MainLoop(object):
                 self.neg_iso_cols[self.tcl_color_dict_count] = 19
                 self.tcl_color_dict_count += 1
 
+        self._saveWfCol()
+
     # Saves the wavefunction coloring in the tcl dictionary
-    def _save_wf_colors(self):
+    def _saveWfCol(self):
         """
         Saves the wf colours in the tcl dictionary to be visualised by vmd
         """
@@ -587,10 +663,11 @@ class MainLoop(object):
         self.all_settings['times']['VMD Visualisation'][step] += end_time
 
     # Handles the writing of the necessary files
-    def _write_cube_file(self, step, molID, numCube=-1):
+    def _writeCubeFile(self, step, molID, numCube=-1):
         """
         Converts each molecular wavefunction to a cube file to be loaded in vmd
         """
+        self.__createCubeFileTxt(step)
         start_data_write_time = time.time()
         if all_settings['keep_cube_files']:
             RDataFName = "%s-%i-%i.cube" % ('Real', step, molID)
@@ -643,7 +720,7 @@ class MainLoop(object):
         revMolVals = self.all_settings['reversed_mol_info'].values()
         atIndsPerMol = [atNums for atNums in revMolVals]
 
-        molCoords = self.all_settings['coords'][0,atIndsPerMol]
+        molCoords = self.all_settings['coords'][0, atIndsPerMol]
         avgPosMols = np.array([np.mean(i, axis=0) for i in molCoords])
 
         molKeys = list(self.all_settings['reversed_mol_info'].keys())
@@ -689,12 +766,13 @@ class MainLoop(object):
         garbage.
         """
         io.settings_update(self.all_settings)
+        self._copy_settings_file()
+        self._store_imgs()
         if not all_settings['calibrate']:
             self._stitch_movie()
         else:
             self._display_img()
-        self._copy_settings_file()
-        self._store_imgs()
+
         self._garbage_collector()
 
     # Copy settings.inp to img folder
@@ -716,7 +794,8 @@ class MainLoop(object):
       newSettingsFilePath = newSettingsFolder + "settings.inp"
       newIncludeFilePath = newSettingsFolder + "include.vmd"
 
-      os.makedirs(newSettingsFolder)
+      if not os.path.isdir(newSettingsFolder):
+          os.makedirs(newSettingsFolder)
       shutil.copyfile(src=settFilePath, dst=newSettingsFilePath)
       shutil.copyfile(src=settFilePath, dst=newIncludeFilePath)
 
@@ -750,18 +829,25 @@ class MainLoop(object):
                                             io.folder_correct('./vmdscene.dat')
                                                 )
         # Garbage collection
-        self.all_settings['delete_these'].append(self.all_settings['f.txt'])
-        for f in self.all_settings['delete_these']:
-            if io.path_leads_somewhere(f):
+        #self.all_settings['delete_these'].append(self.all_settings['f.txt'])
+        for f in all_settings['delete_these']:
+            if os.path.isfile(f):
                 os.remove(f)
 
     # Handles converting the image to another img format for storing
     def _store_imgs(self):
         """
-        Will convert images from tga to jpg (for storage). jpg is smaller than
-        tga.
+        Will convert images from tga to jpg (for storage). jpg creates smaller images
+        than tga. We also add any leading zeros to files as this makes them
+        easier to stitch together later on.
         """
-        # Convert all .tga to .img
+        # First add leading zeros to files
+        new_files, tga_files = io.add_leading_zeros(self.tga_folderpath)
+        cond = 'tga' not in self.all_settings['files_to_keep']
+        cond *= not all_settings['calibrate']
+        if cond: all_settings['delete_these'].extend(set(new_files))
+
+        # Convert all .tga to .<img>
         if 'img' in self.all_settings['files_to_keep']:
             cnvt_command = "mogrify -format %s %s*.tga" % (
                                                self.all_settings['img_format'],
@@ -776,11 +862,10 @@ class MainLoop(object):
         Stitches the individual images together into a movie using the ffmpeg
         binary in the bin/ folder.
         """
-        io.add_leading_zeros(self.tga_folderpath)
-        files = "*.tga"
+        files = "*.%s" % self.all_settings['img_format']
         # Creating the ffmpeg and convert commands for stitching
         if self.all_settings['movie_format'] == 'mp4':
-            os.chmod(self.all_settings['ffmpeg_bin'], 777)
+            os.chmod(self.all_settings['ffmpeg_bin'], int("755", base=8))
             title_path = self.tga_folderpath + self.all_settings['title']
             Stitch_cmd, tmp, _ = io.stitch_mp4(
                                              files,
@@ -791,6 +876,9 @@ class MainLoop(object):
                                               )
             self.all_settings['delete_these'].append(tmp)
             self.all_settings['delete_these'].append(_)
+
+        else:
+            raise SystemExit("Unrecognised `movie_format`. Please choose from:\n\t* mp4")
 
         subprocess.call(Stitch_cmd, shell=True)  # Actually stitch the movie
 
@@ -849,7 +937,7 @@ step_data = MainLoop(INIT.all_settings, INIT.all_steps, errors)
     #     """
     #     allSizes = np.zeros((len(self.active_step_mols), 3), dtype=int)
     #     for molCount, molID in enumerate(self.active_step_mols):
-    #         self._find_active_atoms(molID)
+    #         self._findActiveAtoms(molID)
     #         BBS = self.all_settings['bounding_box_scale']
     #         translation, active_size = geom.min_bounding_box(self.active_coords,
     #                                                          BBS)
@@ -869,7 +957,7 @@ step_data = MainLoop(INIT.all_settings, INIT.all_steps, errors)
     #     self.allSOMO = {mol: np.zeros(self.sizes, dtype=complex)
     #                          for mol in SOMOsToCreate}
     #     for molID in self.allSOMO:
-    #         self._find_active_atoms(molID)  # get active coords
+    #         self._findActiveAtoms(molID)  # get active coords
     #         BBS = self.all_settings['bounding_box_scale']
     #         translation, active_size = geom.min_bounding_box(self.active_coords,
     #                                                          BBS)

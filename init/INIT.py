@@ -98,40 +98,33 @@ START_TIME = time.time()
 #      Add more checks and debugging info (better error messages etc).
 
 
-if type(all_settings['end_step']) != int:
-    if type(all_settings['end_step']) == str:
-        if 'al' not in all_settings['end_step'].lower():
-            EXC.WARN("Sorry the 'end_step' variable needs to be an integer not a %s!\n\nConverting from %.2g to %i"%(type(all_settings['end_step']),all_settings['end_step'],int(round(all_settings['end_step']))))
-            all_settings['end_step'] = int(round(all_settings['end_step']))
-    else:
-        EXC.WARN("Sorry the 'end_step' variable needs to be an integer not a %s!\n\nConverting from %.2g to %i"%(type(all_settings['end_step']),all_settings['end_step'],int(round(all_settings['end_step']))))
-        all_settings['end_step'] = int(round(all_settings['end_step']))
-
 # Sorting out filenames
 IU.init_output_files_and_folders(all_settings) # Will declare all the paths that are required in the code
 IU.init_all_settings_other(all_settings) # Will initialise settings that aren't file/folder paths
 io.create_data_img_folders(all_settings)
-keep_tga_files = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 IU.init_permanent_settings(all_settings)
 IU.init_tcl_dict(all_settings)
+IU.transition_state_init(all_settings) # Will init any transition state settings if required.
 
 # Functions that don't need coords, coeffs, pvecs etc...
 IU.get_all_files_metadata(all_settings)
+IU.init_steps_to_do(all_settings)
 IU.find_step_numbers(all_settings)
-IU.init_global_steps_to_ignore(all_settings)
-IU.init_local_steps_to_ignore(all_settings)
+IU.init_ignore_steps_for_restart(all_settings)
+IU.fix_missing_pos_steps(all_settings)
 IU.init_show_box(all_settings)
 IU.init_cal_display_img(all_settings)
 IU.init_files_to_keep(all_settings)
 IU.init_animation_type(all_settings)
 IU.init_colors(all_settings)    # Initialises the colors of the wavefunction
 IU.check_VMD_TEMP(all_settings)
+all_settings['keep_tga_files'] = WRN.redundant_img(all_settings['keep_img_files'], all_settings['keep_tga_files'])
 
 # Read input files
 IU.read_cp2k_inp_file(all_settings)
 IU.init_AOM_D(all_settings)
-i_IO.read_coords(all_settings)
 i_IO.read_coeffs(all_settings)
+i_IO.read_coords(all_settings)
 i_IO.read_pvecs(all_settings)
 
 # Functions needing data from input files
@@ -142,51 +135,6 @@ IU.init_bounding_box(all_settings)
 IU.check_charge_spread(all_settings)
 all_settings['reversed_mol_info'] = IU.reverseDict(all_settings['mol_info'])
 IU.init_times_dict(all_settings)
-all_steps = xrange(len(all_settings['coords']))
 
+all_steps = xrange(len(all_settings['pos_step_inds']))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Position the time label.
-# if type(pos_time_label) == list:
-#    if len(pos_time_label) == 3:
-#       avgx,avgy,avgz = pos_time_label
-# else:
-#    auto_time_label = txt_lib.fuzzy_variable_translate(pos_time_label, ["auto","A list containing absolute positions i.e. [Pos_x, Pos_y, Pos_z]"], all_settings['verbose_output'], False)
-#    if not auto_time_label and all_settings['verbose_output']:
-#       EXC.WARN("Assuming I should position the time label automatically, as the position hasn't been set and type of positioning hasn't been stated.")
-#    if background_mols:
-#        largest_dim = np.argmax([np.max(all_settings['coords'][0][:,i]) for i in range(3)])
-#        dims = [Xdims, Ydims, Zdims][largest_dim]
-#        max_coord = np.max(all_settings['coords'][0][all_settings['atoms_to_plot']][:,largest_dim])+all_settings['all_settings['background_mols_end_extend']']
-#        mask = all_settings['coords'][0][:,largest_dim]<max_coord
-#        all_time_label_coords = all_settings['coords'][0][mask]
-#    else:
-#        all_time_label_coords = np.array([[np.max(all_settings['coords'][:,atom,dim]) for dim in range(3)] for atom in all_settings['atoms_to_plot'] ])
-#    all_time_label_coords = [all_time_label_coords[:,i] for i in range(3)]
-#    max_center, max_span = geom.min_bounding_box(all_time_label_coords,[1,1,1])
-#    #max_span[int(np.argmin(max_span))] *= 4
-#    max_span = [max_span[0], max_span[1], 0]
-#    Tcoords = np.array(max_center) + np.array(max_span)/np.array([8,-4,1])
-#    avgx, avgy, avgz = Tcoords
-# if not use_fuzzy_files:
-#    pvecs_on = io.path_leads_somewhere(all_settings['CP2K_output_files']['pvecs'])
-# else:
-#     pvecs_on = len(all_settings['CP2K_output_files']['pvecs']) > 0
-# if not pvecs_on:
-#     EXC.WARN("Can't find the Pvecs file, this contains information about the orientation of the P orbitals.")

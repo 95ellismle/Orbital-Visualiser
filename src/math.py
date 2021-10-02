@@ -80,8 +80,9 @@ def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
     y -= (sizeY/2. + Origin[1]/resolution)
     z -= (sizeZ/2. + Origin[2]/resolution)
 
-    r = np.sqrt(x**2 + y**2 + z**2)
-    exp_neg_r = np.exp(-r)
+    exp_neg_r = np.exp(
+                       -np.sqrt(x**2 + y**2 + z**2) # r = sqrt(x^2 + y^2 + z^2)
+                      )
 
     x *= exp_neg_r
     y *= exp_neg_r
@@ -150,7 +151,7 @@ def find_auto_rotation(all_settings):
     # Finds the rotation angle to align the first molecule to face the user (perp to z)
     new_sys_dims = find_sys_dims(coords2)
     xangle = find_angle(coords2, new_sys_dims['lens'], [1,2])
-    return [xangle*(180./np.pi),0,zangle*(180./np.pi)]
+    return [xangle*(180./np.pi), 0, zangle*(180./np.pi)]
 
 # # Converts a rotation matrix to Euler angles (that VMD can read)
 # #This consists of a z rotation, followed by a y rotation, followed by an x rotation

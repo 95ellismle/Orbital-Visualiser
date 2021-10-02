@@ -5,9 +5,9 @@ Contains code used in exceptions/errors.
 # Handles general errors with a message (for some reason standard python XXError("..") won't work)
 def ERROR(message, line_number=False):
     if type(line_number) != int:
-        raise SystemExit(message)
+        raise SystemError(message)
     else:
-        raise SystemExit(message+"\n\nAt line %i"%line_number)
+        raise SystemError(message+"\n\nAt line %i"%line_number)
     return 0
 
 

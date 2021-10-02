@@ -1,5 +1,5 @@
-MOV_LENGTH='15'           # Movie length in seconds
-INPUTMOVIE='../Docs/Perm_img/Plane2.mp4'           # Which file to slow down
+MOV_LENGTH='20'           # Movie length in seconds
+INPUTMOVIE='../img/10ns_Clust1_DisordedRegionMessyMSD/10ns_Clust1_DisordedRegionMessyMSD.mp4'           # Which file to slow down
 OUTPUTNAME='./test.mp4'           # Name of output file
 
 

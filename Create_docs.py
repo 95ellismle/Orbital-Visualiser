@@ -189,7 +189,7 @@ class ParseDefaults(object):
 
             ERROR: The length of line (%s) split by '%s' is %i, it should be 2.
 
-            This is probably due to something being entered wrong in the
+            This is probably due to something being entered incorrectly in the
             Templates/defaults file.
 
             Each line needs to have the format:
@@ -393,8 +393,9 @@ class TableHTMLFile(HTMLFile):
 
         self.tableTxt = table_tag
         allHeaders = ['Setting', 'Default Value', 'Description', 'Input Type']
-        for header in allHeaders:
-            self.tableTxt += '\t<th> %s </th>' % header
+        headerStyles = ('', '', '', 'min-width: 14%')
+        for header, style in zip(allHeaders, headerStyles):
+            self.tableTxt += '\t<th style="%s"> %s </th>' % (style, header)
         for setting in self.params:
             self.tableTxt += "\n<tr>"
             self.tableTxt += "<td> %s </td>" % setting
@@ -473,6 +474,7 @@ SideBar(defaults, replacers, tables_folder)
 
 # Handle the docstrings on top of the python files
 dstr = docstr.Docstr_Parsing('.')
+
 replacers['*Mov_Mak_Edit*'] = dstr.docstrTxt
 
 # Complete the files in order (do the TopNav first)
@@ -486,8 +488,9 @@ for i in lastItems:
     templateFilePathsOrder.remove(i)
 templateFilePathsOrder += lastItems
 
-FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation', 
+FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation',
                    'QuickStart']
+
 
 # First create all the correct paths to the files
 for key in templateFilePathsOrder:
@@ -528,6 +531,7 @@ for key in templateFilePathsOrder:
 
 
 for key in filesToWrite:
+    print(key)
     tmp = filesToWrite[key]
     fileName = tmp.savePath
     with open(fileName, 'w') as f:

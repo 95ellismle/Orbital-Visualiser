@@ -33,182 +33,24 @@ if sys.version_info[0] > 2:
     xrange = range
     raw_input = input
 
-# Finds the number of lines in one step of the xyz file data
-def find_num_lines_in_xyz_file_step(ltxt, filename):
-    first_line = ltxt[0]
-    num_lines_in_step = 1
-    for i in ltxt[2:]: # Loops over all the line of text
-        num_lines_in_step += 1
-        #If any lines are very similar to the first line then assume the step is repeating
-        if dfl.SequenceMatcher(None, first_line, i).ratio() > 0.8:
-            return num_lines_in_step
-    EXC.ERROR("Unable to determine number of steps in:\n\n%s"%filename)
-
-# Finds the number of title lines and number of atoms with a step
-def find_num_title_lines(step): # should be the text in a step split by line
-    num_title_lines = 0
-    for line in step:
-        if typ.is_atom_line(line):
-            break
-        num_title_lines += 1
-    return num_title_lines
-
-# Finds the delimeter for the time-step in the xyz_file title
-def find_time_delimeter(step, filename):
-    for linenum,txt in enumerate(step):
-        txt = txt.lower()
-        if 'time' in txt:
-            break
-    txt = txt[txt.lower().find('time')+4:]
-    cond1 = False
-    cond2 = True
-    for char in txt:
-        cond1 = (typ.is_num(char) or char == '.')
-        if cond1 == True:
-            cond2 = False
-        if not any([cond1, cond2]) and char != " ":
-            return char,linenum
-    EXC.ERROR("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
-
-# Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
-# This will also create the step_data dictionary with the data of each step in
-def get_xyz_step_metadata(filename, ltxt=False):
-    if ltxt == False:
-        ltxt = open_read(filename).split('\n')
-    most_stable = False
-    if any('*' in i for i in ltxt[:300]):
-        most_stable = True
-    if not most_stable:
-        num_title_lines, num_atoms = txt_lib.num_atoms_find(ltxt)
-        lines_in_step = num_title_lines + num_atoms
-        if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
-           step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        else: #If there is no second step take lines from the first
-           step_data = {1:ltxt[:lines_in_step]}
-    else:
-        lines_in_step = find_num_title_lines(ltxt, filename)
-        step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-        num_title_lines = find_num_title_lines(step_data[1])
-
-    nsteps = int(len(ltxt)/lines_in_step)
-    time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines], filename)
-    timelines = [ltxt[time_ind+(i*lines_in_step)] for i in range(nsteps)]
-    timesteps = np.array([txt_lib.string_between(line, "time = ", time_delim) for line in  timelines]).astype(np.float64)
-    return {'time_delim':time_delim,
-            'time_ind':time_ind,
-            'lines_in_step':lines_in_step,
-            'num_title_lines':num_title_lines,
-            'nsteps':nsteps,
-            'tsteps':timesteps}
-
-# Reads an xyz_file
-# Would like to create a mask here to avoid reading the atoms to ignore.
-# This function is quite obscure and terse as this is a bottle neck in the code and has been optimised.
-# It relies heavily on numpy arrays and list\dictionary comphrensions to give speed things up.
-def read_xyz_file(filename, num_data_cols, min_step=0, max_step='all', stride=1, ignore_steps=[], do_timesteps=[], metadata=False):
-    """
-    Reads an xyz file.
-
-    Inputs:
-        * filename       =>  filename [str] -required
-        * num_data_cols  =>  how many columns (on the right) are data [int] -required
-        * min_step       => The minimum step to iterate over [int] -optional (default 0)
-        * max_step       => The maximum step to iterate over [int, or 'all'] -optional (default 'all')
-        * stride         => The stride to take when iterating over steps [int] -optional (default 1)
-        * ignore_steps   => Step indices to ignore [list <int>] -optional (default [])
-        * do_timesteps   => Timesteps to complete [list <float>] -optional (default [])
-        * metadata       => The metadata of the xyz file [dict] -optional (default False)
-
-    Outputs:
-        tuple with data, data from the columns and the timesteps
-
-    N.B. Will do timesteps that aren't in ignore timesteps, and are in
-    do_timesteps (unless it is empty) in the list created by the min, max and
-    stride.
-    """
-    num_data_cols = -num_data_cols
-    ltxt = open_read(filename).split('\n')
-    if not metadata:
-        metadata = get_xyz_step_metadata(filename, ltxt)
-
-    if max_step == 'all':              max_step = metadata['nsteps']
-    if max_step > metadata['nsteps']:  max_step = metadata['nsteps']
-    #First find the min, max, stride set of timesteps
-    all_steps = metadata['tsteps'][np.arange(min_step, max_step, stride)]
-    if len(do_timesteps) > 0:
-        #Find the timesteps which are in do_timesteps and range
-        common_timesteps = np.intersect1d(all_steps, do_timesteps)
-        #Find the indices of these and remove steps to ignore.
-        all_steps = np.searchsorted(metadata['tsteps'], common_timesteps)
-    else:
-        all_steps = range(len(all_steps)) # all_steps needs to be indices here
-    all_steps = [i for i in all_steps if i not in ignore_steps]
-
-    if not all_steps:
-        print("Min Step: %i\t Max step: %i\t Stride: %i" % (min_step, max_step,
-                                                               stride))
-        print("All steps = ", all_steps)
-        raise SystemExit("All steps empty (no steps to carry out)")
-    timesteps = metadata['tsteps'][np.array(all_steps)]
-
-    step_data = [i for i in all_steps]
-
-    for i, step_num in enumerate(all_steps):
-        step_data[i] = ltxt[step_num*metadata['lines_in_step']+metadata['time_ind']+1:(step_num+1)*metadata['lines_in_step']] # Get string data
-
-    for i, step in enumerate(step_data):
-        step_data[i] = [[k for k in j.split(' ') if k] for j in step] # Split and get seperate cols
-    step_data = np.array(step_data)
-    data = np.array([step[:,num_data_cols:] for step in step_data])
-    data = data.astype(float)
-    spare_info = [step[:,:num_data_cols] for step in step_data]
-    return data, spare_info, timesteps
-
-# Plots the data, saves the graph and then appends the 2 images side by side.
-def plot(step_info, mind, files, plt, optX=[], optY=[]):
-    start_plot = mind-step_info['max_graph_data']
-    if start_plot < 0:
-       start_plot = 0
-    fig, A = plt.subplots(1,1,facecolor=(1,1,1),figsize=(8.4*step_info['graph_img_ratio'],8.4))
-    A.spines['top'].set_visible(False)
-    A.spines['right'].set_visible(False)
-    A.grid(color=[0.8]*3,ls='-')
-    A.set_ylabel(step_info['ylab'],fontsize=step_info['yfont'])
-    A.set_xlabel(step_info['xlab'],fontsize=step_info['xfont'])
-    highlighted_mols = step_info['highlighted_mols']
-    if type(step_info['highlighted_mols']) == str:
-       if 'max' in step_info['highlighted_mols']:
-          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.max(step_info['mol'][mind,:])]
-       if 'min' in step_info['highlighted_mols']:
-          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.min(step_info['mol'][mind,:])]
-       elif 'al' in step_info['highlighted_mols']:
-          highlighted_mols = range(len(step_info['mol'][mind,:]))
-    replace_str = ','.join([str(i+1) for i in highlighted_mols])
-    G_title = step_info['graph_title'].replace("*", replace_str)
-    A.set_title(G_title, fontsize=step_info['tfont'])
-    mols_plotted = []
-    for moli in step_info['AOM_D']:
-       mol_ind = step_info['mol_info'][moli]
-       if mol_ind not in mols_plotted:
-          if mol_ind in highlighted_mols:
-             A.plot(step_info['Mtime-steps'][start_plot:mind], step_info['mol'][start_plot:mind,mol_ind],label="mol %i"%(mol_ind+1))
-          else:
-             A.plot(step_info['Mtime-steps'][start_plot:mind],step_info['mol'][start_plot:mind,step_info['mol_info'][moli]], alpha=0.2)
-          _,_,graph_filepath = file_handler(files['name'], "png", step_info)
-          mols_plotted.append(mol_ind)
-    A.plot(optX,optY)
-    A.legend(loc='best')
-
-    #plt.tight_layout()
-    fig.savefig(graph_filepath, format='png')
-    add_imgs_cmd = "convert %s %s +append %s"%(graph_filepath, files['tga_fold'], files['tga_fold'])
-    os.system(add_imgs_cmd)
-
-    plt.close()
-    return graph_filepath
-
 # Checks whether the tachyon path specified is the correct one.
 def check_tachyon(tachyon_path, times=0):
+    """
+    Check the tachyon path in the permanent settings file.
+
+    This will attempt to run tachyon and check the output. If
+    it doesn't work then the permissions will be changed and
+    Tachyon will be checked again. If this still doesn't work
+    return False
+
+    Inputs:
+        tachyon_path <str> => the path to the Tachyon binary
+        times <int> => DON'T CHANGE. How many times the function
+                       has been called (only for recursion).
+
+
+    return bool
+    """
     if not tachyon_path:
         return False
     tachyon_out =os.popen(tachyon_path, 'r').read()
@@ -216,7 +58,7 @@ def check_tachyon(tachyon_path, times=0):
     if tachyon_spiel_ind != -1:
         return True
     else:
-       os.chmod(tachyon_path, 777)
+       os.chmod(tachyon_path, int('755', base=8))
        if times < 1:
            result = check_tachyon(tachyon_path, times+1)
            return result
@@ -239,6 +81,63 @@ def check_dir_for_tachyon(directory):
             if 'tachyon' in dname or 'tachyon' in fname:
                 return dpath+'/'+fname
     return False
+
+
+def check_vmd_exe(vmd_fp):
+    """
+    Will check the vmd executable filepath is working as expected.
+
+    Will simply run vmd via `vmd -h` and check if the substrings
+    'isual', 'olecular' and 'ynamics' are in the output.
+
+
+    Inputs:
+        * vmd_fp <str> => The string to check
+
+    Outputs:
+        <bool> Whether the vmd executable works or not.
+    """
+    p = sb.Popen([vmd_fp, '-h'], stdout=sb.PIPE, stderr=sb.PIPE)
+    out, err = p.communicate()
+    out = out.decode("utf-8")
+    if all(i in out for i in ('isual', 'olecular', 'ynamics')):
+        return True
+    return False
+
+
+def find_vmd(current_vmd_path="vmd"):
+    """
+    Will try to find where vmd is on the user's computer.
+
+    If the executable can't be found then an error message will be displayed and
+    the code will stop.
+
+    Inputs:
+        * current_vmd_path <str> => The first place to look for the path to vmd.
+
+    Outputs:
+        <str> A filepath pointing to a working vmd executable.
+    """
+    print("\rChecking VMD binary...                    ", end="\r")
+    if os.path.isfile(current_vmd_path):
+        is_exe = check_vmd_exe(current_vmd_path)
+        if is_exe: return current_vmd_path
+
+    if current_vmd_path != "vmd":
+        p = sb.Popen(['which', 'vmd'], stdout=sb.PIPE, stderr=sb.PIPE)
+        out, err = p.communicate()
+        out = out.decode("utf-8").strip("\n")
+        if out != "" and check_vmd_exe(out): return out
+
+    all_bin = os.listdir("/usr/local/bin")
+    if 'vmd' in all_bin:
+        out = "/usr/local/bin/vmd"
+        if check_vmd_exe(out): return out
+
+    raise SystemExit("Can't find the vmd binary on your computer!\n\nPlease point me to it in your settings.inp file via:\n\t`vmd_exe = \"...\"`")
+
+
+
 
 # Searches recursively for the VMD tachyon renderer path.
 def find_tachyon(current_tachyon_path=''):
@@ -294,6 +193,7 @@ To find the tachyon ray tracer engine try:
 If this doesn't work you may not have the tachyon ray-tracer with your
 VMD package. Try re-installing VMD.""")
 
+
 # Will stitch together an mp4 video
 def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='aac', Vcodec='libx264', extra_flags="-pix_fmt yuv420p -preset slow -qscale 14", log_file="a.log", err_file="a.err"):
     if all(i in files for i in ['%','d','.']):
@@ -304,30 +204,32 @@ def stitch_mp4(files, files_folder, output_name, length, ffmpeg_binary, Acodec='
         all_files = [i for i in all_files if ext in i.split('.')[-1]] #removing files that don't have the correct extension
         all_files = [i for i in all_files if len(i[len(prefix):i.find('.')]) == num_of_nums] # only files with the correct amount of nums
         num_files = len(all_files)
-        framerate = int(np.round(num_files/length,0))
+        framerate = int(np.round(num_files/length, 0))
         if framerate == 0:
             framerate = 1
         in_files = files_folder+files
         pre_flags = ""
+
     elif "*" in files and '.' in files:
         ext = files.split('.')[-1]
-        print(ext)
         all_files = os.listdir(files_folder)
         all_files = [i for i in all_files if ext in i.split('.')[-1]] #removing files that don't have the correct extension
         num_files = len(all_files)
-        framerate = int(np.round(num_files/length,0))
+        framerate = int(np.round(num_files/length, 0))
         if framerate == 0:
             framerate = 1
         pre_flags = '-pattern_type glob' # Glob type input files
         in_files = '"%s"'%(files_folder+files) #input files must be inside string
+
     else:
         EXC.ERROR("Input format for image files is incorrect.\nPlease input them in the format:\n\n\t'pre%0Xd.ext'\n\nwhere pre is the prefix (can be nothing), X is the number of numbers in the filename, and ext is the file extensions (e.g. png or tga).")
     if path_leads_somewhere(output_name+'.mp4'):  os.remove(output_name+'.mp4') #remove file before starting to prevent hanging on 'are you sure you want to overwrite ...'
     options = (ffmpeg_binary, pre_flags, framerate, in_files, Vcodec, Acodec, extra_flags, output_name, log_file, err_file)
 
-    Stitch_cmd = "%s -f image2 %s -r %s -i %s -vcodec %s -acodec %s %s %s.mp4 > %s 2> %s"%options
+    Stitch_cmd = "%s -f image2 %s -framerate %s -i %s -vcodec %s -acodec %s %s %s.mp4 > %s 2> %s"%options
     print(Stitch_cmd)
     return Stitch_cmd, log_file, err_file
+
 
 # Decides whether to use the previous rotations and scaling from the calibration step
 def use_prev_scaling(path):
@@ -342,6 +244,7 @@ def use_prev_scaling(path):
     else:
         return False
 
+
 # Reads the VMD log file and parses the information then updates the settings file
 def settings_update(all_settings):
     """
@@ -350,7 +253,7 @@ def settings_update(all_settings):
     single operation. These are then written into the settings file.
     """
     vmd_log_text = open_read(all_settings['vmd_log_file'], False)
-    if vmd_log_text != False:
+    if bool(vmd_log_text) is not False:
         os.remove(all_settings['vmd_log_file'])
         new_transforms = vmd_log_text[vmd_log_text.find(consts.end_of_vmd_file)+len(consts.end_of_vmd_file):].split('\n')
 
@@ -382,6 +285,7 @@ def settings_update(all_settings):
         EXC.WARN("VMD hasn't created a logfile!", all_settings['verbose_output'])
         return all_settings
 
+
 # Writes the settings file with updated info from the step_info dict
 def write_settings_file(step_info):
     settings_to_write = ''
@@ -395,12 +299,17 @@ def write_settings_file(step_info):
              settings_to_write += "%s\n"%(' = '.join([i.strip(),step_info['orig_settings'][i].strip()]))
     open_write(step_info['settings_file'], settings_to_write)
 
+
 # Will create the visualisation in VMD
 def VMD_visualise(step_info, PID):
     os.system("touch %s"%step_info['vmd_junk'][PID])
     os.system("touch %s"%step_info['vmd_err'][PID])
-    # 2> %s &
-    vmd_commnd = "vmd -nt -dispdev none -e %s > %s 2> %s &"%(step_info['vmd_script'][PID], step_info['vmd_junk'][PID], step_info['vmd_err'][PID])
+
+    vmd_exe = step_info['vmd_exe']
+    vmd_script = step_info['vmd_script'][PID]
+    vmd_junk = step_info['vmd_junk'][PID]
+    vmd_err = step_info['vmd_err'][PID]
+    vmd_commnd = "%s -nt -dispdev none -e %s > %s 2> %s &"%(vmd_exe, vmd_script, vmd_junk, vmd_err)
     #print(vmd_commnd)
     os.system(vmd_commnd)  #Maybe subprocess.call would be better as this would open VMD in a new thread?
     made_file = False
@@ -414,6 +323,9 @@ def VMD_visualise(step_info, PID):
                 os._exit(0)
             else:
                 EXC.ERROR("\n\nVMD is taking a long time! I think there may be a bug in VMD script. Try compiling the script manually with the command 'source ./src/TCL/script_4_vmd.vmd' within the tkconsole in VMD.\nIf everything works there then try increasing the 'vmd_step_info['vmd_timeout']' in python main.py settings.")
+
+        time.sleep(0.1)
+
 
 # Will clean up the settings file and make each line executable in order to execute each line individually
 def settings_read(filepath, add_default=False, default=''):
@@ -430,6 +342,7 @@ def settings_read(filepath, add_default=False, default=''):
 
     return settings_ltxt
 
+
 # Changes variable names in the vmd script
 def vmd_variable_writer(step_info, PID):
     txt = txt_lib.comment_remove(open_read(step_info['vmd_temp']))
@@ -440,6 +353,7 @@ def vmd_variable_writer(step_info, PID):
         txt = txt.replace("$%s"%str(i),str(val) )
     open_write(step_info['vmd_script'][PID], str(txt) )
 
+
 # Prints on a same line
 def print_same_line(message, sys, print_func):
    if sys != False:
@@ -447,6 +361,7 @@ def print_same_line(message, sys, print_func):
      print_func("\r%s"%(message), sep="", end="\r")
    else:
      print_func("\rTrajectory %i/%i"%(step+1, max_steps))
+
 
 # Checks whether VMD has finished by trying to read the vmd output to prevent race conditions
 def vmd_finished_check(vmd_junk_fname):
@@ -456,6 +371,7 @@ def vmd_finished_check(vmd_junk_fname):
     test = sum([1 for i in txt[-5:] if 'exit' in i.lower() and 'normal' in i.lower()])
     return bool(test)
 
+
 # Opens and write a string to a file
 def open_write(filename, message, mkdir=False, TyPe="w+"):
     folder_correct(filename, mkdir)
@@ -463,13 +379,25 @@ def open_write(filename, message, mkdir=False, TyPe="w+"):
     f.write(message)
     f.close()
 
+
 # Reads a file and closes it
-def open_read(filename, throw_error=True):
+def open_read(filename, throw_error=True, max_size=1):
     filename = folder_correct(filename)
     if path_leads_somewhere(filename):
-        f = open(filename, 'r')
-        txt = f.read()
-        f.close()
+        check_size = True
+        try:
+            import psutil
+        except ModuleNotFoundError:
+            check_size = False
+        if check_size:
+            if os.path.getsize(filename) >= psutil.virtual_memory().available * max_size:
+               raise IOError("\n\nFilesize too big.\n\t* "
+                           +f"Filepath: '{filename}'" + "\n\t* "
+                           +f"Avail Mem: {psutil.virtual_memory().available}" + "\n\t* "
+                           +f"Filesize:  {os.path.getsize(filename)}" + "\n\n\n")
+
+        with open(filename, 'r') as f:
+            txt = f.read()
         return txt
     else:
         if throw_error:
@@ -482,6 +410,7 @@ def path_leads_somewhere(path):
         return True
     else:
         return False
+
 
 #Checks if the directory exists and makes it if not
 def check_mkdir(path, max_depth=2):
@@ -502,6 +431,7 @@ def check_mkdir(path, max_depth=2):
             if not os.path.isdir(sub_path) and '.' not in sub_path[sub_path.rfind('/'):]:
                os.mkdir(sub_path)
     return True
+
 
 # Returns an absolute file/folder path. Will convert the relative file/folerpaths such as ../foo -> $PATH_TO_PYTHON_MINUS_1/foo
 def folder_correct(f, make_file=False):
@@ -541,6 +471,7 @@ def folder_correct(f, make_file=False):
     else:
         return f
 
+
 # Prints on a same line
 def print_same_line(message, sys, print_func):
    if sys != False:
@@ -548,6 +479,7 @@ def print_same_line(message, sys, print_func):
      print_func("\r%s"%(message), sep="", end="\r")
    else:
      print_func(message+'\r')
+
 
 # Writes a single step of an xyz file (data should be a numpy array with structure [[x1,y1,z1], ... , [xn,yn,zn]] )
 def xyz_step_writer(positions, atom_nums, timestep, step, filepath, conv=0.52918):
@@ -558,6 +490,7 @@ def xyz_step_writer(positions, atom_nums, timestep, step, filepath, conv=0.52918
     s = "%i\ni =  %i, time =    %.3f\n"%(natom,step,timestep)
     s += '\n'.join(['\t'.join([str(atom_nums[i])]+pos.tolist()) for i, pos in enumerate(positions.astype(str))])
     open_write(filepath, s)
+
 
 # Extracts the AOM_coeffs from the AOM_coeffs file
 def AOM_coeffs(filename, atoms_per_site ):
@@ -577,12 +510,14 @@ def AOM_coeffs(filename, atoms_per_site ):
                     mol_count += 1
     else:
         mol_info = False
+
     Acount = 0
     for i,j in enumerate(ltxt):
          if any(at in j[0].lower() for at in ['c','h']):
-            dtxt[i] = [float(j[-1]),Acount]
+            dtxt[i] = (float(j[-1]), Acount)
             Acount += 1
     return np.array([float(i[-1]) for i in ltxt]), dtxt, mol_info
+
 
 # Will print out the timings info from the times dict
 def times_print(times,step, max_len, tot_time=False):
@@ -605,12 +540,14 @@ def times_print(times,step, max_len, tot_time=False):
                print(txt_lib.align(i, 27, 'l'), " | ",
                txt_lib.align(format(times[i][step], ".2g"),13,'r'), "%")
 
+
 # Will take care of saving png images
 def file_handler(i, extension, step_info):
     folderpath = folder_correct(step_info['img_fold']+step_info['title'])
     check_mkdir(folderpath)
     filename = "%s.%s"%(str(i), extension)
     return folderpath, filename, folderpath+filename
+
 
 # Opens and write a string to a file
 def open_write(filename, message, mkdir=False, type_open='w+'):
@@ -622,6 +559,7 @@ def open_write(filename, message, mkdir=False, type_open='w+'):
     f.write(message)
     f.close()
 
+
 # Creates the data and img folders
 def create_data_img_folders(step_info):
     if not path_leads_somewhere(step_info['data_fold']):
@@ -632,12 +570,23 @@ def create_data_img_folders(step_info):
         print("Making a folder for images at:\n%s"%step_info['img_fold'])
         os.mkdir(step_info['img_fold'])
 
+
 # Will change all the filenames in a folder to add leading zeros to them so
 # alphabetesising them preserves order.
 def add_leading_zeros(folder):
+    """
+
+    """
     tga_files = [i for i in os.listdir(folder) if '.tga' in i]
-    dts = [float(f.replace(",",".")[:f.find('_')]) for f in tga_files]
-    num_leading_zeros = int(np.floor(np.log10(np.max(dts))))
+    dts = max([float(f.replace(",",".")[:f.find('_')]) for f in tga_files])
+    if dts < 0.01 and dts > -0.01:
+        num_leading_zeros = 1
+    elif dts > 0:
+        num_leading_zeros = int(np.floor(np.log10(dts)))
+    else:
+        raise SystemExit("Creating negative times???")
+
+    new_files = []
     for f in tga_files:
         dt_str = f[:f.find('_')]
         dt = float(dt_str.replace(',','.'))
@@ -646,7 +595,14 @@ def add_leading_zeros(folder):
         else:
            num_zeros_needed = num_leading_zeros
         new_dt = '0'*num_zeros_needed + "%.2f"%dt
-        os.rename(folder+f, folder+f.replace(dt_str, new_dt.replace(".",",")))
+
+        new_file = folder+f.replace(dt_str, new_dt.replace(".",","))
+        os.rename(folder+f, new_file)
+        new_files.append(new_file)
+
+    return new_files, tga_files
+
+
 
 # Find which file inputs aren't in the folder
 def find_missing_files(CP2K_output_files, all_files):
@@ -670,6 +626,7 @@ def find_missing_files(CP2K_output_files, all_files):
                     bad_files[f] = [False]
     return bad_files
 
+
 # Will find the files using fuzzy logic.
 def fuzzy_file_find(path):
     all_files = np.sort(os.listdir(path))
@@ -680,19 +637,27 @@ def fuzzy_file_find(path):
                      'AOM'   : ['AOM', 'COEFF'],
                      'inp'   : ['run.inp']}
     fuzzy_files = {ftype:[f for f in all_files if all(j in f for j in strs_to_match[ftype]) and '.' != f[0] and '.sw' not in f] for ftype in strs_to_match}
-    if any(len(fuzzy_files['pvecs']) != len(fuzzy_files[i]) for i in ['pos','pvecs','coeff']):
+
+    # Pos and Coeffs need same num of steps
+    if any(len(fuzzy_files['pos']) != len(fuzzy_files[i]) for i in ['pos','coeff']):
         files_with_numbers = ["I have found %i files for the %s"%(len(fuzzy_files[i]), i) for i in fuzzy_files]
         files_with_numbers = "\n\t*"+ "\n\t*".join(files_with_numbers)
         raise SystemExit("Sorry I can't find the same number of files for pvecs, posistions and coefficients:%s"%files_with_numbers)
-    if any(len(fuzzy_files[i]) == 0 for i in fuzzy_files):
+
+    # Check if we have certain files
+    if any(len(fuzzy_files[i]) == 0 for i in fuzzy_files if i != 'pvecs'):
         no_files = [i for i in fuzzy_files if len(fuzzy_files[i]) == 0 ]
         raise SystemExit("Sorry I can't seem to find any files for \n\t* %s"%('\n\t* '.join(no_files)))
+
+    if not fuzzy_files['pvecs']:
+        fuzzy_files['pvecs'] = ['CREATE']
+
     return fuzzy_files
 
 
 # Will write the original settings (with typos fixed etc...) to a settings file
 def write_cleaned_orig_settings(orig_settings_dict, settings_file):
-    settings_whitelist = ['calibrate', 'load_in_vmd', 'calibration_step','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
+    #settings_whitelist = ['calibrate', 'load_in_vmd', 'timestep_to_render','show_img_after_vmd','path','atoms_to_plot','start_step', 'end_step','stride']
     s = ''
     for sett_name in orig_settings_dict:
         # If type is list or array then put square brackets and commas in the settings file.
@@ -707,9 +672,9 @@ def write_cleaned_orig_settings(orig_settings_dict, settings_file):
             s += orig_settings_dict[sett_name][1] + '\n'
             continue
 
-        # Remove settings from file that are the defaults (apart from certain ones in whitelist)
-        if orig_settings_dict[sett_name][0] == dft.defaults.get(sett_name) and sett_name not in settings_whitelist:
-            continue
+        ## Remove settings from file that are the defaults (apart from certain ones in whitelist)
+        #if orig_settings_dict[sett_name][0] == dft.defaults.get(sett_name) and sett_name not in settings_whitelist:
+        #    continue
 
         # Need to put quotations around strings
         if type(orig_settings_dict[sett_name][0]) == str:
@@ -719,64 +684,46 @@ def write_cleaned_orig_settings(orig_settings_dict, settings_file):
     with open(settings_file, 'w') as f:
         f.write(s.strip('\n'))
 
-# Old Code
-# # Wrapper for the full xyz_reader step for parellisation
-# def perform_full_step_xyz(xyz_step_info):
-#     istep = xyz_step_info[1]
-#     xyz_step_info = xyz_step_info[0]
-#     good_stuff, time_step = read_xyz_step(xyz_step_info['steps'], istep, xyz_step_info['time_step_delim'], xyz_step_info['atoms_to_ignore'])
-#     if good_stuff:
-#         xyz_step_info['atomic_numbers'].append([x[0:-xyz_step_info['num_data_cols']][0] if len(x[0:-xyz_step_info['num_data_cols']]) == 1 else x[0:-xyz_step_info['num_data_cols']] for x in good_stuff])
-#         xyz_step_info['atomic_coords'].append([[x[tmp] for tmp in range(len(x)-xyz_step_info['num_data_cols'],len(x))] for x in good_stuff])
-#         xyz_step_info['timesteps'].append(time_step)
-#
-# # Reads a single xyz step from a iterable of all steps
-# def read_xyz_step(steps, istep, time_step_delim, atoms_to_ignore):
-#     bad_step = False
-#     time_step = txt_lib.text_search(steps[istep][0], "time", time_step_delim, error_on=False)[0].replace(' ','')
-#     time_step = float(time_step.split('=')[-1])
-#     current_time_step = steps[istep][1] #list of all the items in the current time-current_time_step
-#     if atoms_to_ignore:
-#         if type(atoms_to_ignore) == str:
-#            atoms_to_ignore = list(atoms_to_ignore)
-#         if type(atoms_to_ignore) != list:
-#             EXC.ERROR("The variable 'atoms_to_ignore' is not a list! This should have been declared as either a list of strings or a single string")
-#         good_stuff = [x for x in current_time_step if not any(atom.lower() in x.lower() for atom in atoms_to_ignore)]
-#     else:
-#         good_stuff = [x for x in current_time_step]
-#     for item in good_stuff:
-#         if "**" in item:
-#             bad_step = True
-#     if bad_step:
-#         return False, time_step
-#     return [[typ.atomic_num_convert(j, False) for j in tmp.split(' ') if j] for tmp in good_stuff],time_step
-#
-# #Reads the xyz_files, If the time isn't there but the iteration is then still work...
-# def xyz_reader(filename, num_data_cols, atoms_to_ignore = [], time_step_delim=',', num_atomsO=False, start_step=0, end_step='all', stride=1, time_steps=False):
-#     ltxt = open_read(filename).split('\n')
-#     # Find necessary info about the file, how many title lines, how many atoms, and how many time-steps
-#     start_atoms, num_atoms = txt_lib.num_atoms_find(ltxt)
-#     if type(num_atomsO) == int:
-#         num_atoms = num_atomsO
-#     num_title_lines = start_atoms
-#     lines_in_step = num_title_lines+num_atoms
-#     max_steps = int(''.join(ltxt).lower().count("time"))
-#     if type(end_step) == str:
-#       if 'al' in end_step.lower():
-#          end_step = max_steps
-#     if end_step > max_steps:
-#         end_step = max_steps
-#     xyz_step_info = {'atomic_numbers':[], 'atomic_coords':[], 'timesteps':[]}
-#     # Steps is a list (of tuples) containing data from all the Steps
-#     #   the first item in the tuple is the title of the step, the second item is the data from that step.
-#     xyz_step_info['steps'] = [(''.join(ltxt[i*lines_in_step:(i*lines_in_step)+num_title_lines]),ltxt[i*lines_in_step+num_title_lines:(i+1)*lines_in_step]) for i in range(start_step,end_step,stride)]
-#     xyz_step_info['time_step_delim'] = time_step_delim
-#     xyz_step_info['atoms_to_ignore'] = atoms_to_ignore
-#     xyz_step_info['num_data_cols'] = num_data_cols
-#     if type(time_steps) != bool:
-#         xyz_step_info['steps'] = [xyz_step_info['steps'][i] for i in xyz_step_info['steps'] if float(txt_lib.text_search(xyz_step_info['steps'][i][0], "time", time_step_delim, error_on=False)[0].replace(' ','').split('=')[-1]) in time_steps]
-#     for istep in range(len(xyz_step_info['steps'])): #loop over all the steps
-#         perform_full_step_xyz((xyz_step_info,istep))
-#     atomic_coords = np.array([np.array(i) for i in xyz_step_info['atomic_coords']])
-#     atomic_numbers = np.array([np.array(i) for i in xyz_step_info['atomic_numbers']])
-#     return np.array(atomic_coords), np.array(atomic_numbers), np.array(xyz_step_info['timesteps'])
+
+# Plots the data, saves the graph and then appends the 2 images side by side.
+def plot(step_info, mind, files, plt, optX=[], optY=[]):
+    start_plot = mind-step_info['max_graph_data']
+    if start_plot < 0:
+       start_plot = 0
+    fig, A = plt.subplots(1,1,facecolor=(1,1,1),figsize=(8.4*step_info['graph_img_ratio'],8.4))
+    A.spines['top'].set_visible(False)
+    A.spines['right'].set_visible(False)
+    A.grid(color=[0.8]*3,ls='-')
+    A.set_ylabel(step_info['ylab'],fontsize=step_info['yfont'])
+    A.set_xlabel(step_info['xlab'],fontsize=step_info['xfont'])
+    highlighted_mols = step_info['highlighted_mols']
+    if type(step_info['highlighted_mols']) == str:
+       if 'max' in step_info['highlighted_mols']:
+          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.max(step_info['mol'][mind,:])]
+       if 'min' in step_info['highlighted_mols']:
+          highlighted_mols = [i for i in xrange(len(step_info['mol'][mind,:])) if step_info['mol'][mind,i] == np.min(step_info['mol'][mind,:])]
+       elif 'al' in step_info['highlighted_mols']:
+          highlighted_mols = range(len(step_info['mol'][mind,:]))
+    replace_str = ','.join([str(i+1) for i in highlighted_mols])
+    G_title = step_info['graph_title'].replace("*", replace_str)
+    A.set_title(G_title, fontsize=step_info['tfont'])
+    mols_plotted = []
+    for moli in step_info['AOM_D']:
+       mol_ind = step_info['mol_info'][moli]
+       if mol_ind not in mols_plotted:
+          if mol_ind in highlighted_mols:
+             A.plot(step_info['Mtime-steps'][start_plot:mind], step_info['mol'][start_plot:mind,mol_ind],label="mol %i"%(mol_ind+1))
+          else:
+             A.plot(step_info['Mtime-steps'][start_plot:mind],step_info['mol'][start_plot:mind,step_info['mol_info'][moli]], alpha=0.2)
+          _,_,graph_filepath = file_handler(files['name'], "png", step_info)
+          mols_plotted.append(mol_ind)
+    A.plot(optX,optY)
+    A.legend(loc='best')
+
+    #plt.tight_layout()
+    fig.savefig(graph_filepath, format='png')
+    add_imgs_cmd = "convert %s %s +append %s"%(graph_filepath, files['tga_fold'], files['tga_fold'])
+    os.system(add_imgs_cmd)
+
+    plt.close()
+    return graph_filepath
