@@ -33,6 +33,8 @@ class Docstr_Parsing(object):
     def _get_docstr(self, fname):
         """
         Will get the docstring on the top of one of the python files.
+
+        #TODO: change this to just use the python in-built
         """
         with open(fname, 'r') as f:
             ftxt = f.read().split('\n')

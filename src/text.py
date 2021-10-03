@@ -72,7 +72,7 @@ def fuzzy_variable_translate(variable, poss_variables, verbose_output, throw_err
     temp_array = [False]*len(poss_variables)
     temp_array = [True if i == max(a) else False for i in a ]
     if all(i < 0.95 for i in a) and verbose_output:
-        EXC.WARN("Assuming '%s' means you want me to use %s"%(variable,np.array(poss_variables)[temp_array][0]) )
+        EXC.WARN("Assuming '%s' means you want me to use %s" % (variable, np.array(poss_variables)[temp_array][0]))
     return temp_array
 
 def fuzzy_variable_helper(variable, poss_var, just_1_var=True,

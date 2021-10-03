@@ -5,9 +5,11 @@ path = '/home/matt/Data/Work/NewPentaceneSlab/24_25_5/SmallerSystemFSSH/FROM_ARC
 #path = '/home/matt/Data/Work/OrbMovMak/run-fssh-1' 
 
 show_transition_state = "y"
+lumo_coeff_file = "LUMO_AOM_COEFF.include"
+homo_coeff_file = "HOMO_AOM_COEFF.include"
 
 # Calibration Settings
-calibrate = 'n' # Carries out a single 'calibration' step
+calibrate = 'y' # Carries out a single 'calibration' step
 calibration_step = 0 
 load_in_vmd = 'y' 
 show_img_after_vmd = 'n' 
@@ -33,7 +35,7 @@ atoms_to_plot = 'all'
 draw_time = True 
 
 
-
+vmd_exe = "/Volumes/VMD-1.9.4a50-macarm64-Rev9/VMD\ 1.9.4a51-arm64-Rev9.app/Contents/vmd/vmd_MACOSXARM64"
 
 bounding_box_scale = 16 
 vmd_timeout = 10000 

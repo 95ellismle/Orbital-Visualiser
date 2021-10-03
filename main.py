@@ -502,7 +502,7 @@ class MainLoop(object):
             AOM = self.all_settings['AOM_D'][iat][AOM_D_ind]
             AOM = np.round(AOM, 5)  # Can remove later (to check if rounding caused errors betwen py2 and 3)
             tmpData += MT.dot_3D(
-                      MT.SH_p(self.sizes[0],
+                      MT.SH_2p(self.sizes[0],
                               self.sizes[1],
                               self.sizes[2],
                               self.all_settings['resolution'],
@@ -590,6 +590,7 @@ class MainLoop(object):
             self.pos_iso_cols[self.tcl_color_dict_count] = 22
             self.tcl_color_dict_count += 1
 
+        # Includes real-phase and full phase
         elif 'phase' in self.all_settings['color_type']:
             # First real cube file
             if self.writeRealCube:

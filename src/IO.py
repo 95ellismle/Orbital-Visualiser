@@ -146,7 +146,7 @@ def find_tachyon(current_tachyon_path=''):
     if check_tachyon("./bin/tachyon_LINUXAMD64"):
         return "./bin/tachyon_LINUXAMD64"
     print("""The tachyon binary in the bin folder doesn't seem to be working!""")
-    print("Trying to find Tachyon Ray-Tracer elsewhere on computer")
+    print("Trying to find Tachyon Ray-Tracer elsewhere on computer", end="\r")
     try:
       vmd_path = sb.check_output("which vmd", shell=True)
     except sb.CalledProcessError:
@@ -165,7 +165,8 @@ def find_tachyon(current_tachyon_path=''):
     if not tachyon_path:
         return False
     if check_tachyon(tachyon_path):
-         return tachyon_path
+        print("\rFound Tachyon binary                                     ")
+        return tachyon_path
     else:
         raise SystemExit("""
            *******    CAN'T FIND TACHYON ERROR   ***********
