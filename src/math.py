@@ -58,9 +58,9 @@ def SH_pz(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]  ):
     return z*np.exp(-r)
 
 # Real Spherical Harmonic, Optimised for 3 dimensions.
-def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
+def SH_2p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
     """
-    Will create a p orbital centered at Origin. Been optimised
+    Will create a 2p orbital centered at Origin. Been optimised
     for 3 dimensions. Psi_i = i * exp{-r} (r = |(x,y,z)|)
 
     Inputs:
@@ -74,15 +74,42 @@ def SH_p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
     x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(np.float64)
     resolution = float(resolution)
 
-    # Careful with 2. here! Needs to be float for python2 back compatibility!
+    # Careful with 2. here! Needs to be float for python2 back compatibility
     #  I hate python2
     x -= (sizeX/2. + Origin[0]/resolution)
     y -= (sizeY/2. + Origin[1]/resolution)
     z -= (sizeZ/2. + Origin[2]/resolution)
+    r = np.sqrt(x**2 + y**2 + z**2)
 
-    exp_neg_r = np.exp(
-                       -np.sqrt(x**2 + y**2 + z**2) # r = sqrt(x^2 + y^2 + z^2)
-                      )
+    exp_neg_r = np.exp(-r) * r
+
+    x *= exp_neg_r
+    y *= exp_neg_r
+    z *= exp_neg_r
+    return np.array([x,y,z])
+
+def SH_3p(sizeX, sizeY, sizeZ, resolution, Origin=[0, 0, 0]):
+    """
+    Will create a 3p orbital centered at Origin.
+    Inputs:
+        * sizeX        =>   size of X dim
+        * sizeY        =>   size of Y dim
+        * sizeZ        =>   size of Z dim
+        * resolution   =>   resultion of the data (lower is better)
+        * Origin       =>   center of the p orbital
+    """
+    # Creates an empty container for the orbital data.
+    x,y,z = np.mgrid[0:sizeX, 0:sizeY, 0:sizeZ].astype(np.float64)
+    resolution = float(resolution)
+
+    # Careful with 2. here! Needs to be float for python2 back compatibility
+    #  I hate python2
+    x -= (sizeX/2. + Origin[0]/resolution)
+    y -= (sizeY/2. + Origin[1]/resolution)
+    z -= (sizeZ/2. + Origin[2]/resolution)
+    r = np.sqrt(x**2 + y**2 + z**2)
+
+    exp_neg_r = np.exp(-r) * r * (4-r)
 
     x *= exp_neg_r
     y *= exp_neg_r

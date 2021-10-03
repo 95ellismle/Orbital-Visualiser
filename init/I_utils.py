@@ -386,7 +386,7 @@ def init_colors(all_settings):
     a purely real phase (neg and pos) or full complex phase (pos, neg, imag,
     real).
     """
-    density, real_phase, full_phase = txt_lib.fuzzy_variable_translate(all_settings['type_of_wavefunction'], ["Density", "Real phase", "Phase"], all_settings['verbose_output'])
+    density, real_phase, full_phase = txt_lib.fuzzy_variable_translate(all_settings['type_of_wavefunction'], ["density", "real-phase", "phase"], all_settings['verbose_output'])
     if density:
         all_settings['color_type'] = 'density'
     elif real_phase:
