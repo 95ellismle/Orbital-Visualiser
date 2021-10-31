@@ -339,8 +339,10 @@ def get_xyz_metadata(filename, ltxt=False):
     Outputs:
        <dict> A dictionary containing useful parameters such as how many atom lines, how to get the timestep, num of frames.
     """
-    if ltxt == False:
-        ltxt = gen_io.open_read(filename).split('\n')
+    if not ltxt:
+        with open(filename, 'r') as f:
+            ltxt = f.read()
+
     # Check whether to use the very stable but slow parser or quick slightly unstable one
     most_stable = False
     if any('**' in i for i in ltxt[:300]):

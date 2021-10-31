@@ -10,10 +10,12 @@ from src import text as txt_lib
 from src import IO as gen_io
 from src import type as type_check
 
-import os
-import difflib as dfl
 from collections import OrderedDict
+import difflib as dfl
 import numpy as np
+import os
+import re
+
 
 # Checks if a line of text is an atom line in a xyz file
 def is_atom_line(line):
@@ -163,9 +165,21 @@ def find_time_delimeter(step, filename):
 
     raise SystemError("Cannot find the delimeter for the time-step info in the following xyz_file:\n\n%s\n\nstep = %s"%(filename,step))
 
+
+def get_time_ind(line):
+    """Will parse the time str from a title line in the xyz file
+
+    Args:
+        line: the line that contains a time string
+    """
+    lst = re.findall('time *= *[0-9. ]+', line)
+    t_str = lst[0]
+    return float(t_str[t_str.find('=')+1:])
+
+
 # Will get necessary metadata from an xyz file such as time step_delim, lines_in_step etc...
 # This will also create the step_data dictionary with the data of each step in
-def get_xyz_metadata(filename, ltxt=False):
+def get_xyz_metadata(filename, max_time=None):
     """
     Get metadata from an xyz file.
 
@@ -179,38 +193,86 @@ def get_xyz_metadata(filename, ltxt=False):
     Outputs:
        <dict> A dictionary containing useful parameters such as how many atom lines, how to get the timestep, num of frames.
     """
-    if ltxt == False:
-        ltxt = gen_io.open_read(filename, max_size=0.3).split('\n')
-    ltxt = list(filter(None, ltxt))
+    # We just assume there are 2 title lines
+    num_title_lines = 2
+    time_steps = []
 
-    # Check whether to use the very stable but slow parser or quick slightly unstable one
-    most_stable = False
-    if any('**' in i for i in ltxt[:300]):
-        most_stable = True
+    with open(filename, 'r') as f:
+        # Get num atoms
+        title_lines = (next(f), next(f))
+        try:
+            t = get_time_ind(title_lines[1])
+        except:
+            raise SystemExit(f"Couldn't parse the file: {filename}")
+        time_steps.append(t)
 
-    #if not most_stable:
-    num_title_lines, num_atoms = atom_find_more_rigorous(ltxt)
-    lines_in_step = num_title_lines + num_atoms
+        try:
+            natom = int(title_lines[0])
+            niter = natom + 1
+            for i in range(niter // 10):
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+                next(f)
+            for i in range(niter % 10):
+                next(f)
+        except:
+            search_seg = title_lines[0][:6]
+            natom = 0
+            for line in f:
+                if line.startswith(search_seg): break
+                natom += 1
 
-    if len(ltxt) > lines_in_step+1: # take lines from the second step instead of first as it is more reliable
-       step_data = {i: ltxt[i*lines_in_step:(i+1)*lines_in_step] for i in range(1,2)}
-    else: #If there is no second step take lines from the first
-       step_data = {1:ltxt[:lines_in_step]}
+        num_lines_in_step = num_title_lines + natom
 
+        # Parse the timesteps from the title line
+        while True:
+            try:
+                line = next(f)
+                try:
+                    t = get_time_ind(line)
+                except:
+                    raise SystemExit(f"Couldn't parse the file: {filename}")
+                time_steps.append(t)
 
-    nsteps = int(len(ltxt)/lines_in_step)
-    time_delim, time_ind = find_time_delimeter(step_data[1][:num_title_lines],
-                                               filename)
-    timelines = [ltxt[time_ind+(i*lines_in_step)] for i in range(nsteps)]
-    timesteps = np.array([txt_lib.string_between(line, "time = ", time_delim) for line in  timelines]).astype(np.float64)
-    num_data_cols = get_num_data_cols(ltxt, filename, num_title_lines, lines_in_step)
-    return {'time_delim': time_delim,
-            'time_ind': time_ind,
-            'tsteps': timesteps,
-            'lines_in_step': lines_in_step,
+                ncols = len(next(f).split())
+                if max_time is not None and t > max_time:
+                    break
+
+                # Just iterating over all the lines is the most expensive part
+                # Loop unrolling helps a bit
+                niter = num_lines_in_step - 2
+                for i in range(niter // 10):
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                    next(f)
+                for i in range(niter % 10):
+                    next(f)
+            except StopIteration:
+                break
+
+    return {'time_steps': time_steps,
+            'num_lines_in_step': num_lines_in_step,
+            'lines_in_step': num_lines_in_step,
+            'time_delim': ',',
+            'time_ind': 1,
             'num_title_lines': num_title_lines,
-            'num_data_cols': num_data_cols,
-            'nsteps': nsteps}
+            'num_atoms': natom,
+            'num_cols': ncols,
+            'num_steps': len(time_steps)}
 
 def _get_timesteps_(ltxt, all_steps, metadata, do_timesteps=[]):
     """

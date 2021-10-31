@@ -36,27 +36,30 @@ defaults = {
 'restart_vis'       : False, # Will detect if you are using the same title as any in the img/ folder. If you are it will only visualise the steps not completed and stitch all imgs together into a movie at the end | ['yes', 'no'] | 'not-tested'
 'img_size' : 'auto', # The size of the image rendered if 'auto' is chosen the image will be 1000x1000 for calibration and 650x650 for a movie | ['auto', [int, int]] | 'not-tested'
 ## File Handling
-'CP2K_output_files' : {'AOM':'AOM_COEFF.include', 'inp':'run.inp', 'mol_coeff':'run-coeff-1.xyz', 'pvecs':'run-pvecs-1.xyz', 'xyz':('run-pos-1.xyz', 'pos-init.xyz')} , # The output files required for the simulation | ['dictionary (see default value)'] | 'not-tested'
+'aom_file'      : 'AOM_COEFF.include', # The AOM coefficients file required for the simulation | ['str'] | 'not-tested'
+'lumo_file'     : 'LUMO_AOM_COEFF.include', # The LUMO AOM coefficients file for transition state plots | ['str'] | 'not-tested'
+'homo_file'     : 'HOMO_AOM_COEFF.include', # The HOMO AOM coefficients file for transition state plots | ['str'] | 'not-tested'
+'cp2k_inp_file' : 'run.inp', # The cp2k input file required for the simulation | ['str'] | 'not-tested'
+'coeff_file'    : 'run-coeff-1.xyz', # The molecular (diabatic) coefficients file required for the simulation | ['str'] | 'not-tested'
+'pvecs_file'    : 'run-pvecs-1.xyz', # The pvecs file required for the simulation | ['str'] | 'not-tested'
+'pos_file'      : 'run-pos-1.xyz', # The positions (xyz) file required for the simulation | ['str'] | 'not-tested'
+'decomp_file'   : 'DECOMP.include', # The DECOMP (active mol list) file used in the simulation | ['str'] | 'not-tested'
 'keep_cube_files'   : False, # Keeps the data files after the simulation | ['yes','no'] | 'not-tested'
 'keep_img_files'    : True, # Converts the outputted tga files to the default *img_format* and saves them | ['yes','no'] | 'not-tested'
 'keep_tga_files'    : False, # Keeps the tga files after the simulation | ['yes','no'] | 'not-tested'
 'img_format'        : "jpg", # The format to store the img files in | [str (e.g. "png" or "jpg") ] | 'not-tested'
-'find_fuzzy_files'  : True, # Uses a fuzzy file finder to find files within a folder | [ 'yes', 'no' ] | 'not-tested'
+## Wavefunction Shape
+'type_of_wavefunction' : "phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
+'atomic_number_orbital_map' : {1: (1, 's'), 6: (2, 'p'), 7: (2, 'p'), 16: (3, 'p')}, # The map of orbitals for each atom type | [] | 'not-tested'
 ## Transition State
 'do_transition_state' : False, # Will plot the transition state density from 2 AOM coeff files | ['yes', 'no'] | 'not-tested'
-'lumo_coeff_file' : 'CP2K_LUMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the LUMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
-'homo_coeff_file' : 'CP2K_HOMO_AOM_COEFF.include', # The filename of the AOM coeff file giving the HOMO coefficients. This must be found in the folder that 'path' points to. | [str] | 'not-tested'
-#'combination_rule' : 'L*H', # How to combine the LUMO and HOMO to create the transition state density. <br>This is a string the possible values are: <ul> <li>'L*H' -> LUMO*HOMO</li> <li>'L+H' -> LUMO+HOMO</li> <li>'H-L' -> HOMO - LUMO</li> <li>'L/H' -> LUMO - HOMO</li> | ['(L or H)*(L or H)'<br> '(L or H)+(L or H)'<br> '(L or H)-(L or H)'<br> '(L or H)/(L or H)'] | 'not-tested'
-## Replicas -deprecated
-'num_reps'          : 1, # The number of replicas in the system DEPRECATED | [int] | 'not-tested'
-'rep_comb_type'     : 'mean', # What type of replica set-up. 'mean' will mean the data from each replica. DEPRECATED. | ['mean'] | 'not-tested'
 ## Positioning
 'zoom_value'        : 1, # How much to scale the image by | [float, int] | 'not-tested'
 'rotation'          : 'auto', # How much to rotate the image by: 'Auto' will let the code try and align the long axis along the x axis, you can also use manually set the angle of rotation (as Euler angles), this will rotate in the order z,y,x. You can also turn it off by setting this variable to 'no' | ['auto', list [x,y,z], 'no'] | 'not-tested'
 'translate_by'      : (0,0,0), # How much to translate the image by | [list [x,y,z]] | 'not-tested'
 ## colors and Materials
-'pos_real_iso_col'  : (1,0,0), # The color of positive real isosurfaces | [list [red, green, blue]] | 'not-tested'
-'neg_real_iso_col'  : (0,0,1), # The color of negative real isosurfaces | [list [red, green, blue]] | 'not-tested'
+'pos_real_iso_col'  : (0,0,1), # The color of positive real isosurfaces | [list [red, green, blue]] | 'not-tested'
+'neg_real_iso_col'  : (1,0,0), # The color of negative real isosurfaces | [list [red, green, blue]] | 'not-tested'
 'neg_imag_iso_col'  : (0,0.4,1), # The color of positive imaginary isosurfaces | [list [red, green, blue]] | 'not-tested'
 'pos_imag_iso_col'  : (1,0.4,0), # The color of negative imaginary isosurfaces | [list [red, green, blue]] | 'not-tested'
 'density_iso_col'   : (0.3, 0.32,0.3), # The color of the isosurface in a density visualisation | ['list [red,green,blue]'] | 'not-tested'
@@ -82,28 +85,25 @@ defaults = {
 ## Optimisation
 'min_abs_mol_coeff' : 5e-4, # A threshold for the minimum molecular population, will ignore any molecule with a population less than this. This probably shouldn't be changed if you don't fully understand how it works. The code will 'learn' the optimum value as it runs so a lower value here won't result in a loss of performance. | [float] | 'not-tested'
 'nn_cutoff'         : 12, # The cutoff for constructing the nearest neighbour list. This decides how many neighbouring mols contribute to the wavefunction | ['integer [bohr?]'] | 'not-tested'
-'resolution'        : 0.4, # Changes the resolution of the cube file data | [float] | 'not-tested'
-'bounding_box_scale' : 7, # What to add to the dimension of the bounding box surrounding the atoms | [int, list [x,y,z]] | 'not-tested'
+'resolution'        : 0.3, # Changes the resolution of the cube file data | [float] | 'not-tested'
+'bounding_box_scale' : 12, # What to add to the dimension of the bounding box surrounding the atoms | [int, list [x,y,z]] | 'not-tested'
+'at_box_size'       : 13, # How large a box to draw around each atom to calculate the orbital in | [int] | 'not-tested'
 'dynamic_bounding_box' : True, # Will dynamically change the size of the bounding box depending on the size of the wavefunction | ['yes','no'] | 'not-tested'
 ## Text on the image
 'draw_time'         : False, # <span style="color: red; text-transform: uppercase; font-weight: bold;"> Doesn't Work</span> Will draw a label with the time stamp on the image | ['yes', 'no'] | 'not-tested'
 'pos_time_label'    : 'auto', # <span style="color: red; text-transform: uppercase; font-weight: bold;"> Doesn't Work</span> The position of the time-stamp | ['auto', list [x,y,z]] | 'not-tested'
 'time_label_text'   : "Time = * fs", # <span style="color: red; text-transform: uppercase; font-weight: bold;"> Doesn't Work</span> The time-label text, the code will replace any * symbols with the current time-step | [str] | 'not-tested'
-## Graph -Deprecated
-'side_by_side_graph' : False, # Plots a graph of the molecular coefficients beside the visualisation | ['yes','no'] | 'not-tested'
-'mols_to_highlight'  : 0, # Which molecules to highlight in the graph (shows as a opaque line instead a transparent one) | ['max', 'min', 'all', int (mol index)] | 'not-tested'
-'ylabel'             : r'|u$_i$|$^2$', # What to put on the y axis (graph) | [str] | 'not-tested'
-'xlabel'             : 'time [fs]', # What to put on the x axis (graph) | [str] | 'not-tested'
-'yfontsize'          : 18, # Size of the y axis font (graph) | [str] | 'not-tested'
-'xfontsize'          : 17, # Size of the x axis font (graph) | [str] | 'not-tested'
-'graph_title'        : 'Probability Density, Molecule * being highlighted', # The title for the graph | [str] | 'not-tested'
-'title_fontsize'     : 20, # Size of the title font (graph) | [str] | 'not-tested'
-'graph_to_vis_ratio' : 1, # The ratio of sizes (x dimension) for the graph and the visualisation (e.g. 2 would mean the graph would be 2 times as big as the visualisation) | [int] | 'not-tested'
-'max_data_in_graph'  : 450, # Maximum amount of data points in the graph before refreshing them | [int] | 'not-tested'
 ## Miscellaneous
 'vmd_exe' : 'vmd', # Where to find the vmd binary. Should be a filepath pointing to vmd bin. | str | 'not-tested'
 'vmd_timeout'       : 400, # How long to wait before assuming there is an error with the VMD script | [int, float] | 'not-tested'
-'type_of_wavefunction' : "phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
 'num_cores'         : 'half', # DEPRECATED | 'not-tested'
 'time_step'         : False , # DEPRECATED | 'not-tested'
 }
+
+
+
+
+
+#'combination_rule' : 'L*H', # How to combine the LUMO and HOMO to create the transition state density. <br>This is a string the possible values are: <ul> <li>'L*H' -> LUMO*HOMO</li> <li>'L+H' -> LUMO+HOMO</li> <li>'H-L' -> HOMO - LUMO</li> <li>'L/H' -> LUMO - HOMO</li> | ['(L or H)*(L or H)'<br> '(L or H)+(L or H)'<br> '(L or H)-(L or H)'<br> '(L or H)/(L or H)'] | 'not-tested'
+#'find_fuzzy_files'  : True, # Uses a fuzzy file finder to find files within a folder | [ 'yes', 'no' ] | 'not-tested'
+

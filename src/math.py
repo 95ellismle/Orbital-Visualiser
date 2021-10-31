@@ -4,15 +4,13 @@ module.
 
 These include finding the rotation angle, creating the orbital data, finding
 localisation etc...
+
+Orbitron: https://winter.group.shef.ac.uk/orbitron/atomic_orbitals/3p/3p_equations.html
 """
-
-
 import numpy as np
 import os
 import time
 import sys
-if sys.version_info[0] > 2:
-    xrange = range
 
 # The P orbital creators, just for x
 def SH_px(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0] ):
@@ -56,6 +54,7 @@ def SH_pz(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]  ):
     z += sub_z
     r = np.sqrt(x**2 + y**2 + z**2)
     return z*np.exp(-r)
+
 
 # Real Spherical Harmonic, Optimised for 3 dimensions.
 def SH_2p(sizeX, sizeY, sizeZ, resolution, Origin = [0,0,0]):
@@ -116,6 +115,11 @@ def SH_3p(sizeX, sizeY, sizeZ, resolution, Origin=[0, 0, 0]):
     z *= exp_neg_r
     return np.array([x,y,z])
 
+
+spherical_harmonics = {2: {'p': SH_2p},
+                       3: {'p': SH_3p}}
+
+
 # Returns the dot product of 2 3D vectors.
 def dot_3D(veca,vecb):
    return (veca[0]*vecb[0])+(veca[1]*vecb[1])+(veca[2]*vecb[2])
@@ -123,8 +127,11 @@ def dot_3D(veca,vecb):
 # Finds the angle required to put the long axis of the shape along a single axis
 def find_angle(coords, lens, inds):
     i,j = inds
+    if len(np.shape(coords)) == 3:
+        coords = coords[0]
+
     if lens[i] > lens[j]:
-        fit = np.polyfit(coords[:,i], coords[:,j],1)
+        fit = np.polyfit(coords[:, i], coords[:, j], 1)
         angle = np.arctan(fit[0])
     else:
         fit = np.polyfit(coords[:,j], coords[:,i],1)
@@ -154,18 +161,21 @@ def rot_mat_3D(angle, dim, unit='d'):
 
 # Finds the dimensions of the system, including the center, min and max and lengths.
 def find_sys_dims(coords):
+    maxes = np.max(coords, axis=(0, 1))  # Max over all steps & atoms
+    mins = np.min(coords, axis=(0, 1))  # Max over all steps & atoms
     dims = {
-    'max':np.array([np.max(coords[:,i]) for i in range(len(coords[0]))]),
-    'min':np.array([np.min(coords[:,i]) for i in range(len(coords[0]))]),
-            }
-    dims['lens'] = dims['max']-dims['min']
-    dims['center'] = dims['min']+dims['lens']/2.
+        'max': maxes,
+        'min': mins,
+        'lens': maxes - mins,
+        'center': np.mean(coords, axis=(0, 1)),
+    }
+    # largest dimensions in descending order
     dims['largest_dims'] = np.argsort(dims['lens'])[::-1]
     return dims
 
 # Finds a suitable rotation angle for the system
 def find_auto_rotation(all_settings):
-    coords = all_settings['coords'][0,all_settings['atoms_to_plot'],:]
+    coords = all_settings['coords']#[0,all_settings['atoms_to_plot'],:]
 
     sys_dims = find_sys_dims(coords)
     coords -= sys_dims['center']
@@ -173,8 +183,8 @@ def find_auto_rotation(all_settings):
     # Aligns along the x axis
     zangle = find_angle(coords, sys_dims['lens'], [0,1])
 
-    first_mol_indices = [i for i in  all_settings['mol_info'] if all_settings['mol_info'][i] == 0]
-    coords2 = all_settings['coords'][0:,first_mol_indices,:][0]
+    first_mol_indices = list(range(all_settings['atoms_per_site']))
+    coords2 = all_settings['coords'][:, first_mol_indices, :]
     # Finds the rotation angle to align the first molecule to face the user (perp to z)
     new_sys_dims = find_sys_dims(coords2)
     xangle = find_angle(coords2, new_sys_dims['lens'], [1,2])

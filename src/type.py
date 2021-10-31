@@ -42,7 +42,7 @@ def eval_type(String):
 
 
 def is_float(Str):
-    """ 
+    """
     Check whether a string can be represented as a non-integer float
 
     Inputs:
@@ -113,8 +113,9 @@ def is_list_array(array):
 def int_res_marry(nums, res, cell_sze):
     nums = [np.ceil(i) for i in nums]
     new_nums = []
-    for i,num in enumerate(nums):
-        while (type(is_int(num/res)) != int and num <= (cell_sze[i])/res):
+    for i, num in enumerate(nums):
+        while (type(is_int(num / res)) != int
+                and num <= (cell_sze[i]) / res):
             num += 1
         new_nums.append(int(num/res))
     return new_nums

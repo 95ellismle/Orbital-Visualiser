@@ -47,7 +47,7 @@ class Docstr_Parsing(object):
                 delim = "'''"
                 break
         else:
-            print("no delim in %s\n\nskipping..." % fname)
+            #print("no delim in %s\n\nskipping..." % fname)
             return ""
 
         docstr = '\n'.join(ftxt).split(delim)[1]
