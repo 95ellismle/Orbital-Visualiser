@@ -552,7 +552,6 @@ class MainLoop(object):
                                          self.all_settings['resolution'],
                                          diff),
                                   pvecs)
-
         return tmpData
 
     # Creates the cube file to save
@@ -579,6 +578,9 @@ class MainLoop(object):
         if self.writeImagCube and type(self.ImagData) == type(np.array(1)):
             if np.sum(self.ImagData.imag) > 1e-12:
                 raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
+
+        act_ats = [j for molID in self.all_settings['active_mols']
+                     for j in self.all_settings['reversed_mol_info'][molID]]
 
         act_ats = self.all_settings['reversed_mol_info'][molID]
         coords = self.all_settings['coords'][self.posStepInd, act_ats]
