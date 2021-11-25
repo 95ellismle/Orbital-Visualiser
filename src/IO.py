@@ -114,7 +114,7 @@ def is_tachyon_exe(tachyon_path):
     if not tachyon_path.is_file():
         return False
 
-    p = sb.run([str(tachyon_path)])
+    p = sb.run([str(tachyon_path)], stdout=sb.PIPE, stderr=sb.PIPE)
     if p.returncode == 255:
         return True
     return False

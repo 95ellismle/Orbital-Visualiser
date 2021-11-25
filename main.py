@@ -1,5 +1,3 @@
-from __future__ import print_function
-from __future__ import   division
 """
  This is the file that runs everything. The MainLoop class is responsible for
  actually carrying out the visualisation once everything has been initialised.
@@ -15,6 +13,20 @@ from __future__ import   division
  To get a feel for what the MainLoop is doing a good place to start is the
  do_step method which is the function which makes an image from the data.
 """
+
+# A bit of a hack, the code needs a refactoring
+import click
+from src import consts
+@click.command()
+@click.argument('settings_file', default='')
+def set_settings(settings_file):
+    if settings_file != '':
+        consts.settings_filepath = settings_file
+    print(consts.settings_filepath)
+    raise SystemExit
+
+if __name__ == '__main__':
+    set_settings()
 
 import sys
 if sys.version_info.major < 3:
@@ -34,7 +46,6 @@ from src import type as typ
 from src import math as MT
 from src import text as txt_lib
 from src import IO as io
-from src import consts
 
 from init import INIT
 all_settings = INIT.all_settings
