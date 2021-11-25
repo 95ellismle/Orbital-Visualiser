@@ -25,3 +25,4 @@ img_folderpath      = './img/'
 data_folderpath     = './data/'
 template_folderpath = './Templates'
 settings_filepath = './settings.inp'
+

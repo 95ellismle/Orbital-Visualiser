@@ -92,6 +92,8 @@ def check_vmd_exe(vmd_fp):
     Will simply run vmd via `vmd -h` and check if the substrings
     'isual', 'olecular' and 'ynamics' are in the output.
 
+    can use the command:
+        'echo 'quit' | ./vmd_MACOSXARM64 -dispdev none -e'
 
     Inputs:
         * vmd_fp <str> => The string to check
@@ -107,15 +109,32 @@ def check_vmd_exe(vmd_fp):
     return False
 
 
-def get_tachyon_path(current_vmd_path):
+def is_tachyon_exe(tachyon_path):
+    '''Validates the tachyon binary is working'''
+    if not tachyon_path.is_file():
+        return False
+
+    p = sb.run([str(tachyon_path)])
+    if p.returncode == 255:
+        return True
+    return False
+
+
+def get_tachyon_path(current_vmd_path, count=0):
     """
     Will try to find the tachyon path from the vmd one.
     """
     vmd_parent = current_vmd_path.parent
-    for i in vmd_parent.glob('*'):
-        if 'tachyon' in str(i).lower():
-            return vmd_parent / i
-    return get_tachyon_path(vmd_parent)
+    # Try and find any files named *tachyon* recursively
+    for path in vmd_parent.rglob('*tachyon*'):
+        if is_tachyon_exe(path):
+            return vmd_parent / path
+
+    if count == 2:
+        return ''
+
+    # If not step up the tree and search again
+    return get_tachyon_path(vmd_parent, count+1)
 
 
 def find_vmd(current_vmd_path):
