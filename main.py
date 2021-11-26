@@ -15,15 +15,19 @@
 """
 
 # A bit of a hack, the code needs a refactoring
-import click
 from src import consts
-@click.command()
-@click.argument('settings_file', default='')
-def set_settings(settings_file):
+import sys
+def set_settings():
+    if sys.argv == ['main.py']:
+        settings_file = ''
+    else:
+        settings_file = sys.argv[1]
+
     if settings_file != '':
         consts.settings_filepath = settings_file
-    print(consts.settings_filepath)
-    raise SystemExit
+
+    print(f'Settings File: {consts.settings_filepath}')
+    return
 
 if __name__ == '__main__':
     set_settings()
@@ -36,7 +40,6 @@ import numpy as np
 import time
 import os
 import subprocess
-import sys
 import shutil
 import multiprocessing as mp
 
