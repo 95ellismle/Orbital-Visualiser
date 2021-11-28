@@ -13,18 +13,49 @@ def Euclid_dist(xyz1, xyz2):
 	return np.linalg.norm(diff)
 
 # Finds the K minimum points in a list
-def K_min(L, K, cutoff=np.inf):
-	mins = []
-	count = 0
-	Lorig = L[:]
-	L = np.array(L)
-	L = list(L[L<cutoff])
-	while (count<K):
-		amin = np.argmin(L)
-		mins.append(L[amin])
-		L = L[:amin]+L[amin+1:]
-		count += 1
-	return [Lorig.index(i) for i in mins]
+def K_min(L, K, cutoff=None):
+    '''Find K minimum point in a list
+
+    1:
+     Put all values in a dict with structure:
+        {element: [index of first appearance, index of second appearance ...]}
+    2:
+     For i in K:
+        add each new min to list and remove that value from the dict above
+        if this results in an empty list then remove the value
+
+    Args:
+        L: The list
+        K: Num of points
+        cutoff: any values over a certain value to exclude
+
+    Returns:
+        the index of the points within the list.
+        If K > len(L) then add len(L) - K None values to the end of the list
+    '''
+    mins = [None] * K
+    if cutoff:
+        L = [i for i in L if i <= cutoff]
+    if K > len(L):
+        K = len(L)
+
+    # 1
+    vals = {}
+    for index, elm in enumerate(L):
+        vals.setdefault(elm, []).append(index)
+
+    # 2
+    for count in range(K):
+        min_ = min(vals.keys())
+        mins[count] = vals[min_][0]
+
+        vals[min_] = vals[min_][1:]
+
+        if len(vals[min_]) == 0:
+            vals.pop(min_)
+
+    return mins
+
 
 # Finds the K nearest neighbours. There are probably better implementations in scikitlearn
 def KNN(coords, num_nbours, a_ind, cutoff=np.inf):
@@ -43,7 +74,9 @@ def calc_pvecs_1mol(mol_crds, act_ats):
     """
     nearest_neighbours = np.zeros((len(act_ats), 3, 3))
     at_inds = np.arange(len(mol_crds))
-    at_map = {}
+    at_map = {}  # map at num to active at num
+
+    # Loop over active atoms and calc nearest neighbours
     for count, iat in enumerate(act_ats):
         at_crd = mol_crds[iat]
         dists = np.linalg.norm(mol_crds - at_crd, axis=1)

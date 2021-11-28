@@ -17,6 +17,9 @@
 # A bit of a hack, the code needs a refactoring
 from src import consts
 import sys
+if sys.version_info.major < 3:
+   raise SystemExit("This code no longer supports python2! Please use python3 via: `python3 main.py`")
+
 def set_settings():
     if sys.argv == ['main.py']:
         settings_file = ''
@@ -31,10 +34,6 @@ def set_settings():
 
 if __name__ == '__main__':
     set_settings()
-
-import sys
-if sys.version_info.major < 3:
-   raise SystemExit("This code no longer supports python2! Please use python3 via: `python3 main.py`")
 
 import numpy as np
 import time
