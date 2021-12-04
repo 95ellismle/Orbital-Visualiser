@@ -143,6 +143,7 @@ print("\rFinished Reading Data     ")
 
 # Functions needing data from input files
 IU.get_mol_groupings(all_settings)
+IU.init_atoms_to_plot(all_settings)
 IU.init_rotation(all_settings)
 IU.init_bounding_box(all_settings)
 #IU.check_charge_spread(all_settings)

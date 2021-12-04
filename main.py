@@ -537,14 +537,6 @@ class MainLoop(object):
             at_crds = self.all_settings['coords'][self.posStepInd][iat] - translation
             pvecs = pvecs_all[i]
             if pvecs is None: continue
-#            tmpData[i] = MT.dot_3D(
-#                                   aom_funcs[i](self.sizes[0],
-#                                                self.sizes[1],
-#                                                self.sizes[2],
-#                                                self.all_settings['resolution'],
-#                                                at_crds),
-#                                   pvecs)
-
             # How many units from the center of the molecular (cube file) box is the atom
             chunks_from_center = (at_crds // self.all_settings['resolution']).astype(int)
             diff = ((at_crds / self.all_settings['resolution']) - chunks_from_center)/2
@@ -560,10 +552,10 @@ class MainLoop(object):
                     mins[1] : maxs[1],
                     mins[2] : maxs[2],
                     ] = MT.dot_3D(aom_funcs[i](spans[0],
-                                         spans[1],
-                                         spans[2],
-                                         self.all_settings['resolution'],
-                                         diff),
+                                               spans[1],
+                                               spans[2],
+                                               self.all_settings['resolution'],
+                                               diff),
                                   pvecs)
         return tmpData
 
@@ -573,6 +565,9 @@ class MainLoop(object):
         Creates the cube file as a string. This is created as a string first
         then written to a file as this is much more efficient than writing each
         line to a file on the fly
+
+        This will plot any active atoms the are required, the background molecules
+        are handled by _write_background_mols.
         """
         start_cube_create_time = time.time()
         # Probably not too bad creating this tiny list here at every step.
@@ -592,10 +587,17 @@ class MainLoop(object):
             if np.sum(self.ImagData.imag) > 1e-12:
                 raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
 
-        act_ats = [j for molID in self.all_settings['active_mols']
-                     for j in self.all_settings['reversed_mol_info'][molID]]
+        if self.all_settings['atoms_to_plot'] == 'have_population':
+            act_ats = [j for molID in self.all_settings['active_mols']
+                         for j in self.all_settings['reversed_mol_info'][molID]]
+            act_ats = self.all_settings['reversed_mol_info'][molID]
 
-        act_ats = self.all_settings['reversed_mol_info'][molID]
+        elif isinstance(self.all_settings['atoms_to_plot'], (np.ndarray, list)):
+            act_ats = self.all_settings['atoms_to_plot']
+
+        else:
+            raise SystemExit(f"Don't understand {self.all_settings['atoms_to_plot']} as a setting for 'atoms_to_plot'")
+
         coords = self.all_settings['coords'][self.posStepInd, act_ats]
         at_nums = self.all_settings['at_num'][act_ats]
 
@@ -777,7 +779,6 @@ class MainLoop(object):
         mol_at_inds = list(self.all_settings['reversed_mol_info'].values())
         mol_coords = self.all_settings['coords'][self.step, mol_at_inds]
         mol_avg_pos = np.mean(mol_coords, axis=1)
-        print(self.all_settings['coords'].shape)
 
         # Loop over active mols and get nearest neighbours
         for imol in act_step_mols:

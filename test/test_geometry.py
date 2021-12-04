@@ -20,22 +20,22 @@ def test_pvecs_1_mol():
 
     # Increase to large distances
     mol_crds *= 10
-    #pvecs = geometry.calc_pvecs_1mol(mol_crds, act_ats)
+    pvecs = geometry.calc_pvecs_1mol(mol_crds, act_ats)
 
 
-def test_K_min():
-    '''Will test finding the K minimum points in a list'''
-    l = [1, 7, 23987, 23, 1 ,5]
-
-    # Test reasonable real case
-    k_min = geometry.K_min(l, 3)
-    assert all([i == j for i, j in zip(k_min, [0, 4, 5])])
-
-    # test cutoff and adding None
-    l = [1, 2, 3, 4, 5]
-    k_min = geometry.K_min(l, 3, cutoff=2)
-    assert k_min[0] == 0
-    assert k_min[1] == 1
-    assert k_min[2] is None
+#def test_K_min():
+#    '''Will test finding the K minimum points in a list'''
+#    l = [1, 7, 23987, 23, 1 ,5]
+#
+#    # Test reasonable real case
+#    k_min = geometry.K_min(l, 3)
+#    assert all([i == j for i, j in zip(k_min, [0, 4, 5])])
+#
+#    # test cutoff and adding None
+#    l = [1, 2, 3, 4, 5]
+#    k_min = geometry.K_min(l, 3, cutoff=2)
+#    assert k_min[0] == 0
+#    assert k_min[1] == 1
+#    assert k_min[2] is None
 
 

@@ -424,12 +424,14 @@ def init_ignore_steps_for_restart(all_settings):
 def init_atoms_to_plot(all_settings):
     """Find which atoms should be plotted"""
     # Translate the input file to something a computer can understand
-    all_settings['ignore_inactive_atoms'] = typ.translate_to_bool(all_settings['ignore_inactive_atoms'],'ignore_inactive_atoms')
     all_settings['background_mols']       = typ.translate_to_bool(all_settings['background_mols'],'background_mols')
-    all_settings['ignore_inactive_mols']  = typ.translate_to_bool(all_settings['ignore_inactive_mols'], 'ignore_inactive_mols')
-    plot_all_atoms, plot_min_active, plot_auto_atoms = [False]*3
     if type(all_settings['atoms_to_plot']) == str:
-        plot_all_atoms, plot_min_active, plot_auto_atoms,_ ,_ = txt_lib.fuzzy_variable_translate(all_settings['atoms_to_plot'], ["all","min_active",'auto',"A list containing atom indices (or range or xrange)","An integer" ], all_settings['verbose_output'], False)
+        options = ["all", "have_population", "A list containing atom indices (or range or xrange)", "An integer" ]
+        tmp = txt_lib.fuzzy_variable_translate(all_settings['atoms_to_plot'],
+                                               options,
+                                               all_settings['verbose_output'],
+                                               False)
+        plot_all_atoms, plot_pop_mols, _ ,_ = tmp
 
     # Need atoms_to_plot to be a list
     if isinstance(all_settings['atoms_to_plot'], int):
@@ -440,53 +442,11 @@ def init_atoms_to_plot(all_settings):
         aom_file = all_settings['LUMO']
     else:
         aom_file = all_settings['AOM']
-    act_mols = aom_file.get_active_mols()
-    pop_indices = np.array([np.arange(len(all_settings['pops'][0])) for i in range(len(all_settings['pops']))])
-    plottable_pop_indices = pop_indices[all_settings['pops'] > all_settings['min_abs_mol_coeff']]
-    all_settings['max_act_mol'] = np.max(plottable_pop_indices) + 1
-    print(plottable_pop_indices, all_settings['max_act_mol'], pop_indices)
-    print(all_settings['decomp_inp'])
-    raise SystemExit
-
-    # Find which index in the AOM dict is the atom ind (which one is an int)
-    for count, i in enumerate(all_settings['AOM_D'][list(all_settings['AOM_D'].keys())[0]]):
-        if type(i) == int:
-            at_ind = count
-            break
-    else: EXC.ERROR("Something went wrong with the parsing of the AOM dictionary! This is a major error tell Matt.")
 
     if plot_all_atoms:
-       all_settings['atoms_to_plot'] = range(len(all_settings['coords'][0]))
-
-    elif plot_min_active:
-        min_plotted_coeff = np.min([min(np.arange(0,all_settings['nmol'])[np.abs(i)**2 > all_settings['min_abs_mol_coeff']]) for i in all_settings['mol']])
-        all_settings['atoms_to_plot'] = range(min_plotted_coeff*all_settings['atoms_per_site'], all_settings['max_act_mol']*all_settings['atoms_per_site'])
-
-    elif plot_auto_atoms:
-        all_settings['atoms_to_plot'] = range(0, all_settings['max_act_mol']*all_settings['atoms_per_site'])
-
-    else: # Can add a test here for all_settings['atoms_to_plot'] type... (should be list -could convert int but not float etc..)
-        if not (type(all_settings['atoms_to_plot']) == list or type(all_settings['atoms_to_plot']) == type(xrange(1))):
-            EXC.ERROR("Sorry the variable 'atoms_to_plot' seems to be in an unfamiliar format (please use a list, an xrange or an integer).\n\nCurrent all_settings['atoms_to_plot'] type is:\t%s"%str(type(all_settings['atoms_to_plot'])))
-        all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i < len(all_settings['mol_info'])]
-        if len(all_settings['atoms_to_plot']) == 0:
-            EXC.ERROR('NO DATA PLOTTED, THERE ARE NO ATOMS CURRENTLY PLOTTED. PLEASE CHECK THE VARIABLE "atoms_to_plot"')
-
-        all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']}
-
-    poss_atoms = [i for i, elm in enumerate(all_settings['at_num']) if elm not in all_settings['atoms_to_ignore']]
-
-
-    if all_settings['ignore_inactive_mols']:
-      all_settings['atoms_to_plot'] = [i[0] for i in all_settings['active_mols'] if i[1] in all_settings['atoms_to_plot']]
-
-    all_settings['mol_info'] = {i:all_settings['mol_info'][i] for i in all_settings['mol_info'] if i in all_settings['AOM_D'].keys()}
-
-    active_atoms = [all_settings['AOM_D'][i][at_ind] for i in all_settings['AOM_D']]
-    if all_settings['ignore_inactive_atoms']:
-        all_settings['atoms_to_plot'] = [i for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']]
-    all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i in poss_atoms]
-    all_settings['active_atoms_index'] = [find_value_dict(all_settings['mol_info'],i) for i in range(all_settings['nmol'])]
+        all_settings['atoms_to_plot'] = np.array(list(aom_file.get_active_atoms()))
+    if plot_pop_mols:
+        all_settings['atoms_to_plot'] = 'have_population'
 
 
 # Finds list of keys attached to a value in a dictionary

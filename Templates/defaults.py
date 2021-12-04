@@ -77,10 +77,7 @@ defaults = {
 ## Atoms to plot
 'background_mols'   : False, # Plot the background, inactive, molecules in a light color | ['yes','no'] | 'not-tested'
 'background_mols_end_extend' : 15, # How much to extend the background molecules past the last inactive atom | [int, float]  | 'not-tested'
-'atoms_to_plot'     : 'auto', # Which atoms to plot in the image ('auto' will plot from 0 - max num of active molecules) | ['all', 'min_active', 'auto', 'list',int] | 'not-tested'
-'atoms_to_ignore'   : [] , # Ignore any atoms by element, set to elemental symbol or name | [list [int], str] | 'not-tested'
-'ignore_inactive_atoms' : False, # Will ignore all inactive atoms (including hydrogen on active molecules) | ['yes','no'] | 'not-tested'
-'ignore_inactive_mols' : True, # Will ignore all inactive whole molecules | ['yes', 'no'] | 'not-tested'
+'atoms_to_plot'     : 'all', # Which atoms to plot in the image ('all' will plot all active atoms, 'have_population' will plot mols with a large enough mol coeff)) | ['all', 'have_population', list, int] | 'not-tested'
 'show_box'          : False, # Show the bounding box around the molecules | ['yes','no'] | 'not-tested'
 ## Optimisation
 'min_abs_mol_coeff' : 5e-4, # A threshold for the minimum molecular population, will ignore any molecule with a population less than this. This probably shouldn't be changed if you don't fully understand how it works. The code will 'learn' the optimum value as it runs so a lower value here won't result in a loss of performance. | [float] | 'not-tested'
