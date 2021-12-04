@@ -486,7 +486,7 @@ class MainLoop(object):
         end_time = time.time() - start_data_create_time
         self.all_settings['times']['Create Wavefunction'][step] += end_time
 
-    def __calc_SOMO(self, molID, translation):
+    def __calc_SOMO(self, molID, bb_center):
         """
         Will create the SOMO for 1 molecule. This involves looping over all
         active atoms in one molecule and creating a p orbtial on each one. This
@@ -495,7 +495,7 @@ class MainLoop(object):
 
         Args:
             * molID => The ID of the molecule
-            * translation => Where to move the spherical harmonic to make it fit on the atom
+            * bb_center => Where to move the spherical harmonic to make it fit on the atom
 
         Returns
             The pvecs * spherical harmonic data for each atom
@@ -534,18 +534,26 @@ class MainLoop(object):
         center_of_mol_box = (self.sizes / 2).round().astype(int)
         at_chunk_size = self.all_settings['at_box_size']
         for i, iat in enumerate(act_ats):
-            at_crds = self.all_settings['coords'][self.posStepInd][iat] - translation
+            # We translate the at crds to put the center of the bounding box at origin (0, 0, 0)
+            at_crds = self.all_settings['coords'][self.posStepInd][iat] - bb_center
             pvecs = pvecs_all[i]
             if pvecs is None: continue
+
             # How many units from the center of the molecular (cube file) box is the atom
-            chunks_from_center = (at_crds // self.all_settings['resolution']).astype(int)
-            diff = ((at_crds / self.all_settings['resolution']) - chunks_from_center)/2
-            # Where is the atom's box within the molecular box
-            box_loc = chunks_from_center - center_of_mol_box
+            at_delta_chunks = (at_crds // self.all_settings['resolution']).astype(int)
+            # diff is a correction to account for a finite resolution
+            diff = ((at_crds / self.all_settings['resolution']) - at_delta_chunks)/2
+            box_loc = center_of_mol_box + at_delta_chunks
+
             # Where in the array should we write the data
             mins = box_loc - at_chunk_size
+            mins[mins < 0] = 0
             maxs = box_loc + at_chunk_size
+            max_mask = maxs > self.sizes
+            maxs[max_mask] = self.sizes[max_mask]
+
             spans = maxs - mins
+
 
             tmpData[i,
                     mins[0] : maxs[0],

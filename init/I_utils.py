@@ -889,12 +889,8 @@ def get_mol_groupings(all_settings):
     act_mol = aom.get_active_mols()
 
     # Set which atoms are active in the sim
-    if all_settings['background_mols']:
-        all_settings['active_atoms'] = np.array(list(act_ats))
-        all_settings['active_mols'] = np.array(list(act_mol))
-    else:
-        all_settings['active_atoms'] = np.array(list(range(all_settings['coords'].shape[1])))
-        all_settings['active_mols'] = np.array(list(range(all_settings['nmol'])))
+    all_settings['active_atoms'] = np.array(list(range(all_settings['coords'].shape[1])))
+    all_settings['active_mols'] = np.array(list(range(all_settings['nmol'])))
 
     # Group atoms by molecule
     # mol_info = at_num -> mol_num
