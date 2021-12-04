@@ -444,7 +444,7 @@ def init_atoms_to_plot(all_settings):
         aom_file = all_settings['AOM']
 
     if plot_all_atoms:
-        all_settings['atoms_to_plot'] = np.array(list(aom_file.get_active_atoms()))
+        all_settings['atoms_to_plot'] = None #np.array(list(aom_file.get_active_atoms()))
     if plot_pop_mols:
         all_settings['atoms_to_plot'] = 'have_population'
 

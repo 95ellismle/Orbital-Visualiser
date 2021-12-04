@@ -596,17 +596,19 @@ class MainLoop(object):
                 raise SystemExit(msg + '    (Bad Imaginary Data)\n\n')
 
         if self.all_settings['atoms_to_plot'] == 'have_population':
-            act_ats = [j for molID in self.all_settings['active_mols']
+            act_ats = [j for molID in self.active_step_mols
                          for j in self.all_settings['reversed_mol_info'][molID]]
-            act_ats = self.all_settings['reversed_mol_info'][molID]
 
         elif isinstance(self.all_settings['atoms_to_plot'], (np.ndarray, list)):
             act_ats = self.all_settings['atoms_to_plot']
 
+        elif self.all_settings['atoms_to_plot'] is None:
+            act_ats = range(self.all_settings['coords'].shape[1])
+
         else:
             raise SystemExit(f"Don't understand {self.all_settings['atoms_to_plot']} as a setting for 'atoms_to_plot'")
 
-        coords = self.all_settings['coords'][self.posStepInd, act_ats]
+        coords = self.all_settings['coords'][self.posStepInd, act_ats, :]
         at_nums = self.all_settings['at_num'][act_ats]
 
         if self.writeRealCube:
