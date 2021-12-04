@@ -12,6 +12,7 @@ from src import EXCEPT as EXC
 from src import consts
 
 import difflib as dfl
+import io
 import numpy as np
 import sys
 if sys.version_info[0] > 2:
@@ -259,14 +260,15 @@ def cube_file_text(data, coords, at_nums, origin,
         str_bv = tab.join((f'{j: .6f}' for j in basis_vec[i]))
         s += f"{str(N_vec[i]).ljust(4)}{tab}{str_bv}" + '\n'
 
-    for atom in range(natom):
-        at_pos = tab.join(f'{i: .6f}' for i in coords[atom])
-        s += f'{str(at_nums[atom]).ljust(4)}{tab} {0.0:.6f}{tab}{at_pos}' + '\n'
+    # Create coord data
+    s += '\n'.join((f"{str(at_nums[atom]).ljust(4)}     0.000000    {tab.join(f'{i: .6f}' for i in coords[atom])}"
+                    for atom in range(natom))) + '\n'
 
     # DATA SECTION WRITING.
     data = data.flatten()
     s += '\n'.join(tab.join(map(str, data[i:i+6]))
                    for i in range(0, len(data), 6))
+
     return s
 
 # Puts all the instances of a triple string quotation on one line to be read in main.py
