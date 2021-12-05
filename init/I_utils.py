@@ -357,13 +357,11 @@ def init_colors(all_settings):
     a purely real phase (neg and pos) or full complex phase (pos, neg, imag,
     real).
     """
-    density, real_phase, full_phase = txt_lib.fuzzy_variable_translate(all_settings['type_of_wavefunction'], ["density", "real-phase", "phase"], all_settings['verbose_output'])
+    density, real_phase = txt_lib.fuzzy_variable_translate(all_settings['type_of_wavefunction'], ["density", "real-phase"], all_settings['verbose_output'])
     if density:
         all_settings['color_type'] = 'density'
     elif real_phase:
         all_settings['color_type'] = 'real-phase'
-    elif full_phase:
-        all_settings['color_type'] = 'phase'
     else:
         EXC.WARN("Sorry I'm not sure what type of color I should use, defaulting to %s"%dft.defaults['type_of_wavefunction'])
         all_settings['color_type'] = dft.defaults['type_of_wavefunction']

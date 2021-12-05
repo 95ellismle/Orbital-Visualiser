@@ -49,7 +49,7 @@ defaults = {
 'keep_tga_files'    : False, # Keeps the tga files after the simulation | ['yes','no'] | 'not-tested'
 'img_format'        : "jpg", # The format to store the img files in | [str (e.g. "png" or "jpg") ] | 'not-tested'
 ## Wavefunction Shape
-'type_of_wavefunction' : "phase", # The type of visualisation | ['density', 'phase'] | 'not-tested'
+'type_of_wavefunction' : "real-phase", # The type of visualisation | ['density', 'real-phase'] | 'not-tested'
 'atomic_number_orbital_map' : {1: (1, 's'), 6: (2, 'p'), 7: (2, 'p'), 16: (3, 'p')}, # The map of orbitals for each atom type | [] | 'not-tested'
 ## Transition State
 'do_transition_state' : False, # Will plot the transition state density from 2 AOM coeff files | ['yes', 'no'] | 'not-tested'
