@@ -37,7 +37,8 @@ proc load_file { filename mol_id neg_col_id pos_col_id } {
     # Add atoms representation
     if {$mol_id == 0 } {
     	mol addrep $mol_id
-		mol modstyle 2 0 Licorice 0.100000 31.000000 20.000000
+		#mol modstyle 2 0 Licorice 0.100000 31.000000 20.000000
+		mol modstyle 2 0 CPK 1.000000 0.300000 12.000000 12.000000
 	    #mol modstyle 2 $mol_id $atom_style 1.000000 0.600000 20.000000 20.000000              #Adding atoms
        #Selecting Certain Atoms
       mol modselect 2 $mol_id y < $maxY and y > $minY and x < $maxX and x > $minX and z < $maxZ and z > $minZ

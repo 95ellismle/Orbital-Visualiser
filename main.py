@@ -162,7 +162,7 @@ class MainLoop(object):
         threshold for visualising the molecule.
         """
         # What percentage of the data is visible
-        #tol = 0.001 if self.all_settings['do_transition_state'] else 0.0001
+        tol = 0.001 if self.all_settings['do_transition_state'] else 0.0001
 
         size = float(self.RealData.size)
         isoToPlot = self.all_settings['isosurface_to_plot']
@@ -175,7 +175,7 @@ class MainLoop(object):
             self.writeImagCube = False #relevantImag > tol  # At least tol% is visible
 
 
-        self.writeRealCube = True #relevantReal > tol  # At least tol% of the data structure is visible is visible
+        self.writeRealCube = True and relevantReal > tol  # At least tol% of the data structure is visible is visible
         if not self.writeImagCube and not self.writeRealCube:
             molPop = self.all_settings['pops'][self.step][molID]
             if molPop > self.all_settings['min_abs_mol_coeff']:
@@ -524,16 +524,31 @@ class MainLoop(object):
 
         # Get the spherical harmonic functions
         if self.all_settings['do_transition_state']:
-            aom_funcs = [self.all_settings['LUMO'][i].orb_func
-                         for i in self.all_settings['active_atom_index'][molID]]
+            aom_obj = [self.all_settings['LUMO'][i] for i in act_ats]
         else:
-            aom_funcs = [self.all_settings['AOM'][i].orb_func
-                         for i in self.all_settings['active_atom_index'][molID]]
+            aom_obj = [self.all_settings['AOM'][i] for i in act_ats]
+        aom_funcs = [i.orb_func for i in aom_obj]
+        aom_coeffs = [i.coeff for i in aom_obj]
 
         # Loop over atoms that belong to molecule molID
         center_of_mol_box = (self.sizes / 2).round().astype(int)
         at_chunk_size = self.all_settings['at_box_size']
-        for i, iat in enumerate(act_ats):
+
+        # Order the atoms by AOM coefficient.
+        #If the largest AOM coefficient doesn't have at least 1% non-zero values then skip the mol
+        ordered = list(reversed(sorted(zip(np.abs(aom_coeffs),
+                                           act_ats,
+                                           list(range(len(act_ats)))
+                                       )
+                                )
+                        )
+                  )
+        act_ats = [i[1] for i in ordered]
+        map_ind = [i[2] for i in ordered]
+
+        for count, iat in enumerate(act_ats):
+            i = map_ind[count]
+
             # We translate the at crds to put the center of the bounding box at origin (0, 0, 0)
             at_crds = self.all_settings['coords'][self.posStepInd][iat] - bb_center
             pvecs = pvecs_all[i]
@@ -565,6 +580,16 @@ class MainLoop(object):
                                                self.all_settings['resolution'],
                                                diff),
                                   pvecs)
+            if count == 0:
+                arr = tmpData[i,
+                              mins[0] : maxs[0],
+                              mins[1] : maxs[1],
+                              mins[2] : maxs[2]
+                              ]
+                percent_non_zero = np.sum(np.abs(arr > 1e-6)) / np.product(np.shape(arr))
+                if percent_non_zero < 0.1:
+                    print(f"Found a littlun, {percent_non_zero}")
+
         return tmpData
 
     # Creates the cube file to save
