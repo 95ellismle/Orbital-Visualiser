@@ -6,7 +6,7 @@ will also correct any typos in the settings file.
 N.B. The all_settings dictionary is a big dictionary with every setting used in
 the code. This is where the MainLoop class looks for any settings it needs.
 This is especially important for filepaths as these really need to be consistent
-throughout the code. 
+throughout the code.
 '''
 
 from src import IO as io
@@ -41,17 +41,16 @@ def create_clean_settings(settings_ltxt):
     clean_settings_dict = coll.OrderedDict()
     for i in settings_ltxt:
         setting_name = i.split('=')[0].replace(' ','')
-        success = False
         try:
-            success = True
             setting_val  = eval(i.split('=')[-1])
         except:
             print("Warning the setting %s is a bit dodgy. Using the default value"%setting_name)
-        if success:
-            if type(setting_val) == list:
-                clean_settings_dict[setting_name] = np.array(setting_val)
-            else:
-                clean_settings_dict[setting_name] = setting_val
+            continue
+
+        if type(setting_val) == list:
+            clean_settings_dict[setting_name] = np.array(setting_val)
+        else:
+            clean_settings_dict[setting_name] = setting_val
     return clean_settings_dict
 
 # Creates a dictionary with only the original settings that make sense including comments
@@ -112,8 +111,9 @@ def get_act_setting(setting, all_setting_names):
     if sum(poss_setts) > 1:
         raise SystemExit("There are too many possible settings for '%s'. These are:\n\t* %s.\n\nI do not want to assume which one it is, please correct it in the input file!"%(setting, '\n\t* '.join(all_setting_names[poss_setts])))
     elif sum(poss_setts) < 1:
-        raise SystemExit("I don't know what you mean by '%s'. Please correct it in the input file!"%(setting))
+        raise SystemExit("Unkown settings in settings.inp: '%s'. Please remove or correct it."%(setting))
     return all_setting_names[poss_setts][0]
+
 
 # Creates the all_settings dictionary and fills it with the settings from the input file (if there) else the defaults
 def grab_defaults(clean_settings_dict):

@@ -26,13 +26,16 @@ from src import IO as io
 from src import EXCEPT as EXC
 
 import docstring as docstr
+import sys
+
 
 # Define folders
-docs_folder = io.folder_correct('./Docs')
-templates_folder = io.folder_correct('./Templates/HTML')
-static_folder = io.folder_correct(docs_folder+"Static")
-tables_folder = io.folder_correct(docs_folder+"Tables")
-index_filePath = io.folder_correct('./Documentation.html')
+if __name__ == '__main__':
+    docs_folder = io.folder_correct('./Docs')
+    templates_folder = io.folder_correct('./Templates/HTML')
+    static_folder = io.folder_correct(docs_folder+"Static")
+    tables_folder = io.folder_correct(docs_folder+"Tables")
+    index_filePath = io.folder_correct('./Documentation.html')
 
 
 class ParseDefaults(object):
@@ -445,96 +448,95 @@ class TableHTMLFile(HTMLFile):
 
         return "\t<td> %s </td>" % strVal
 
+if __name__ == '__main__':
+    # The filepaths to the files acting as the templates to the webpages
+    template_filepaths = {}
+    for f in os.listdir(templates_folder):
+        fName = f.replace('.html', '')
+        template_filepaths[fName] = templates_folder + f
 
-# The filepaths to the files acting as the templates to the webpages
-template_filepaths = {}
-for f in os.listdir(templates_folder):
-    fName = f.replace('.html', '')
-    template_filepaths[fName] = templates_folder + f
+    # The default settings filepath
+    defaults_filepath = io.folder_correct('./Templates/') + 'defaults.py'
 
-# The default settings filepath
-defaults_filepath = io.folder_correct('./Templates/') + 'defaults.py'
+    defaults = ParseDefaults(defaults_filepath)
+    # A dictionary of things to find in the HTML files and replace
+    replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"Perm_img"),
+                 "*docs_folder*": docs_folder,
+                 "*vendor_folder_path*": io.folder_correct(docs_folder+"vendor"),
+                 "*css_folder_path*": io.folder_correct(docs_folder+"css"),
+                 "*quick_start*": io.open_read(templates_folder+"QuickStart.html"),
+                 "*intro_text*": io.open_read(templates_folder+"Intro.html"),
+                 "*Misc*": io.open_read(templates_folder+'IntroMisc.html'),
+                 "*Pagetitle*": "Movie Maker Documentation",
+                 "*header_text*": io.open_read(templates_folder+'HeaderTxt.html'),
+                 "*top_nav*": io.open_read(templates_folder+'TopNav.html'),
+                 }
 
-defaults = ParseDefaults(defaults_filepath)
-# A dictionary of things to find in the HTML files and replace
-replacers = {"*doc_img_folder*": io.folder_correct(docs_folder+"Perm_img"),
-             "*docs_folder*": docs_folder,
-             "*vendor_folder_path*": io.folder_correct(docs_folder+"vendor"),
-             "*css_folder_path*": io.folder_correct(docs_folder+"css"),
-             "*quick_start*": io.open_read(templates_folder+"QuickStart.html"),
-             "*intro_text*": io.open_read(templates_folder+"Intro.html"),
-             "*Misc*": io.open_read(templates_folder+'IntroMisc.html'),
-             "*Pagetitle*": "Movie Maker Documentation",
-             "*header_text*": io.open_read(templates_folder+'HeaderTxt.html'),
-             "*top_nav*": io.open_read(templates_folder+'TopNav.html'),
-             }
+    # Handle the Sidebar
+    SideBar(defaults, replacers, tables_folder)
 
-# Handle the Sidebar
-SideBar(defaults, replacers, tables_folder)
+    # Handle the docstrings on top of the python files
+    dstr = docstr.Docstr_Parsing('.')
 
-# Handle the docstrings on top of the python files
-dstr = docstr.Docstr_Parsing('.')
+    replacers['*Mov_Mak_Edit*'] = dstr.docstrTxt
 
-replacers['*Mov_Mak_Edit*'] = dstr.docstrTxt
+    # Complete the files in order (do the TopNav first)
+    firstItems = ['TopNav', 'HeaderTxt', 'QuickStart']
+    lastItems = ['table']
+    templateFilePathsOrder = firstItems
+    for i in template_filepaths:
+        if i not in templateFilePathsOrder:
+            templateFilePathsOrder.append(i)
+    for i in lastItems:
+        templateFilePathsOrder.remove(i)
+    templateFilePathsOrder += lastItems
 
-# Complete the files in order (do the TopNav first)
-firstItems = ['TopNav', 'HeaderTxt', 'QuickStart']
-lastItems = ['table']
-templateFilePathsOrder = firstItems
-for i in template_filepaths:
-    if i not in templateFilePathsOrder:
-        templateFilePathsOrder.append(i)
-for i in lastItems:
-    templateFilePathsOrder.remove(i)
-templateFilePathsOrder += lastItems
-
-FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation',
-                   'QuickStart']
+    FilesToNotWrite = ['IntroMisc', 'TopNav', 'HeaderTxt', 'EditDocumentation',
+                       'QuickStart']
 
 
-# First create all the correct paths to the files
-for key in templateFilePathsOrder:
-    if key not in FilesToNotWrite:
+    # First create all the correct paths to the files
+    for key in templateFilePathsOrder:
+        if key not in FilesToNotWrite:
+            if 'table' in key:
+                for section in defaults.params:
+                    tmp = TableHTMLFile(template_filepaths[key],
+                                        defaults.params[section],
+                                        section,
+                                        replacers,
+                                        True)
+
+            else:
+                tmp = HTMLFile(template_filepaths[key],
+                               replacers,
+                               defaults,
+                               True)
+
+            fName = tmp.savePath
+            replacers['*%s*' % tmp.title] = tmp.savePath
+    replacers['*index*'] = index_filePath
+
+    # Actually parse and replace the variables in the html files
+    filesToWrite = {}
+    for key in templateFilePathsOrder:
         if 'table' in key:
             for section in defaults.params:
                 tmp = TableHTMLFile(template_filepaths[key],
                                     defaults.params[section],
                                     section,
-                                    replacers,
-                                    True)
-
+                                    replacers)
+                filesToWrite[tmp.title] = tmp
         else:
             tmp = HTMLFile(template_filepaths[key],
                            replacers,
-                           defaults,
-                           True)
-
-        fName = tmp.savePath
-        replacers['*%s*' % tmp.title] = tmp.savePath
-replacers['*index*'] = index_filePath
-
-# Actually parse and replace the variables in the html files
-filesToWrite = {}
-for key in templateFilePathsOrder:
-    if 'table' in key:
-        for section in defaults.params:
-            tmp = TableHTMLFile(template_filepaths[key],
-                                defaults.params[section],
-                                section,
-                                replacers)
+                           defaults)
             filesToWrite[tmp.title] = tmp
-    else:
-        tmp = HTMLFile(template_filepaths[key],
-                       replacers,
-                       defaults)
-        filesToWrite[tmp.title] = tmp
 
 
-for key in filesToWrite:
-    print(key)
-    tmp = filesToWrite[key]
-    fileName = tmp.savePath
-    with open(fileName, 'w') as f:
-        f.write(tmp.fileTxt)
+    for key in filesToWrite:
+        tmp = filesToWrite[key]
+        fileName = tmp.savePath
+        with open(fileName, 'w') as f:
+            f.write(tmp.fileTxt)
 
-os.rename(filesToWrite['index'].savePath, index_filePath)
+    os.rename(filesToWrite['index'].savePath, index_filePath)

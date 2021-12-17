@@ -1,21 +1,5 @@
-Call phaseMasks -> phaseBoundaries
+show all mols
 
-#testing.py
-Need to impose a limit on the number of phase sectors. I think 12 should be max. This is because the
-   number of VMD colors is very limited.
+fix bug in movie maker  (holding onto state)
 
-Need to create a dict that maps the sectors that are opposites to pos and neg
-   (keys must correspond to the keys in the phaseBoundaries)
-
-
-#main.py
-Change the way the colors are entered -> to a dictionary (keys must match up with the phaseBoundaries keys)
-
-loop over phaseBoundaries and create a dict of masks (with keys from phaseBoundaries)
-
-apply these masks and create a dictionary with lots of data arrays containing the data from each mask
-
-update the findCubesToWrite function to loop over all phaseBoundaries
-
-update the set_wf_colors function to loop over all phaseBoundaries
-
+start_time affecting calibration step

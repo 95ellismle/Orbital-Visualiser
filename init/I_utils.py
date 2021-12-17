@@ -23,6 +23,7 @@ except:
     from Templates import permanent_settings as ps
 
 from init import settings_file
+from init import init_IO as i_IO
 
 import numpy as np
 import datetime
@@ -31,13 +32,10 @@ import os
 import re
 import sys
 import subprocess
+from pathlib import Path
+Path.__repr__ = Path.__str__  # makes things easier
 from collections import OrderedDict
 
-if sys.version_info[0] > 2:
-    xrange = range
-    raw_input = input
-
-## TODO: Need to finish using all the consts.py folderpaths instead of declaring them here.
 
 
 def reverseDict(Dict):
@@ -52,53 +50,74 @@ def reverseDict(Dict):
 
 # Will declare all the paths that are required in the code
 def init_output_files_and_folders(all_settings):
-    all_settings['img_fold']      = io.folder_correct(consts.img_folderpath)
-    all_settings['data_fold']     = io.folder_correct(consts.data_folderpath)
-    all_settings['tmplte_fold'] = io.folder_correct(consts.template_folderpath)
-    # all_settings['f.txt'] = io.folder_correct('./f.txt', True)
-    all_settings['graph_files'] = []
-    all_settings['vmd_script_folder'] = io.folder_correct('./src/TCL/', True)
-    all_settings['vmd_junk'] = {}
-    all_settings['vmd_script'] = {}
-    all_settings['vmd_err'] = {}
-    all_settings['vmd_temp'] = io.folder_correct(all_settings['tmplte_fold']+"VMD_TEMP.vmd")
-    all_settings['vmd_exe'] = io.find_vmd(all_settings['vmd_exe'])
-    print("Found VMD binary at: '%s' proceeding with visualisation" % all_settings['vmd_exe'])
+    # Make all paths pathlib.Path objects
+    for var_name, fp in (('img_fold', consts.img_folderpath),
+                         ('data_fold', consts.data_folderpath),
+                         ('tmplte_fold', consts.template_folderpath),
+                         ('vmd_script_fold', './src/TCL'),
+                         ('bin_fold', './bin'),
+                         ('vmd_log_file', './visualisation.log'),
+                         ('vmd_exe', all_settings['vmd_exe'])):
+        all_settings[var_name] = Path(fp).absolute()
 
-    all_settings['bin_fold'] = io.folder_correct('./bin/')
-    all_settings['ffmpeg_bin'] = io.folder_correct(all_settings['bin_fold']+'ffmpeg')
-    all_settings['delete_these'] = []
-    all_settings['vmd_log_file'] = io.folder_correct("./visualisation.log")
-    all_settings['tcl'] = {}
-    all_settings['tcl']['vmd_source_file'] = io.folder_correct("%sinclude.vmd"%all_settings['tmplte_fold'])
-    all_settings['ps_filepath'] = "%spermanent_settings.py"%all_settings['tmplte_fold']
+    for var_name, fp in (('vmd_temp', all_settings['tmplte_fold'] / "VMD_TEMP.vmd"),
+                         ('ffmpeg_bin', all_settings['bin_fold'] / 'ffmpeg'),
+                         ('ps_filepath',
+                             all_settings['tmplte_fold'] / 'permanent_settings.py')):
+        all_settings[var_name] = fp
 
-    init_rep_files(all_settings)
+    # Set up paths to data
+    all_settings['path'] = Path(all_settings['path']).absolute()
+    for var_name in ('aom_file', 'lumo_file', 'homo_file', 'decomp_file',
+                     'cp2k_inp_file', 'coeff_file', 'pos_file'):
+        all_settings[var_name] = all_settings['path'] / all_settings[var_name]
+
+    for var_name, var in (('graph_files', []),
+               ('vmd_junk', {}),
+               ('vmd_script', {}),
+               ('vmd_err', {}),
+               ('delete_these', []),
+               ('tcl', {})):
+        all_settings[var_name] = var
+    all_settings['tcl']['vmd_source_file'] = all_settings['tmplte_fold'] / 'include.vmd'
 
 
-    use_fuzzy_files = typ.translate_to_bool(all_settings['find_fuzzy_files'], 'fuzzy_find_files')
-    if use_fuzzy_files:
-        all_settings['CP2K_output_files'] = io.fuzzy_file_find(all_settings['path'])
+def check_filepaths(all_settings):
+    """Will check we have all the files we need"""
+    missing_files = []
 
-
-    # Create the output files
-    cat_path = lambda path, f: io.folder_correct(path + f) if f != 'CREATE' else f
-    if all_settings['all_reps'] == True:
-        all_settings['CP2K_output_files'] = {ftyp:[cat_path(all_settings['path'], f)
-                                                for f in all_settings['CP2K_output_files'][ftyp]]
-                                                    for ftyp in all_settings['CP2K_output_files']}
+    # Check AOM coeff filepaths
+    if all_settings['do_transition_state']:
+        all_settings.pop('aom_file')
+        if not all_settings['lumo_file'].is_file():
+            missing_files.append('lumo_file')
+        if not all_settings['homo_file'].is_file():
+            missing_files.append('homo_file')
     else:
-        tmp = {}
-        for ftyp in all_settings['CP2K_output_files']:
-            for i, f in enumerate(all_settings['CP2K_output_files'][ftyp]):
-                if i in all_settings['num_reps']:
-                    tmp.setdefault(ftyp, []).append(cat_path(all_settings['path'], f))
-        all_settings['CP2K_output_files'] = tmp
+        if not all_settings['aom_file'].is_file():
+            missing_files.append('aom_file')
 
-    # Clean up any files we need to create later
-    for i in all_settings['CP2K_output_files']:
-        if all_settings['CP2K_output_files'][i] == ['CREATE']:
-            all_settings['CP2K_output_files'][i] = 'CREATE'
+    # Check main data files
+    required_files = ('pos_file', 'coeff_file', 'cp2k_inp_file')
+    for f in required_files:
+        if not all_settings[f].is_file():
+            missing_files.append(f)
+
+    if missing_files:
+        print("The following input files were missing from your system:\n\t* "
+              "\n\t* ".join(missing_files))
+        print("Please check and correct these in the 'settings.inp' file.")
+        raise IOError("Missing input files.")
+
+    # Check internal files
+    all_settings['vmd_script_fold'].mkdir(exist_ok=True)
+    if not all_settings['vmd_temp'].is_file():
+        raise IOError("VMD tcl template script can't be found. Please check it out from git.")
+    if not all_settings['ps_filepath'].is_file():
+        raise IOError("Permanent settings file can't be found. Please check it out from git.")
+    if not all_settings['tmplte_fold'].is_dir():
+        raise IOError("Templates folder can't be found. Please check it out from git.")
+
 
 
 # I should definitely break up the bits that aren't actually used within the step here!
@@ -115,34 +134,9 @@ def init_all_settings_other(all_settings):
     all_settings['mols_plotted'] = ''
     all_settings['verbose_output']  = typ.translate_to_bool(all_settings['verbose_output'], 'verbose_output')
     all_settings['restart_vis']  = typ.translate_to_bool(all_settings['restart_vis'], 'restart_vis')
+    all_settings['do_transition_state'] = typ.translate_to_bool(all_settings['do_transition_state'], 'do_transition_state')
     init_missing_pos_step_vars(all_settings)
 
-def transition_state_init(all_settings):
-    all_settings['do_transition_state'] = typ.translate_to_bool(all_settings['do_transition_state'], 'do_transition_state')
-    if all_settings['do_transition_state']:
-        # # Parse the combination rule.
-        # tmp = all_settings['combination_rule'].replace(" ", "")
-        # rule = []
-        # for i in '*-+/':
-        #     if tmp.count(i) == 0:  continue
-        #     elif tmp.count(i) != 1: EXC.ERROR("Incorrect format for the combination rule. Please check your settings file and the documentation.")
-        #     else:                   rule.append(i)
-        # if len(rule) != 1: EXC.ERROR("Can't find a combination rule for the transition state density.Please check your settings file and the documentation.")
-        # comb = rule[0]
-        # R = tmp[:tmp.find(comb)].lower()
-        # L = tmp[tmp.find(comb)+1:].lower()
-        # if 'l' in R and 'h' in R: EXC.ERROR("Incorrect format for the combination rule -L and H specified on the right of the operator. Please check your settings file and the documentation.")
-        # elif 'l' in R: R = 'lumo'
-        # elif 'h' in R: R = 'homo'
-
-        # if 'l' in L and 'h' in L: EXC.ERROR("Incorrect format for the combination rule -L and H specified on the right of the operator. Please check your settings file and the documentation.")
-        # elif 'l' in L: L = 'lumo'
-        # elif 'h' in L: L = 'homo'
-        # all_settings['combination_rule'] = (L, comb, R)
-
-        cat_path = lambda f: io.folder_correct(all_settings['path'] + f)
-        all_settings['CP2K_output_files']['AOM'] = [cat_path(all_settings['lumo_coeff_file']),
-                                                    cat_path(all_settings['homo_coeff_file'])]
 
 # Will initialise the permanent settings (check tachyon path, read and write permanent settings, set prev_calibrate etc...)
 def init_permanent_settings(all_settings):
@@ -153,14 +147,16 @@ def init_permanent_settings(all_settings):
     # Save the previous runtime
     io.read_write_perm_settings(all_settings['ps_filepath'], "previous_runtime",
                 datetime.datetime.strftime(datetime.datetime.now(), ps.time_format))
-    # Checking Tachyon Renderer Path
-    new_tachyon_path = io.find_tachyon(ps.tachyon_path)
-    if new_tachyon_path != ps.tachyon_path:
-        io.read_write_perm_settings(all_settings['ps_filepath'], "tachyon_path", new_tachyon_path)
-        tachyon_path = new_tachyon_path
-    else:
-        tachyon_path = ps.tachyon_path
-    all_settings['tcl']['tachyon_path'] = tachyon_path
+
+#    # Checking Tachyon Renderer Path
+#    new_tachyon_path = io.find_tachyon(ps.tachyon_path)
+#    if new_tachyon_path != ps.tachyon_path:
+#        io.read_write_perm_settings(all_settings['ps_filepath'], "tachyon_path", new_tachyon_path)
+#        tachyon_path = new_tachyon_path
+#    else:
+#        tachyon_path = ps.tachyon_path
+#    all_settings['tcl']['tachyon_path'] = tachyon_path
+
     # Did we calibrate last time?
     io.read_write_perm_settings(all_settings['ps_filepath'], "previous_path", all_settings['path'])
     if all_settings['calibrate']:
@@ -195,6 +191,8 @@ def find_ignoring_steps(all_settings):
 # Determines the correct all_settings['rotation'] vector to use
 def init_rotation(all_settings):
     rot = all_settings['rotation']
+    all_settings['rotation'] = np.array([0, 0, 0])
+    return
 
     if type(rot) == str:
         auto_rot, _, _ = txt_lib.fuzzy_variable_translate(all_settings['rotation'],
@@ -205,6 +203,7 @@ def init_rotation(all_settings):
 
         elif 'n' in all_settings['rotation'].lower() or bool(all_settings['rotation']) == False:
             all_settings['rotation'] = [0,0,0]
+
 
     elif all([isinstance(i, (float, int)) for i in rot]):
         all_settings = [i % 360 for i in rot]
@@ -235,6 +234,7 @@ def init_tcl_dict(all_settings):
     all_settings['tcl']['minY'] = all_settings['ydims'][0]
     all_settings['tcl']['maxZ'] = all_settings['zdims'][1]
     all_settings['tcl']['minZ'] = all_settings['zdims'][0]
+    all_settings['tcl']['tachyon_path'] = io.get_tachyon_path(all_settings['vmd_exe'])
 
     imgSize = all_settings['img_size']
     if type(imgSize) == str:
@@ -301,74 +301,45 @@ def init_files_to_keep(all_settings):
         all_settings['files_to_keep'].append("tga")
 
 
-# Finds the aom dictionary
 def init_AOM_D(all_settings):
+    """Read the AOM file"""
     # Standard Movie Maker
     if not all_settings['do_transition_state']:
-        _, all_settings['AOM_D'], tmp = io.AOM_coeffs(all_settings['CP2K_output_files']['AOM'][0], all_settings['atoms_per_site'])
-        if not tmp:
-            all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']} #converts atom number to molecule number
-        else:
-            all_settings['mol_info'] = tmp
-        at_ind = 1 # The index at which the atom number appears
+        all_settings['AOM'] = i_IO.AOMFile(all_settings['aom_file'],
+                                           all_settings['atoms_per_site'],
+                                           all_settings['nmol'])
 
-    # Transition State
     else:
-        # Error checking
-        if len(all_settings['CP2K_output_files']['AOM']) > 2:
-            EXC.ERROR("More AOM files found than expected.")
-
+        # Transition State
         # Parse AOM file
-        all_settings['AOM_D'] = []
-        mol_infos = []
-        for f in all_settings['CP2K_output_files']['AOM']:
-            _, aom, tmp = io.AOM_coeffs(f, all_settings['atoms_per_site'])
-            mol_infos.append(tmp)
-            all_settings['AOM_D'].append(aom)
+        all_settings['LUMO'] = i_IO.AOMFile(all_settings['lumo_file'],
+                                            all_settings['atoms_per_site'],
+                                            all_settings['nmol'])
+        all_settings['HOMO'] = i_IO.AOMFile(all_settings['homo_file'],
+                                            all_settings['atoms_per_site'],
+                                            all_settings['nmol'])
 
-        # Error checking
-        get_ind0 = lambda d: tuple(map(lambda x: (x, d[x][1]), d))
-        aomats1, aomats2 = get_ind0(all_settings['AOM_D'][0]), get_ind0(all_settings['AOM_D'][1])
-        if aomats1 != aomats2:
-            EXC.ERROR("AOM Coeff atom indices don't match for the 2 AOM files.")
-
-        # Reshape AOM coeffs into 1 hastable
-        tmp = all_settings['AOM_D']
-        all_settings['AOM_D'] = {i: (tmp[1][i][0], tmp[0][i][0], tmp[0][i][1]) for i in tmp[0]}
-
-        # Get mol_info
-        if not mol_infos[0]:
-            all_settings['mol_info'] = {i:int(i/all_settings['atoms_per_site']) for i in all_settings['AOM_D']}
-        else:
-            all_settings['mol_info'] = mol_infos[0]
-
-        at_ind = 2 # The index at which the atom number appears in the AOM_D
-
-    # All the active molecules (according to the AOM_COEFFICIENT.include file)
-    all_settings['active_mols'] = [(i,all_settings['AOM_D'][i][at_ind]) for i in all_settings['AOM_D']]
-    all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if np.abs(all_settings['AOM_D'][i][0]) > 0} # Removing inactive atoms from all_settings['AOM_D']
+        # Check the atoms are the same in each file
+        for lat, hat in zip(all_settings['LUMO'],
+                            all_settings['HOMO']):
+            if lat != hat:
+                raise SystemExit("Atom indices don't match up in LUMO and HOMO files.")
 
 
-# Will initialise the molecules that are needed to be highlighted
-def init_mols_to_plot(all_settings):
-    if type(all_settings['mols_to_highlight']) == int:
-       all_settings['mols_to_highlight'] = [all_settings['mols_to_highlight']]
-    if type(all_settings['mols_to_highlight']) == 'str':
-       if np.any(i in all_settings['mols_to_highlight'].lower() for i in ['max','min']) :
-          all_settings['mols_to_highlight'] = all_settings['mols_to_highlight'].lower()
-       else:
-          EXC.WARN("The variable 'mols_to_highlight' was declared incorrectly. Valid Options are:\n\t'max'\n\tmin\n\tinteger\n\trange.")
-
-
-# Will retrieve the metadata for the coefficient, position and pvecs file.
-# The metadata is needed to decide which steps to complete when running the simulation
 def get_all_files_metadata(all_settings):
-    all_settings['pos_metadata']   = xyz.get_xyz_metadata(all_settings['CP2K_output_files']['pos'][0])
-    all_settings['coeff_metadata'] = xyz.get_xyz_metadata(all_settings['CP2K_output_files']['coeff'][0])
+    """Will retrieve the metadata for the coefficient, position and pvecs file.
+    The metadata is needed to decide which steps to complete when running the simulation
+    """
+    do_cal, calTStep = all_settings['calibrate'], all_settings['timestep_to_render']
+    if do_cal:
+        max_time = all_settings['timestep_to_render']
+    else:
+        max_time = all_settings['end_time']
+        if isinstance(max_time, str):
+            max_time = None
 
-    # Don't try and read pvecs if we don't need to
-    if all_settings['CP2K_output_files']['pvecs'] != 'CREATE':
-        all_settings['pvecs_metadata'] = xyz.get_xyz_metadata(all_settings['CP2K_output_files']['pvecs'][0])
+    all_settings['pos_metadata']   = xyz.get_xyz_metadata(all_settings['pos_file'], max_time)
+    all_settings['coeff_metadata'] = xyz.get_xyz_metadata(all_settings['coeff_file'], max_time)
 
 
 # Finds what format the animation file should take
@@ -408,7 +379,8 @@ def init_bounding_box(all_settings):
 
 # Reading the inp file and finding useful data from it
 def read_cp2k_inp_file(all_settings):
-    run_inp = open(all_settings['CP2K_output_files']['inp'][0]).read()
+    with open(all_settings['cp2k_inp_file'], 'r') as f:
+        run_inp = f.read()
     all_settings['atoms_per_site'] = int(txt_lib.inp_keyword_finder(run_inp, "ATOMS_PER_SITE")[0])
     ndiab_states = int(txt_lib.inp_keyword_finder(run_inp, "NUMBER_DIABATIC_STATES")[0])
     norbits = int(txt_lib.inp_keyword_finder(run_inp, "NUMBER_ORBITALS")[0])
@@ -450,71 +422,43 @@ def init_ignore_steps_for_restart(all_settings):
 
 # Will find which atoms should be plotted
 def init_atoms_to_plot(all_settings):
+    """Find which atoms should be plotted"""
     # Translate the input file to something a computer can understand
-    all_settings['ignore_inactive_atoms'] = typ.translate_to_bool(all_settings['ignore_inactive_atoms'],'ignore_inactive_atoms')
     all_settings['background_mols']       = typ.translate_to_bool(all_settings['background_mols'],'background_mols')
-    all_settings['ignore_inactive_mols']  = typ.translate_to_bool(all_settings['ignore_inactive_mols'], 'ignore_inactive_mols')
-    plot_all_atoms, plot_min_active, plot_auto_atoms = [False]*3
     if type(all_settings['atoms_to_plot']) == str:
-        plot_all_atoms, plot_min_active, plot_auto_atoms,_ ,_ = txt_lib.fuzzy_variable_translate(all_settings['atoms_to_plot'], ["all","min_active",'auto',"A list containing atom indices (or range or xrange)","An integer" ], all_settings['verbose_output'], False)
+        options = ["all", "have_population", "A list containing atom indices (or range or xrange)", "An integer" ]
+        tmp = txt_lib.fuzzy_variable_translate(all_settings['atoms_to_plot'],
+                                               options,
+                                               all_settings['verbose_output'],
+                                               False)
+        plot_all_atoms, plot_pop_mols, _ ,_ = tmp
 
     # Need atoms_to_plot to be a list
-    if type(all_settings['atoms_to_plot']) == int:
+    if isinstance(all_settings['atoms_to_plot'], int):
         all_settings['atoms_to_plot'] = [all_settings['atoms_to_plot']]
 
     # Deciding which atoms to plot
-    pop_indices = np.array([np.arange(len(all_settings['pops'][0])) for i in range(len(all_settings['pops']))])
-    plottable_pop_indices = pop_indices[all_settings['pops'] > all_settings['min_abs_mol_coeff']]
-    all_settings['max_act_mol'] = np.max(plottable_pop_indices) + 1
-
-    # Find which index in the AOM dict is the atom ind (which one is an int)
-    for count, i in enumerate(all_settings['AOM_D'][list(all_settings['AOM_D'].keys())[0]]):
-        if type(i) == int:
-            at_ind = count
-            break
-    else: EXC.ERROR("Something went wrong with the parsing of the AOM dictionary! This is a major error tell Matt.")
+    if all_settings['do_transition_state']:
+        aom_file = all_settings['LUMO']
+    else:
+        aom_file = all_settings['AOM']
 
     if plot_all_atoms:
-       all_settings['atoms_to_plot'] = range(len(all_settings['coords'][0]))
-
-    elif plot_min_active:
-        min_plotted_coeff = np.min([min(np.arange(0,all_settings['nmol'])[np.abs(i)**2 > all_settings['min_abs_mol_coeff']]) for i in all_settings['mol']])
-        all_settings['atoms_to_plot'] = range(min_plotted_coeff*all_settings['atoms_per_site'], all_settings['max_act_mol']*all_settings['atoms_per_site'])
-
-    elif plot_auto_atoms:
-        all_settings['atoms_to_plot'] = range(0, all_settings['max_act_mol']*all_settings['atoms_per_site'])
-
-    else: # Can add a test here for all_settings['atoms_to_plot'] type... (should be list -could convert int but not float etc..)
-        if not (type(all_settings['atoms_to_plot']) == list or type(all_settings['atoms_to_plot']) == type(xrange(1))):
-            EXC.ERROR("Sorry the variable 'atoms_to_plot' seems to be in an unfamiliar format (please use a list, an xrange or an integer).\n\nCurrent all_settings['atoms_to_plot'] type is:\t%s"%str(type(all_settings['atoms_to_plot'])))
-        all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i < len(all_settings['mol_info'])]
-        if len(all_settings['atoms_to_plot']) == 0:
-            EXC.ERROR('NO DATA PLOTTED, THERE ARE NO ATOMS CURRENTLY PLOTTED. PLEASE CHECK THE VARIABLE "atoms_to_plot"')
-
-        all_settings['AOM_D'] = {i:all_settings['AOM_D'][i] for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']}
-
-    poss_atoms = [i for i, elm in enumerate(all_settings['at_num']) if elm not in all_settings['atoms_to_ignore']]
-
-
-    if all_settings['ignore_inactive_mols']:
-      all_settings['atoms_to_plot'] = [i[0] for i in all_settings['active_mols'] if i[1] in all_settings['atoms_to_plot']]
-
-    all_settings['mol_info'] = {i:all_settings['mol_info'][i] for i in all_settings['mol_info'] if i in all_settings['AOM_D'].keys()}
-
-    active_atoms = [all_settings['AOM_D'][i][at_ind] for i in all_settings['AOM_D']]
-    if all_settings['ignore_inactive_atoms']:
-        all_settings['atoms_to_plot'] = [i for i in all_settings['AOM_D'] if all_settings['AOM_D'][i][at_ind] in all_settings['atoms_to_plot']]
-    all_settings['atoms_to_plot'] = [i for i in all_settings['atoms_to_plot'] if i in poss_atoms]
-    all_settings['active_atoms_index'] = [find_value_dict(all_settings['mol_info'],i) for i in range(all_settings['nmol'])]
+        all_settings['atoms_to_plot'] = None #np.array(list(aom_file.get_active_atoms()))
+    if plot_pop_mols:
+        all_settings['atoms_to_plot'] = 'have_population'
 
 
 # Finds list of keys attached to a value in a dictionary
 def find_value_dict(D, value):
-     return [i for i in D if D[i] == value]
+    """Find every key that has a corresponding value of `value`"""
+    return [key for key in D if D[key] == value]
 
 
 # Will check if the charge is spread too much and report back to the user
 def check_charge_spread(all_settings):
+    print(all_settings['active_atoms_index'])
+    raise SystemExit
     all_settings['num_mols_active'] = len([i for i in  all_settings['active_atoms_index'] if i])
     if all_settings['max_act_mol'] > all_settings['num_mols_active']:
         cont = raw_input("The charge will eventually leave the number of plotted molecules in this simulation.\n\nCharge reaches mol %i (this is out of bounds for the mols plotted).\n\nThis is often due to the AOM file not having a coefficient for each atom. You may want to check this.\n\nAre you sure you want to continue now [y/n]:\t"%all_settings['max_act_mol'])
@@ -531,8 +475,8 @@ def init_steps_to_do(all_settings):
 
    Will add 2 arrays to the all_settings dict: 'nucl_tsteps_to_read' and 'coeff_tsteps_to_read'.
    """
-   all_settings['nucl_tsteps_to_read'] = all_settings['pos_metadata']['tsteps']
-   all_settings['coeff_tsteps_to_read'] = all_settings['coeff_metadata']['tsteps']
+   all_settings['nucl_tsteps_to_read'] = all_settings['pos_metadata']['time_steps']
+   all_settings['coeff_tsteps_to_read'] = all_settings['coeff_metadata']['time_steps']
 
 
 # Will create the storage containers to store the timings
@@ -609,8 +553,9 @@ def find_step_numbers(all_settings):
     """
     # Choose either nuclear of coefficient timesteps based on the missing pos step setting.
     if all_settings['missing_pos_steps'] == 'skip':
-       availSteps = all_settings['pos_metadata']['tsteps']
-    else:       availSteps = all_settings['coeff_metadata']['tsteps']
+        availSteps = all_settings['pos_metadata']['time_steps']
+    else:
+        availSteps = all_settings['coeff_metadata']['time_steps']
 
     do_cal, calTStep = all_settings['calibrate'], all_settings['timestep_to_render']
     startT, endT, stride = all_settings['start_time'], all_settings['end_time'], all_settings['stride']
@@ -930,3 +875,51 @@ Filename = '%s'            regex = '%s'
 Filename after regex = '%s' """%(filename, regex_matches[lab], str(reduced_fname)))
     else:
         raise SystemExit("Sorry I couldn't find the file type (pos, vel, frc, coeff etc...), something went wrong!\n\nFilename = %s"%(filename))
+
+
+def get_mol_groupings(all_settings):
+    """Will calculate which atoms belong to which molecule and which are active."""
+    # Get the set of active atoms
+    if all_settings['do_transition_state']:
+        aom = all_settings['LUMO']
+    else:
+        aom = all_settings['AOM']
+
+    act_ats = aom.get_active_atoms()
+    act_mol = aom.get_active_mols()
+
+    # Set which atoms are active in the sim
+    all_settings['active_atoms'] = np.array(list(range(all_settings['coords'].shape[1])))
+    all_settings['active_mols'] = np.array(list(range(all_settings['nmol'])))
+
+    # Group atoms by molecule
+    # mol_info = at_num -> mol_num
+    all_settings['mol_info'] = {i: int(i // all_settings['atoms_per_site'])
+                                for i in all_settings['active_atoms']}
+    # reversed_mol_info = mol_num -> at_nums
+    all_settings['reversed_mol_info'] = {}
+    for at_i, mol_i in all_settings['mol_info'].items():
+        all_settings['reversed_mol_info'].setdefault(mol_i, []).append(at_i)
+    # active_atom_index = mol_num -> active at nums (AOM)
+    all_settings['active_atom_index'] = {mol_num: [j for j in at_nums if abs(aom[j].coeff) > 1e-5]
+                                         for mol_num, at_nums in all_settings['reversed_mol_info'].items()}
+
+
+def handle_decomp_file(all_settings):
+    """Will read the DECOMP.inp file if it exists. This will also set the active mols and atoms."""
+    # Get active mols
+    if all_settings['decomp_file'].is_file():
+        DF = i_IO.DecompFile(all_settings['decomp_file'])
+        assert DF.num_active_ats == (all_settings['nmol'] * all_settings['atoms_per_site'])
+        all_settings['active_mol'] = DF.active_mols
+
+    else:
+        all_settings['active_mol'] = set(range(all_settings['nmol']))
+
+    # Set active mols
+    if all_settings['do_transition_state']:
+        all_settings['LUMO'].set_active_mol(all_settings['active_mol'])
+        all_settings['HOMO'].set_active_mol(all_settings['active_mol'])
+    else:
+        all_settings['AOM'].set_active_mol(all_settings['active_mol'])
+

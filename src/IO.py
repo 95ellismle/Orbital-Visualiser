@@ -14,6 +14,8 @@ import time
 import subprocess as sb
 import difflib as dfl
 from collections import OrderedDict
+from pathlib import Path
+Path.__repr__ = Path.__str__
 #import multiprocessing as mp
 
 from src import text as txt_lib
@@ -90,6 +92,8 @@ def check_vmd_exe(vmd_fp):
     Will simply run vmd via `vmd -h` and check if the substrings
     'isual', 'olecular' and 'ynamics' are in the output.
 
+    can use the command:
+        'echo 'quit' | ./vmd_MACOSXARM64 -dispdev none -e'
 
     Inputs:
         * vmd_fp <str> => The string to check
@@ -105,7 +109,35 @@ def check_vmd_exe(vmd_fp):
     return False
 
 
-def find_vmd(current_vmd_path="vmd"):
+def is_tachyon_exe(tachyon_path):
+    '''Validates the tachyon binary is working'''
+    if not tachyon_path.is_file():
+        return False
+
+    p = sb.run([str(tachyon_path)], stdout=sb.PIPE, stderr=sb.PIPE)
+    if p.returncode == 255:
+        return True
+    return False
+
+
+def get_tachyon_path(current_vmd_path, count=0):
+    """
+    Will try to find the tachyon path from the vmd one.
+    """
+    vmd_parent = current_vmd_path.parent
+    # Try and find any files named *tachyon* recursively
+    for path in vmd_parent.rglob('*tachyon*'):
+        if is_tachyon_exe(path):
+            return vmd_parent / path
+
+    if count == 2:
+        return ''
+
+    # If not step up the tree and search again
+    return get_tachyon_path(vmd_parent, count+1)
+
+
+def find_vmd(current_vmd_path):
     """
     Will try to find where vmd is on the user's computer.
 
@@ -113,26 +145,24 @@ def find_vmd(current_vmd_path="vmd"):
     the code will stop.
 
     Inputs:
-        * current_vmd_path <str> => The first place to look for the path to vmd.
+        * current_vmd_path <pathlib.Path> => The first place to look for the path to vmd.
 
     Outputs:
         <str> A filepath pointing to a working vmd executable.
     """
-    print("\rChecking VMD binary...                    ", end="\r")
-    if os.path.isfile(current_vmd_path):
-        is_exe = check_vmd_exe(current_vmd_path)
-        if is_exe: return current_vmd_path
+    if current_vmd_path.is_file():
+        return current_vmd_path
 
     if current_vmd_path != "vmd":
         p = sb.Popen(['which', 'vmd'], stdout=sb.PIPE, stderr=sb.PIPE)
         out, err = p.communicate()
         out = out.decode("utf-8").strip("\n")
-        if out != "" and check_vmd_exe(out): return out
+        if out != '':
+            return Path(out)
 
-    all_bin = os.listdir("/usr/local/bin")
+    all_bin = set(os.listdir("/usr/local/bin"))
     if 'vmd' in all_bin:
-        out = "/usr/local/bin/vmd"
-        if check_vmd_exe(out): return out
+        return Path("/usr/local/bin/vmd")
 
     raise SystemExit("Can't find the vmd binary on your computer!\n\nPlease point me to it in your settings.inp file via:\n\t`vmd_exe = \"...\"`")
 
@@ -310,9 +340,10 @@ def VMD_visualise(step_info, PID):
     vmd_script = step_info['vmd_script'][PID]
     vmd_junk = step_info['vmd_junk'][PID]
     vmd_err = step_info['vmd_err'][PID]
-    vmd_commnd = "%s -nt -dispdev none -e %s > %s 2> %s &"%(vmd_exe, vmd_script, vmd_junk, vmd_err)
-    #print(vmd_commnd)
-    os.system(vmd_commnd)  #Maybe subprocess.call would be better as this would open VMD in a new thread?
+    vmd_command = "%s -nt -dispdev none -e %s > %s 2> %s &"%(vmd_exe, vmd_script, vmd_junk, vmd_err)
+    #print(vmd_command)
+    print(f"VMD Command: '{vmd_command}'")
+    os.system(vmd_command)  #Maybe subprocess.call would be better as this would open VMD in a new thread?
     made_file = False
     race_start = time.time()
     while (not made_file): #Wait for VMD to have finished it's stuff to prevent race conditions
@@ -544,10 +575,10 @@ def times_print(times,step, max_len, tot_time=False):
 
 # Will take care of saving png images
 def file_handler(i, extension, step_info):
-    folderpath = folder_correct(step_info['img_fold']+step_info['title'])
-    check_mkdir(folderpath)
-    filename = "%s.%s"%(str(i), extension)
-    return folderpath, filename, folderpath+filename
+    folderpath = step_info['img_fold'] / step_info['title']
+    folderpath.mkdir(exist_ok=True)
+    filename = f"{i}.{extension}"
+    return folderpath, filename, folderpath / filename
 
 
 # Opens and write a string to a file
@@ -563,13 +594,8 @@ def open_write(filename, message, mkdir=False, type_open='w+'):
 
 # Creates the data and img folders
 def create_data_img_folders(step_info):
-    if not path_leads_somewhere(step_info['data_fold']):
-        print ("Creating Data folder at:\n%s"%step_info['data_fold'])
-        os.mkdir(step_info['data_fold'])
-
-    if not path_leads_somewhere(step_info['img_fold']):
-        print("Making a folder for images at:\n%s"%step_info['img_fold'])
-        os.mkdir(step_info['img_fold'])
+    step_info['data_fold'].mkdir(exist_ok=True)
+    step_info['img_fold'].mkdir(exist_ok=True)
 
 
 # Will change all the filenames in a folder to add leading zeros to them so
@@ -578,7 +604,7 @@ def add_leading_zeros(folder):
     """
 
     """
-    tga_files = [i for i in os.listdir(folder) if '.tga' in i]
+    tga_files = [i for i in os.listdir(str(folder)) if '.tga' in i]
     dts = max([float(f.replace(",",".")[:f.find('_')]) for f in tga_files])
     if dts < 0.01 and dts > -0.01:
         num_leading_zeros = 1
@@ -597,8 +623,8 @@ def add_leading_zeros(folder):
            num_zeros_needed = num_leading_zeros
         new_dt = '0'*num_zeros_needed + "%.2f"%dt
 
-        new_file = folder+f.replace(dt_str, new_dt.replace(".",","))
-        os.rename(folder+f, new_file)
+        new_file = folder / f.replace(dt_str, new_dt.replace(".",","))
+        os.rename(folder / f, new_file)
         new_files.append(new_file)
 
     return new_files, tga_files
@@ -628,7 +654,7 @@ def find_missing_files(CP2K_output_files, all_files):
     return bad_files
 
 
-# Will find the files using fuzzy logic.
+# Will find the files or files that closely match
 def fuzzy_file_find(path):
     all_files = np.sort(os.listdir(path))
 
@@ -637,7 +663,16 @@ def fuzzy_file_find(path):
                      'coeff' : ['.xyz', 'n-coeff'],
                      'AOM'   : ['AOM', 'COEFF'],
                      'inp'   : ['run.inp']}
-    fuzzy_files = {ftype:[f for f in all_files if all(j in f for j in strs_to_match[ftype]) and '.' != f[0] and '.sw' not in f] for ftype in strs_to_match}
+    fuzzy_files = {}
+    for fn in all_files:
+        for ftype in strs_to_match:
+            if (all(j in fn for j in strs_to_match[ftype])
+                    and not fn.startswith('.')  # no hidden files
+                    and '.sw' not in fn):  # no swap files
+                fuzzy_files[ftype] = fn
+    print(fuzzy_files)
+    print({ftype:[f for f in all_files if all(j in f for j in strs_to_match[ftype]) and '.' != f[0] and '.sw' not in f] for ftype in strs_to_match})
+    raise SystemExit
 
     # Pos and Coeffs need same num of steps
     if any(len(fuzzy_files['pos']) != len(fuzzy_files[i]) for i in ['pos','coeff']):

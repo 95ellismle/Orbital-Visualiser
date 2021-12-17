@@ -83,4 +83,3 @@ def testColorMap():
     plt.xticks([])
     plt.show()
 
-testColorMap()
